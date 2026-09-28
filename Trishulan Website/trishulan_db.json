@@ -1,0 +1,250 @@
+{
+  "users": [
+    {
+      "id": "usr_j30lpbizf",
+      "name": "Test Seller",
+      "email": "seller_1790617958435@test.com",
+      "role": "SELLER",
+      "authProvider": "JWT",
+      "companyName": "Apex Steel Corp",
+      "verifiedSeller": true,
+      "subscriptionTier": "GROWTH",
+      "createdAt": "2026-09-28T17:52:39.176Z",
+      "passwordHash": "$2b$10$RsEe0/1O3/Kx5WzNnn4kqOIzlM0t0iTS.qgs5Z1SB1yN72MwWWWUy"
+    }
+  ],
+  "listings": [
+    {
+      "id": "list_dlz60lkb5",
+      "title": "High Tensile TMT Bars",
+      "description": "BIS Certified Grade 500D TMT Rebars for structural construction.",
+      "category": "RAW_MATERIALS",
+      "price": 52000,
+      "unit": "Metric Ton",
+      "location": "Mumbai, MH",
+      "sellerId": "usr_j30lpbizf",
+      "sellerName": "Apex Steel Corp",
+      "isVerifiedSeller": true,
+      "imagePath": "/Bento Box/Machinery.png",
+      "inStock": true,
+      "createdAt": "2026-09-28T17:52:39.208Z"
+    },
+    {
+      "id": "list_1",
+      "title": "TMT Steel Rebar Fe-500D (12mm)",
+      "description": "High tensile strength primary steel rebar manufactured under BIS certification. Ideal for heavy infrastructure and construction.",
+      "category": "RAW_MATERIALS",
+      "price": 54500,
+      "unit": "Metric Ton",
+      "location": "Mumbai, Maharashtra",
+      "sellerId": "usr_seller1",
+      "sellerName": "Jindal Steel & Power Supplies",
+      "isVerifiedSeller": true,
+      "imagePath": "/Bento Box/RawMaterial.png",
+      "inStock": true,
+      "createdAt": "2026-09-28T17:50:44.157Z"
+    },
+    {
+      "id": "list_2",
+      "title": "Automatic CNC 5-Axis Milling Center",
+      "description": "High-precision industrial CNC machine for complex metal component manufacturing. Features Siemens controller.",
+      "category": "MACHINERY",
+      "price": 2850000,
+      "unit": "Unit",
+      "location": "Rajkot, Gujarat",
+      "sellerId": "usr_seller2",
+      "sellerName": "Apex Machinery Works",
+      "isVerifiedSeller": true,
+      "imagePath": "/Bento Box/Machinery.png",
+      "inStock": true,
+      "createdAt": "2026-09-28T17:50:44.160Z"
+    },
+    {
+      "id": "list_3",
+      "title": "Industrial Heavy Duty Hydraulic Cylinders",
+      "description": "Double acting hydraulic cylinder with 100mm bore, 500mm stroke, operating pressure 250 Bar.",
+      "category": "SPARES",
+      "price": 18500,
+      "unit": "Piece",
+      "location": "Coimbatore, Tamil Nadu",
+      "sellerId": "usr_seller3",
+      "sellerName": "FluidPower Controls",
+      "isVerifiedSeller": false,
+      "imagePath": "/Bento Box/SpareAndParts.png",
+      "inStock": true,
+      "createdAt": "2026-09-28T17:50:44.160Z"
+    }
+  ],
+  "rfqs": [
+    {
+      "id": "rfq_1",
+      "buyerId": "usr_buyer1",
+      "buyerName": "Global Infra Solutions",
+      "title": "Bulk Requirement: 50 Metric Tons Structural Steel Pipes",
+      "category": "RAW_MATERIALS",
+      "quantity": "50 MT",
+      "targetPrice": 52000,
+      "details": "Urgent requirement for Grade A ERW steel pipes for water pipeline project in Vizag.",
+      "status": "OPEN",
+      "createdAt": "2026-09-28T17:50:44.160Z"
+    }
+  ],
+  "chats": [
+    {
+      "id": "msg_1",
+      "senderId": "usr_buyer1",
+      "senderName": "Global Infra Solutions",
+      "receiverId": "usr_seller1",
+      "receiverName": "Jindal Steel & Power Supplies",
+      "rfqId": "rfq_1",
+      "text": "Hello, we are interested in placing a bulk order for 50 MT TMT Rebar. Can you offer a discount for immediate dispatch?",
+      "timestamp": "2026-09-28T17:50:44.160Z"
+    }
+  ],
+  "market_prices": [
+    {
+      "id": "mp_1",
+      "commodity": "Steel Rebar (Fe 500)",
+      "category": "Raw Materials",
+      "currentPrice": 54500,
+      "unit": "Metric Ton",
+      "change24h": 1.4,
+      "history7d": [
+        53800,
+        54000,
+        54100,
+        54200,
+        54300,
+        54400,
+        54500
+      ],
+      "history30d": [
+        52000,
+        52500,
+        53000,
+        53500,
+        54000,
+        54500
+      ],
+      "historicalYear": [
+        {
+          "date": "2025-10",
+          "price": 49000
+        },
+        {
+          "date": "2025-11",
+          "price": 50200
+        },
+        {
+          "date": "2025-12",
+          "price": 51000
+        },
+        {
+          "date": "2026-01",
+          "price": 52400
+        },
+        {
+          "date": "2026-02",
+          "price": 53100
+        },
+        {
+          "date": "2026-03",
+          "price": 54500
+        }
+      ],
+      "lastUpdated": "2026-09-28T17:50:44.160Z"
+    },
+    {
+      "id": "mp_2",
+      "commodity": "Polypropylene (PP Granules)",
+      "category": "Raw Materials",
+      "currentPrice": 98200,
+      "unit": "Metric Ton",
+      "change24h": -0.8,
+      "history7d": [
+        99000,
+        98900,
+        98700,
+        98500,
+        98400,
+        98300,
+        98200
+      ],
+      "history30d": [
+        101000,
+        100200,
+        99500,
+        99000,
+        98500,
+        98200
+      ],
+      "historicalYear": [
+        {
+          "date": "2025-10",
+          "price": 104000
+        },
+        {
+          "date": "2025-11",
+          "price": 102500
+        },
+        {
+          "date": "2025-12",
+          "price": 101000
+        },
+        {
+          "date": "2026-01",
+          "price": 99800
+        },
+        {
+          "date": "2026-02",
+          "price": 99000
+        },
+        {
+          "date": "2026-03",
+          "price": 98200
+        }
+      ],
+      "lastUpdated": "2026-09-28T17:50:44.160Z"
+    },
+    {
+      "id": "mp_3",
+      "commodity": "CNC Milling Machine (5-Axis)",
+      "category": "Machinery",
+      "currentPrice": 2850000,
+      "unit": "Unit",
+      "change24h": 0,
+      "history7d": [
+        2850000,
+        2850000,
+        2850000,
+        2850000,
+        2850000,
+        2850000,
+        2850000
+      ],
+      "history30d": [
+        2800000,
+        2820000,
+        2850000,
+        2850000
+      ],
+      "historicalYear": [
+        {
+          "date": "2025-10",
+          "price": 2750000
+        },
+        {
+          "date": "2026-01",
+          "price": 2800000
+        },
+        {
+          "date": "2026-03",
+          "price": 2850000
+        }
+      ],
+      "lastUpdated": "2026-09-28T17:50:44.160Z"
+    }
+  ],
+  "logistics": [],
+  "corporate_requests": []
+}

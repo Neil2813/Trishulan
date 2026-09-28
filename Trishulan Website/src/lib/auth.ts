@@ -1,7 +1,6 @@
 import { readDb, writeDb } from './db';
 import { User, UserRole, AuthProvider, SubscriptionTier } from '@/types';
 import { hashPassword, comparePassword, verifyJwtToken } from './security';
-import { cookies } from 'next/headers';
 
 export async function createUserInDb(data: {
   name: string;
@@ -100,13 +99,7 @@ export async function verifyUserCredentials(email: string, password?: string) {
   return publicUser as User;
 }
 
-export async function getSessionUser(): Promise<User | null> {
-  const cookieStore = await cookies();
-  let token = cookieStore.get('trishulan_token')?.value;
-  if (!token) {
-    token = cookieStore.get('trishulan_refresh_token')?.value;
-  }
-
+export async function getUserFromToken(token?: string | null): Promise<User | null> {
   if (!token) return null;
 
   const decoded = verifyJwtToken(token);
@@ -119,4 +112,19 @@ export async function getSessionUser(): Promise<User | null> {
 
   const { passwordHash: _, ...publicUser } = user as any;
   return publicUser as User;
+}
+
+export async function getSessionUser(): Promise<User | null> {
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    let token = cookieStore.get('trishulan_token')?.value;
+    if (!token) {
+      token = cookieStore.get('trishulan_refresh_token')?.value;
+    }
+
+    return getUserFromToken(token);
+  } catch {
+    return null;
+  }
 }
