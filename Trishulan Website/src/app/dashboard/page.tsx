@@ -54,19 +54,19 @@ export default function DashboardPage() {
       <div className="max-w-[1600px] mx-auto space-y-6">
         
         {/* Top Notification Header Bar */}
-        <div className="bg-[#0A1629] text-white p-6 rounded-[24px] border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-orange-50/90 via-white to-amber-50/80 text-[#0A1629] p-6 md:p-8 rounded-[24px] border-2 border-orange-200 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute right-0 top-0 w-96 h-96 bg-[#EA580C]/10 rounded-full blur-3xl pointer-events-none"></div>
 
           <div>
             <div className="flex items-center gap-2 text-xs font-extrabold text-[#EA580C] uppercase tracking-wider mb-1">
               <span>{isSeller ? 'VERIFIED SELLER PORTAL' : 'VERIFIED BUYER PROCUREMENT'}</span>
               <span className="bg-[#EA580C] text-white px-2.5 py-0.5 rounded-full text-[10px]">{user ? user.subscriptionTier : 'GROWTH'} TIER</span>
-              <span className="bg-green-500/20 text-green-400 border border-green-500/40 px-2 py-0.5 rounded text-[10px]">✓ KYC APPROVED</span>
+              <span className="bg-green-100 text-green-800 border border-green-300 px-2 py-0.5 rounded text-[10px] font-bold">✓ KYC APPROVED</span>
             </div>
-            <h1 className="text-[26px] md:text-[32px] font-black text-white">
+            <h1 className="text-[26px] md:text-[32px] font-black text-[#0A1629]">
               Welcome back, {user ? user.name : 'Industrial Member'}
             </h1>
-            <p className="text-[13px] text-slate-300 mt-1">
+            <p className="text-[13px] text-[#64748B] font-medium mt-1">
               {user?.companyName || 'Trishulan Partner Firm'} • GSTIN Verified • ID: TRISH-2026-94820
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
               onClick={() => setShowIdModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-[13px] transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 font-bold text-[13px] transition-all flex items-center gap-2 shadow-sm"
             >
               <span>🪪</span>
               <span>View B2B Digital ID</span>

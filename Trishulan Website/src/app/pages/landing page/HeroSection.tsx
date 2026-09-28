@@ -63,19 +63,19 @@ export default function HeroSection() {
               transition={{ delay: 0.8, duration: 0.5 }}
               className="grid grid-cols-1 sm:grid-cols-2 gap-[16px] max-w-[700px]"
             >
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href="/buy" className="block h-full bg-[#093320] hover:bg-[#07291a] text-white p-[32px] rounded-[16px] relative overflow-hidden group transition-colors shadow-xl">
-                  <div className="text-[11px] font-bold tracking-[0.15em] !text-white/80 mb-[12px]">I'M BUYING</div>
-                  <h3 className="text-[24px] font-bold !text-white mb-[4px]">Find suppliers</h3>
-                  <p className="text-[14px] !text-white/70">Compare quotes from verified sellers.</p>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Link href="/buy" className="block h-full bg-emerald-50/90 hover:bg-emerald-100 border-2 border-emerald-500/30 text-emerald-950 p-[28px] md:p-[32px] rounded-[20px] relative overflow-hidden group transition-all shadow-md hover:shadow-xl">
+                  <div className="text-[11px] font-extrabold tracking-[0.15em] text-[#0A7B3E] mb-[12px] uppercase">I'M BUYING</div>
+                  <h3 className="text-[24px] font-extrabold text-[#0A7B3E] mb-[4px]">Find suppliers</h3>
+                  <p className="text-[14px] text-emerald-800/90 font-medium">Compare quotes from verified sellers.</p>
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href="/sell" className="block h-full bg-[#1A232C] hover:bg-[#151c23] text-white p-[32px] rounded-[16px] relative overflow-hidden group transition-colors shadow-xl">
-                  <div className="text-[11px] font-bold tracking-[0.15em] !text-white/80 mb-[12px]">I'M SELLING</div>
-                  <h3 className="text-[24px] font-bold !text-white mb-[4px]">Reach buyers</h3>
-                  <p className="text-[14px] !text-white/70">List products and grow your reach.</p>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Link href="/sell" className="block h-full bg-orange-50/90 hover:bg-orange-100 border-2 border-orange-500/30 text-orange-950 p-[28px] md:p-[32px] rounded-[20px] relative overflow-hidden group transition-all shadow-md hover:shadow-xl">
+                  <div className="text-[11px] font-extrabold tracking-[0.15em] text-[#EA580C] mb-[12px] uppercase">I'M SELLING</div>
+                  <h3 className="text-[24px] font-extrabold text-[#EA580C] mb-[4px]">Reach buyers</h3>
+                  <p className="text-[14px] text-orange-900/90 font-medium">List products and grow your reach.</p>
                 </Link>
               </motion.div>
             </motion.div>

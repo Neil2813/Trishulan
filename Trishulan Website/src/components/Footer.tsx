@@ -24,11 +24,11 @@ export default function Footer() {
           <p className="text-[13px] text-[#64748B] my-[16px] leading-[1.6] max-w-[280px]">
             India's trusted industrial marketplace — connecting verified buyers and sellers across the country.
           </p>
-          <div className="flex gap-[12px] mt-[24px]">
-            <button className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">in</button>
-            <button className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">𝕏</button>
-            <button className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">f</button>
-            <button className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">▶</button>
+          <div className="flex gap-[12px] mt-[24px]" suppressHydrationWarning>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">in</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">𝕏</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">f</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">▶</button>
           </div>
         </div>
         
@@ -76,11 +76,11 @@ export default function Footer() {
           <p className="text-[13px] text-[#64748B] mb-[16px]">Weekly market movements, straight to your inbox.</p>
           
           <div className="relative mb-[12px]">
-            <input type="email" placeholder="Work email" className="w-full px-[16px] py-[12px] rounded-[8px] border border-gray-300 bg-white text-[#0A1629] text-[13px] outline-none focus:border-[#EA580C] transition-colors" />
+            <input suppressHydrationWarning type="email" placeholder="Work email" className="w-full px-[16px] py-[12px] rounded-[8px] border border-gray-300 bg-white text-[#0A1629] text-[13px] outline-none focus:border-[#EA580C] transition-colors" />
             <span className="absolute right-[14px] top-[14px] text-gray-400">✉️</span>
           </div>
           
-          <button className="w-full py-[12px] rounded-[8px] bg-[#EA580C] hover:bg-[#c2410a] text-white text-[14px] font-bold transition-colors shadow-md flex items-center justify-center gap-[8px]">
+          <button suppressHydrationWarning className="w-full py-[12px] rounded-[8px] bg-[#EA580C] hover:bg-[#c2410a] text-white text-[14px] font-bold transition-colors shadow-md flex items-center justify-center gap-[8px]">
             Subscribe <span>→</span>
           </button>
         </div>

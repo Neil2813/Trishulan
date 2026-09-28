@@ -25,7 +25,16 @@
   --font-luxurious: 'Luxurious Script', cursive;
 }
 
+:root {
+  color-scheme: light;
+}
+
+html {
+  color-scheme: light !important;
+}
+
 body {
+  color-scheme: light !important;
   background-color: var(--color-bg);
   color: var(--color-body);
   font-family: var(--font-inter);

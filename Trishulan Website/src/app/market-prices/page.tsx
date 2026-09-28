@@ -40,20 +40,20 @@ export default function MarketPricesPage() {
       <div className="max-w-[1600px] mx-auto space-y-6">
         
         {/* Page Header */}
-        <div className="bg-[#0A1629] text-white rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <div className="bg-gradient-to-r from-orange-50/90 via-white to-amber-50/80 text-[#0A1629] rounded-[24px] p-6 md:p-8 border-2 border-orange-200 shadow-lg relative overflow-hidden">
           <div className="absolute right-0 top-0 w-96 h-96 bg-[#EA580C]/15 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.16em]">PAGE 4 REFERENCE SPECIFICATION</span>
-              <h1 className="text-[28px] md:text-[36px] font-black text-white mt-1">Market Price Today</h1>
-              <p className="text-[13.5px] text-slate-300 mt-1 max-w-xl">
+              <h1 className="text-[28px] md:text-[36px] font-black text-[#0A1629] mt-1">Market Price Today</h1>
+              <p className="text-[13.5px] text-[#64748B] font-medium mt-1 max-w-xl">
                 Get real-time and average market prices of any product across Indian states and global countries. Search, compare, and make better business decisions.
               </p>
             </div>
 
             {/* Material Search Input */}
-            <div className="flex items-center gap-2 bg-white rounded-xl p-1.5 shadow-md max-w-md w-full">
+            <div className="flex items-center gap-2 bg-white rounded-xl p-1.5 border border-gray-300 shadow-sm max-w-md w-full">
               <input
                 type="text"
                 value={searchMaterial}
@@ -69,7 +69,7 @@ export default function MarketPricesPage() {
 
           {/* Category Chips bar */}
           <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-1">
-            <span className="text-xs text-slate-400 font-bold shrink-0">Popular Categories:</span>
+            <span className="text-xs text-gray-500 font-bold shrink-0">Popular Categories:</span>
             {categories.map((cat, idx) => (
               <button
                 key={idx}
@@ -77,7 +77,7 @@ export default function MarketPricesPage() {
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all ${
                   selectedCategory === cat
                     ? 'bg-[#EA580C] text-white shadow-md'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    : 'bg-white text-[#0A1629] border border-gray-300 hover:bg-gray-100'
                 }`}
               >
                 {cat}
@@ -234,12 +234,12 @@ export default function MarketPricesPage() {
             </div>
 
             {/* Quick Actions Panel (Page 4 Reference Spec) */}
-            <div className="bg-[#0A1629] text-white p-6 rounded-[24px] border border-slate-700 shadow-xl space-y-3">
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-amber-400">Quick Actions</h3>
+            <div className="bg-white text-[#0A1629] p-6 rounded-[24px] border border-gray-200 shadow-lg space-y-3">
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-[#EA580C]">Quick Actions</h3>
 
               <button
                 onClick={() => alert('Price Alert set! You will receive SMS & Email notifications on market movements.')}
-                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-600 text-left px-4 flex items-center justify-between transition-colors"
+                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-200 text-left px-4 flex items-center justify-between transition-colors"
               >
                 <span>🔔 Set Price Alert</span>
                 <span className="text-gray-400">→</span>
@@ -247,7 +247,7 @@ export default function MarketPricesPage() {
 
               <Link
                 href="/market-analyzer"
-                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-600 text-left px-4 flex items-center justify-between transition-colors block"
+                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-200 text-left px-4 flex items-center justify-between transition-colors block"
               >
                 <span>📊 Market Analyzer</span>
                 <span className="text-gray-400">→</span>
@@ -255,7 +255,7 @@ export default function MarketPricesPage() {
 
               <Link
                 href="/dashboard"
-                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-600 text-left px-4 flex items-center justify-between transition-colors block"
+                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-200 text-left px-4 flex items-center justify-between transition-colors block"
               >
                 <span>🏢 Find Suppliers</span>
                 <span className="text-gray-400">→</span>

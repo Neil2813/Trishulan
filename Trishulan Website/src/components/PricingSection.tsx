@@ -71,8 +71,9 @@ export default function PricingSection() {
           </p>
 
           {/* Billing Switcher */}
-          <div className="inline-flex items-center bg-gray-100 p-1.5 rounded-full mt-6 border border-gray-200">
+          <div className="inline-flex items-center bg-gray-100 p-1.5 rounded-full mt-6 border border-gray-200" suppressHydrationWarning>
             <button
+              suppressHydrationWarning
               onClick={() => setBillingCycle('MONTHLY')}
               className={`px-5 py-2 rounded-full font-bold text-[13px] transition-all ${
                 billingCycle === 'MONTHLY' ? 'bg-[#0A1629] text-white shadow-md' : 'text-gray-600 hover:text-gray-900'
@@ -81,6 +82,7 @@ export default function PricingSection() {
               Monthly Billing
             </button>
             <button
+              suppressHydrationWarning
               onClick={() => setBillingCycle('ANNUAL')}
               className={`px-5 py-2 rounded-full font-bold text-[13px] transition-all ${
                 billingCycle === 'ANNUAL' ? 'bg-[#EA580C] text-white shadow-md' : 'text-gray-600 hover:text-gray-900'
@@ -102,14 +104,14 @@ export default function PricingSection() {
                 key={idx}
                 className={`rounded-[24px] p-8 flex flex-col justify-between transition-all relative ${
                   plan.highlight
-                    ? 'bg-[#0A1629] text-white shadow-2xl ring-2 ring-[#EA580C] scale-[1.02]'
-                    : 'bg-gray-50 border border-gray-200 text-[#0A1629]'
+                    ? 'bg-gradient-to-b from-orange-50/80 via-white to-amber-50/50 border-2 border-[#EA580C] text-[#0A1629] shadow-2xl scale-[1.02]'
+                    : 'bg-white border border-gray-200 text-[#0A1629] shadow-sm'
                 }`}
               >
                 {/* Badge */}
                 <div className="flex justify-between items-center mb-4">
                   <span className={`text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-                    plan.highlight ? 'bg-[#EA580C] text-white' : 'bg-gray-200 text-[#0A1629]'
+                    plan.highlight ? 'bg-[#EA580C] text-white' : 'bg-gray-100 text-[#0A1629] border border-gray-200'
                   }`}>
                     {plan.badge}
                   </span>
@@ -117,41 +119,41 @@ export default function PricingSection() {
 
                 <div>
                   <h3 className="text-[22px] font-extrabold mb-1">{plan.name}</h3>
-                  <p className={`text-[13px] leading-relaxed mb-6 ${plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}`}>
+                  <p className="text-[13px] leading-relaxed mb-6 text-[#64748B]">
                     {plan.tagline}
                   </p>
 
                   {/* Price */}
-                  <div className="mb-6 pb-6 border-b border-gray-200/40">
-                    <span className="text-[38px] font-black">
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <span className="text-[38px] font-black text-[#0A1629]">
                       {price === 0 ? '₹0' : `₹${price.toLocaleString('en-IN')}`}
                     </span>
-                    <span className={`text-[14px] font-medium ml-1 ${plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}`}>
+                    <span className="text-[14px] font-medium ml-1 text-[#64748B]">
                       {price === 0 ? '' : cycleText}
                     </span>
                   </div>
 
                   {/* Feature Breakdown Table */}
                   <ul className="space-y-3 text-[13.5px] mb-8">
-                    <li className="flex justify-between py-1 border-b border-gray-200/20">
-                      <span className={plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}>Transaction Fee</span>
-                      <span className="font-bold">{plan.transactionFee}</span>
+                    <li className="flex justify-between py-1 border-b border-gray-100">
+                      <span className="text-[#64748B]">Transaction Fee</span>
+                      <span className="font-bold text-[#0A1629]">{plan.transactionFee}</span>
                     </li>
-                    <li className="flex justify-between py-1 border-b border-gray-200/20">
-                      <span className={plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}>Chat & Negotiation</span>
-                      <span className="font-bold text-green-500">{plan.chatAccess}</span>
+                    <li className="flex justify-between py-1 border-b border-gray-100">
+                      <span className="text-[#64748B]">Chat & Negotiation</span>
+                      <span className="font-bold text-green-600">{plan.chatAccess}</span>
                     </li>
-                    <li className="flex justify-between py-1 border-b border-gray-200/20">
-                      <span className={plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}>Market Data Depth</span>
-                      <span className="font-bold">{plan.marketDepth}</span>
+                    <li className="flex justify-between py-1 border-b border-gray-100">
+                      <span className="text-[#64748B]">Market Data Depth</span>
+                      <span className="font-bold text-[#0A1629]">{plan.marketDepth}</span>
                     </li>
-                    <li className="flex justify-between py-1 border-b border-gray-200/20">
-                      <span className={plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}>Trust & Visibility</span>
-                      <span className="font-bold">{plan.trustVisibility}</span>
+                    <li className="flex justify-between py-1 border-b border-gray-100">
+                      <span className="text-[#64748B]">Trust & Visibility</span>
+                      <span className="font-bold text-[#0A1629]">{plan.trustVisibility}</span>
                     </li>
-                    <li className="flex justify-between py-1 border-b border-gray-200/20">
-                      <span className={plan.highlight ? 'text-gray-300' : 'text-[#64748B]'}>Logistics Access</span>
-                      <span className="font-bold">{plan.logisticsAccess}</span>
+                    <li className="flex justify-between py-1 border-b border-gray-100">
+                      <span className="text-[#64748B]">Logistics Access</span>
+                      <span className="font-bold text-[#0A1629]">{plan.logisticsAccess}</span>
                     </li>
                   </ul>
                 </div>
@@ -161,7 +163,7 @@ export default function PricingSection() {
                   className={`w-full py-3.5 rounded-xl font-bold text-[14px] text-center transition-all ${
                     plan.highlight
                       ? 'bg-[#EA580C] hover:bg-[#c2410a] text-white shadow-lg'
-                      : 'bg-[#0A1629] hover:bg-[#1E293B] text-white'
+                      : 'bg-slate-100 hover:bg-slate-200 text-[#0A1629] border border-slate-300'
                   }`}
                 >
                   {plan.btnText}

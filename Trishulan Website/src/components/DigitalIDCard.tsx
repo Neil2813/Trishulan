@@ -29,25 +29,25 @@ export default function DigitalIDCard({
   };
 
   return (
-    <div className="bg-[#0A1629] text-white rounded-[24px] p-6 md:p-8 shadow-2xl border border-slate-700 relative overflow-hidden max-w-lg mx-auto">
+    <div className="bg-gradient-to-br from-white via-slate-50 to-orange-50/40 text-[#0A1629] rounded-[24px] p-6 md:p-8 shadow-xl border-2 border-orange-200 relative overflow-hidden max-w-lg mx-auto">
       
       {/* Background Accent Gradients */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#EA580C]/15 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#EA580C]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Card Header */}
-      <div className="flex items-center justify-between pb-5 border-b border-slate-700/80 mb-6">
+      <div className="flex items-center justify-between pb-5 border-b border-gray-200 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center font-extrabold text-[#EA580C] text-lg font-alata">
+          <div className="w-10 h-10 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center font-extrabold text-[#EA580C] text-lg font-alata shadow-sm">
             T
           </div>
           <div>
-            <h4 className="font-extrabold text-[15px] tracking-wider text-white">TRISHULAN CONNECT</h4>
-            <span className="text-[9.5px] uppercase font-bold text-gray-400 tracking-widest block">OFFICIAL B2B INDUSTRIAL ID</span>
+            <h4 className="font-extrabold text-[15px] tracking-wider text-[#0A1629]">TRISHULAN CONNECT</h4>
+            <span className="text-[9.5px] uppercase font-bold text-gray-500 tracking-widest block">OFFICIAL B2B INDUSTRIAL ID</span>
           </div>
         </div>
 
-        <span className="px-3 py-1 rounded-full bg-green-500/20 border border-green-500/40 text-green-400 font-extrabold text-[10px] tracking-wider uppercase">
+        <span className="px-3 py-1 rounded-full bg-green-100 border border-green-300 text-green-800 font-extrabold text-[10px] tracking-wider uppercase shadow-sm">
           ✓ KYC VERIFIED
         </span>
       </div>
@@ -57,14 +57,14 @@ export default function DigitalIDCard({
         
         {/* User Photo Box */}
         <div className="flex flex-col items-center">
-          <div className="w-28 h-28 rounded-2xl bg-slate-800 border-2 border-[#EA580C] p-1 shadow-lg relative overflow-hidden flex items-center justify-center text-4xl">
+          <div className="w-28 h-28 rounded-2xl bg-white border-2 border-[#EA580C] p-1 shadow-md relative overflow-hidden flex items-center justify-center text-4xl">
             {photoUrl ? (
               <img src={photoUrl} alt={name} className="w-full h-full object-cover rounded-xl" />
             ) : (
               <span className="select-none">👤</span>
             )}
           </div>
-          <span className="mt-2 text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+          <span className="mt-2 text-[10px] font-extrabold text-[#EA580C] uppercase tracking-widest">
             {role === 'SELLER' ? 'VERIFIED SELLER' : 'VERIFIED BUYER'}
           </span>
         </div>
@@ -72,26 +72,26 @@ export default function DigitalIDCard({
         {/* Member Details */}
         <div className="sm:col-span-2 space-y-2.5">
           <div>
-            <span className="text-[9.5px] font-bold text-gray-400 uppercase tracking-wider block">Member / Firm Representative</span>
-            <h3 className="text-[18px] font-black text-white leading-tight">{name || 'Industrial Member'}</h3>
+            <span className="text-[9.5px] font-bold text-gray-500 uppercase tracking-wider block">Member / Firm Representative</span>
+            <h3 className="text-[18px] font-black text-[#0A1629] leading-tight">{name || 'Industrial Member'}</h3>
           </div>
 
           <div>
-            <span className="text-[9.5px] font-bold text-gray-400 uppercase tracking-wider block">Company / Firm Name</span>
-            <div className="text-[13.5px] font-extrabold text-amber-300">{companyName || 'Trishulan Enterprise'}</div>
+            <span className="text-[9.5px] font-bold text-gray-500 uppercase tracking-wider block">Company / Firm Name</span>
+            <div className="text-[13.5px] font-extrabold text-[#EA580C]">{companyName || 'Trishulan Enterprise'}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <div>
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Company ID</span>
-              <span className="text-xs font-mono font-bold text-white bg-slate-800 px-2 py-0.5 rounded border border-slate-700 block">
+              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Company ID</span>
+              <span className="text-xs font-mono font-bold text-[#0A1629] bg-white px-2 py-0.5 rounded border border-gray-300 block shadow-2xs">
                 {companyId}
               </span>
             </div>
 
             <div>
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">GSTIN / Tax ID</span>
-              <span className="text-xs font-mono font-bold text-white bg-slate-800 px-2 py-0.5 rounded border border-slate-700 block truncate">
+              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">GSTIN / Tax ID</span>
+              <span className="text-xs font-mono font-bold text-[#0A1629] bg-white px-2 py-0.5 rounded border border-gray-300 block truncate shadow-2xs">
                 {gstNumber}
               </span>
             </div>
@@ -101,11 +101,11 @@ export default function DigitalIDCard({
       </div>
 
       {/* QR Code & Verification Row */}
-      <div className="mt-6 pt-5 border-t border-slate-700/80 flex items-center justify-between gap-4">
+      <div className="mt-6 pt-5 border-t border-gray-200 flex items-center justify-between gap-4">
         
         <div className="flex items-center gap-3">
           {/* Simulated QR Code matrix */}
-          <div className="w-16 h-16 bg-white p-1.5 rounded-xl shrink-0 border border-white/20 shadow-md">
+          <div className="w-16 h-16 bg-white p-1.5 rounded-xl shrink-0 border border-gray-300 shadow-sm">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <rect width="100" height="100" fill="white" />
               {/* Corner markers */}
@@ -136,9 +136,9 @@ export default function DigitalIDCard({
             </svg>
           </div>
 
-          <div className="text-[11px] text-gray-300">
-            <span className="font-bold text-white block">Scan to Verify Authenticity</span>
-            <span className="text-[10px] text-gray-400">Encrypted Trishulan Trust Chain ID</span>
+          <div className="text-[11px] text-gray-700">
+            <span className="font-bold text-[#0A1629] block">Scan to Verify Authenticity</span>
+            <span className="text-[10px] text-gray-500">Encrypted Trishulan Trust Chain ID</span>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export default function DigitalIDCard({
 
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-300 text-[#0A1629] font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5"
           >
             <span>📥</span>
             <span>Download ID</span>
@@ -164,7 +164,7 @@ export default function DigitalIDCard({
       </div>
 
       {emailSent && (
-        <div className="mt-4 p-2.5 bg-green-500/20 border border-green-500/40 text-green-300 text-xs font-bold rounded-xl text-center animate-[fadeIn_0.15s_ease]">
+        <div className="mt-4 p-2.5 bg-green-100 border border-green-300 text-green-900 text-xs font-bold rounded-xl text-center animate-[fadeIn_0.15s_ease]">
           ✓ Digital ID Card & Verification Certificate emailed to {email}
         </div>
       )}

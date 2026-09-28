@@ -11,6 +11,24 @@
       "subscriptionTier": "GROWTH",
       "createdAt": "2026-09-28T17:52:39.176Z",
       "passwordHash": "$2b$10$RsEe0/1O3/Kx5WzNnn4kqOIzlM0t0iTS.qgs5Z1SB1yN72MwWWWUy"
+    },
+    {
+      "id": "usr_8ddps4ex5",
+      "name": "Neil Emmanuel Mathias",
+      "email": "neil@gmail.com",
+      "role": "BUYER",
+      "authProvider": "JWT",
+      "companyName": "APAC",
+      "phone": "+919008631171",
+      "gstNumber": "28NDQEJ9928FSZ3",
+      "industrySector": "RAW_MATERIALS",
+      "address": "",
+      "city": "Kinnigoli",
+      "state": "Karnataka",
+      "verifiedSeller": false,
+      "subscriptionTier": "BASIC",
+      "createdAt": "2026-09-28T18:13:21.127Z",
+      "passwordHash": "$2b$10$GPgFJ.rReR16hdpNpi89mO9y6XlJBQafx3in3OyN0W19kgoTrj6Iy"
     }
   ],
   "listings": [

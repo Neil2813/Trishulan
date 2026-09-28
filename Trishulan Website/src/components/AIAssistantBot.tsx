@@ -74,7 +74,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-[#0A1629] hover:bg-[#1E293B] text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-[#EA580C] animate-bounce"
+        className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border-2 border-orange-300 animate-bounce"
       >
         <span className="text-xl">🤖</span>
         <span>Ask Trishulan AI Bot</span>
@@ -88,15 +88,15 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
     }`}>
       
       {/* Bot Header */}
-      <div className="bg-[#0A1629] text-white p-4 px-6 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-orange-50 via-white to-amber-50 text-[#0A1629] border-b border-gray-200 p-4 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#EA580C] text-white flex items-center justify-center font-bold text-xl shadow-md">
             🤖
           </div>
           <div>
-            <h4 className="font-extrabold text-[15px]">Trishulan AI Assistant</h4>
-            <div className="flex items-center gap-1.5 text-[10px] text-green-400">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            <h4 className="font-extrabold text-[15px] text-[#0A1629]">Trishulan AI Assistant</h4>
+            <div className="flex items-center gap-1.5 text-[10px] text-green-700 font-bold">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span>Online • Solves Doubts & Industrial Queries</span>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
         {!embedded && (
           <button
             onClick={() => setIsOpen(false)}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center text-xs"
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs border border-gray-300"
           >
             ✕
           </button>
