@@ -44,24 +44,25 @@ export default function MarketAnalyzerPage() {
       <div className="max-w-[1500px] mx-auto space-y-8">
         
         {/* Title Header */}
-        <div className="bg-[#0A1629] text-white rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        {/* Title Header */}
+        <div className="bg-gradient-to-r from-orange-50/90 via-white to-amber-50/80 text-[#0A1629] rounded-[24px] p-6 md:p-8 border-2 border-orange-200 shadow-lg relative overflow-hidden">
           <div className="absolute right-0 top-0 w-96 h-96 bg-[#EA580C]/15 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.16em]">PAGE 3 REFERENCE SPECIFICATION</span>
-              <h1 className="text-[28px] md:text-[36px] font-black text-white mt-1">Industrial Analyzer & Setup Feasibility</h1>
-              <p className="text-[13.5px] text-slate-300 mt-1 max-w-2xl">
+              <h1 className="text-[28px] md:text-[36px] font-black text-[#0A1629] mt-1">Industrial Analyzer & Setup Feasibility</h1>
+              <p className="text-[13.5px] text-[#64748B] font-medium mt-1 max-w-2xl">
                 Comprehensive setup insights for new factories, machinery combinations, production workflows, investment tiers, and fraud risk alerts.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
-              <span className="text-xs text-slate-300 font-bold">Industry Sector:</span>
+            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-300 shadow-sm">
+              <span className="text-xs text-gray-600 font-bold">Industry Sector:</span>
               <select
                 value={selectedIndustry}
                 onChange={(e) => setSelectedIndustry(e.target.value)}
-                className="bg-white text-[#0A1629] font-extrabold text-xs px-3 py-2 rounded-xl focus:outline-none"
+                className="bg-gray-50 text-[#0A1629] font-extrabold text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none"
               >
                 <option value="Steel Manufacturing Industry">Steel Manufacturing Industry</option>
                 <option value="Textile & Garment Machinery">Textile & Garment Machinery</option>
@@ -82,13 +83,13 @@ export default function MarketAnalyzerPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Trend chart visual */}
-            <div className="md:col-span-2 bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 space-y-4">
-              <div className="flex justify-between items-center text-xs font-bold text-slate-300">
+            <div className="md:col-span-2 bg-slate-50 text-[#0A1629] rounded-2xl p-6 border border-gray-200 space-y-4 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-gray-600">
                 <span>Market Size & Growth Trend (USD Billion)</span>
-                <span className="text-green-400">CAGR: +6.9% (2025-2030)</span>
+                <span className="text-green-600 font-bold">CAGR: +6.9% (2025-2030)</span>
               </div>
 
-              <div className="h-36 flex items-end gap-4 pt-6 border-b border-slate-800 pb-2">
+              <div className="h-36 flex items-end gap-4 pt-6 border-b border-gray-200 pb-2">
                 {[
                   { year: '2021', val: 130 },
                   { year: '2022', val: 142 },
@@ -101,24 +102,24 @@ export default function MarketAnalyzerPage() {
                   <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                     <div
                       style={{ height: `${(pt.val / 250) * 100}%` }}
-                      className="w-full bg-gradient-to-t from-[#EA580C] to-amber-400 rounded-t transition-all hover:brightness-125"
+                      className="w-full bg-[#EA580C] rounded-t transition-all hover:bg-[#c2410a]"
                     ></div>
-                    <span className="text-[10px] text-slate-400 font-mono">{pt.year}</span>
+                    <span className="text-[10px] text-gray-500 font-mono font-semibold">{pt.year}</span>
                   </div>
                 ))}
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-xs pt-2">
-                <div className="bg-slate-800 p-3 rounded-xl">
-                  <span className="text-[10px] text-slate-400 block font-semibold">Current Market Level (2025)</span>
-                  <span className="text-[20px] font-black text-white">USD 165 Billion</span>
-                  <span className="text-[10px] text-green-400 block">+6.8% vs 2024</span>
+                <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
+                  <span className="text-[10px] text-gray-500 block font-semibold">Current Market Level (2025)</span>
+                  <span className="text-[20px] font-black text-[#0A1629]">USD 165 Billion</span>
+                  <span className="text-[10px] text-green-600 block font-bold">+6.8% vs 2024</span>
                 </div>
 
-                <div className="bg-slate-800 p-3 rounded-xl">
-                  <span className="text-[10px] text-slate-400 block font-semibold">Future Scope (2030 Forecast)</span>
-                  <span className="text-[20px] font-black text-amber-400">USD 230 Billion</span>
-                  <span className="text-[10px] text-green-400 block">+6.9% CAGR (2025-2030)</span>
+                <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
+                  <span className="text-[10px] text-gray-500 block font-semibold">Future Scope (2030 Forecast)</span>
+                  <span className="text-[20px] font-black text-[#EA580C]">USD 230 Billion</span>
+                  <span className="text-[10px] text-green-600 block font-bold">+6.9% CAGR (2025-2030)</span>
                 </div>
               </div>
             </div>
@@ -360,14 +361,14 @@ export default function MarketAnalyzerPage() {
           {/* Business Survival & Risk Analysis */}
           <div className="bg-white rounded-[24px] border border-gray-200 p-6 shadow-xl space-y-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-6 h-6 rounded-lg bg-[#0A1629] text-white flex items-center justify-center font-black text-xs">9</span>
+              <span className="w-6 h-6 rounded-lg bg-[#EA580C] text-white flex items-center justify-center font-black text-xs">9</span>
               <h3 className="text-base font-black text-[#0A1629]">Business Survival Analysis</h3>
             </div>
 
-            <div className="p-4 bg-[#0A1629] text-white rounded-2xl text-center space-y-2">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Estimated 5-Year Survival Rate</span>
-              <div className="text-[34px] font-black text-green-400">78%</div>
-              <span className="text-xs text-slate-300 block">High demand in domestic infrastructure</span>
+            <div className="p-4 bg-gradient-to-r from-orange-50 via-white to-amber-50 text-[#0A1629] border-2 border-orange-200 rounded-2xl text-center space-y-2 shadow-sm">
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Estimated 5-Year Survival Rate</span>
+              <div className="text-[34px] font-black text-green-600">78%</div>
+              <span className="text-xs text-[#64748B] font-medium block">High demand in domestic infrastructure</span>
             </div>
 
             <div className="space-y-2 text-xs">

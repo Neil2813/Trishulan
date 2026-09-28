@@ -103,7 +103,7 @@ export default function ProfilePage() {
         {/* Top Header Card */}
         <div className="bg-white rounded-[24px] border border-gray-200 shadow-xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#0A1629] text-white flex items-center justify-center font-black text-2xl shadow-md shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-[#EA580C] text-white flex items-center justify-center font-black text-2xl shadow-md shrink-0">
               {name ? name.charAt(0).toUpperCase() : 'U'}
             </div>
             <div>
@@ -315,7 +315,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full py-4 rounded-xl bg-[#0A1629] hover:bg-[#1E293B] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all"
+              className="w-full py-4 rounded-xl bg-[#EA580C] hover:bg-[#c2410a] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all"
             >
               {saving ? 'Updating Database...' : 'Save Profile Changes →'}
             </button>

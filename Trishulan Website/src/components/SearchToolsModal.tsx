@@ -91,7 +91,7 @@ export default function SearchToolsModal({
           <button
             onClick={() => setTab('barcode')}
             className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'barcode' ? 'bg-[#0A1629] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              tab === 'barcode' ? 'bg-[#EA580C] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <span>▤</span>
@@ -101,7 +101,7 @@ export default function SearchToolsModal({
           <button
             onClick={() => setTab('image')}
             className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'image' ? 'bg-[#0A1629] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              tab === 'image' ? 'bg-[#EA580C] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <span>📷</span>
@@ -111,7 +111,7 @@ export default function SearchToolsModal({
           <button
             onClick={() => setTab('voice')}
             className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'voice' ? 'bg-[#0A1629] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              tab === 'voice' ? 'bg-[#EA580C] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <span>🎙️</span>
@@ -121,7 +121,7 @@ export default function SearchToolsModal({
           <button
             onClick={() => setTab('hsn')}
             className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'hsn' ? 'bg-[#0A1629] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              tab === 'hsn' ? 'bg-[#EA580C] text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <span>🔖</span>
@@ -200,7 +200,7 @@ export default function SearchToolsModal({
 
             <button
               onClick={handleExecuteImageSearch}
-              className="w-full py-3 bg-[#0A1629] hover:bg-[#1E293B] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
             >
               <span>🔍</span>
               <span>Run AI Visual Product Match</span>
@@ -247,7 +247,7 @@ export default function SearchToolsModal({
               {voiceQuery && (
                 <button
                   onClick={handleVoiceSearchSubmit}
-                  className="px-6 py-3 bg-[#0A1629] hover:bg-[#1E293B] text-white font-bold text-xs rounded-xl shadow-md"
+                  className="px-6 py-3 bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold text-xs rounded-xl shadow-md"
                 >
                   Search Now →
                 </button>

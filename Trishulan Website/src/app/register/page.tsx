@@ -219,7 +219,7 @@ export default function RegisterPage() {
                       : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center text-2xl shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 text-[#EA580C] border border-orange-200 flex items-center justify-center text-2xl shrink-0">
                     🏭
                   </div>
                   <div>
@@ -396,7 +396,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-xl bg-[#0A1629] hover:bg-[#1E293B] text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all"
+              className="w-full py-4 rounded-xl bg-[#EA580C] hover:bg-[#c2410a] text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all"
             >
               Continue to Mandatory KYC & Photo Verification →
             </button>
@@ -572,7 +572,7 @@ export default function RegisterPage() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
               <Link
                 href="/dashboard"
-                className="px-8 py-3.5 bg-[#0A1629] hover:bg-[#1E293B] text-white font-extrabold text-xs rounded-xl shadow-lg text-center"
+                className="px-8 py-3.5 bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg text-center"
               >
                 Go to Main Dashboard →
               </Link>

@@ -11,6 +11,7 @@ import rfqRouter from './routes/rfq';
 import chatRouter from './routes/chat';
 import marketRouter from './routes/market';
 import subscriptionRouter from './routes/subscription';
+import kycRouter from './routes/kyc';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/api/rfq', rfqRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/market', marketRouter);
 app.use('/api/subscription', subscriptionRouter);
+app.use('/api/kyc', kycRouter);
 
 // Health check root route
 app.get('/health', (_req, res) => {

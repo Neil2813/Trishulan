@@ -150,7 +150,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   <button
                     type="button"
                     onClick={() => setRole('BUYER')}
-                    className={`py-2 rounded-lg text-[13px] font-bold border ${role === 'BUYER' ? 'bg-[#0A1629] text-white border-[#0A1629]' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+                    className={`py-2 rounded-lg text-[13px] font-bold border ${role === 'BUYER' ? 'bg-[#EA580C] text-white border-[#EA580C]' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
                   >
                     I AM A BUYER
                   </button>
