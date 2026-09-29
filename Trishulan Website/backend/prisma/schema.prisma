@@ -1,0 +1,190 @@
+// =============================================
+// Trishulan Platform — Prisma Schema (PostgreSQL)
+// =============================================
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ── Enums ──────────────────────────────────
+enum UserRole {
+  BUYER
+  SELLER
+}
+
+enum AuthProvider {
+  JWT
+  FIREBASE
+}
+
+enum SubscriptionTier {
+  BASIC
+  GROWTH
+  ENTERPRISE
+}
+
+enum ListingCategory {
+  RAW_MATERIALS
+  MACHINERY
+  SPARES
+}
+
+enum RFQStatus {
+  OPEN
+  IN_NEGOTIATION
+  COMPLETED
+  CANCELLED
+}
+
+enum LogisticsServiceType {
+  TRANSPORT
+  PACKING
+  INSURANCE
+  WORKFORCE
+}
+
+enum LogisticsStatus {
+  PENDING
+  CONFIRMED
+  IN_TRANSIT
+  DELIVERED
+}
+
+enum CorporateServiceType {
+  TRADEMARK
+  FIRM_REGISTRATION
+}
+
+enum CorporateStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  PROCESSING
+  COMPLETED
+}
+
+// ── Models ─────────────────────────────────
+model User {
+  id               String           @id @default(cuid())
+  name             String
+  email            String           @unique
+  role             UserRole         @default(BUYER)
+  authProvider     AuthProvider     @default(JWT)
+  passwordHash     String?
+  companyName      String?
+  phone            String?
+  gstNumber        String?
+  industrySector   String?
+  address          String?
+  city             String?
+  state            String?
+  verifiedSeller   Boolean          @default(false)
+  subscriptionTier SubscriptionTier @default(BASIC)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  listings         Listing[]
+  rfqs             RFQ[]
+  sentMessages     ChatMessage[]    @relation("SentMessages")
+  receivedMessages ChatMessage[]    @relation("ReceivedMessages")
+  logistics        LogisticsBooking[]
+  corporateReqs    CorporateRequest[]
+  @@map("users")
+}
+
+model Listing {
+  id               String          @id @default(cuid())
+  title            String
+  description      String
+  category         ListingCategory
+  price            Float
+  unit             String
+  location         String
+  sellerId         String
+  sellerName       String
+  isVerifiedSeller Boolean         @default(false)
+  imagePath        String          @default("/Bento Box/Machinery.png")
+  inStock          Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  seller           User            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  @@map("listings")
+}
+
+model RFQ {
+  id           String          @id @default(cuid())
+  buyerId      String
+  buyerName    String
+  title        String
+  category     ListingCategory
+  quantity     String
+  targetPrice  Float
+  details      String
+  status       RFQStatus       @default(OPEN)
+  documentUrl  String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  buyer        User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  @@map("rfqs")
+}
+
+model ChatMessage {
+  id            String   @id @default(cuid())
+  senderId      String
+  senderName    String
+  receiverId    String
+  receiverName  String
+  rfqId         String?
+  text          String   @default("")
+  attachmentUrl String?
+  timestamp     DateTime @default(now())
+  sender        User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver      User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  @@map("chat_messages")
+}
+
+model MarketPrice {
+  id            String   @id @default(cuid())
+  commodity     String
+  category      String
+  currentPrice  Float
+  unit          String
+  change24h     Float    @default(0)
+  history7d     Float[]
+  history30d    Float[]
+  historicalYear Json    @default("[]")
+  lastUpdated   DateTime @default(now())
+  dataSource    String?
+  @@map("market_prices")
+}
+
+model LogisticsBooking {
+  id          String               @id @default(cuid())
+  userId      String
+  userName    String
+  serviceType LogisticsServiceType
+  origin      String
+  destination String
+  details     String
+  status      LogisticsStatus      @default(PENDING)
+  createdAt   DateTime             @default(now())
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("logistics_bookings")
+}
+
+model CorporateRequest {
+  id          String               @id @default(cuid())
+  userId      String
+  userName    String
+  companyName String
+  serviceType CorporateServiceType
+  entityType  String?
+  details     String
+  status      CorporateStatus      @default(SUBMITTED)
+  createdAt   DateTime             @default(now())
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("corporate_requests")
+}

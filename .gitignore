@@ -1,34 +1,23 @@
 # Dependencies
 node_modules/
-backend/node_modules/
-frontend/node_modules/
-/.pnp
+.pnp
 .pnp.js
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+
+# Build and Production Outputs
+.next/
+out/
+build/
+dist/
+
+# TypeScript Cache and Types
+*.tsbuildinfo
+next-env.d.ts
 
 # Testing and Coverage
 coverage/
 .nyc_output/
 
-# Next.js and Build Outputs
-.next/
-frontend/.next/
-out/
-frontend/out/
-build/
-dist/
-backend/dist/
-
-# TypeScript Cache and Types
-*.tsbuildinfo
-frontend/tsconfig.tsbuildinfo
-next-env.d.ts
-
-# Environment Files and Secrets
+# Environment Variables & Secrets
 .env
 .env*
 .env*.local
@@ -36,19 +25,16 @@ next-env.d.ts
 .env.development.local
 .env.test.local
 .env.production.local
-backend/.env
-frontend/.env.local
 !.env.example
 !.env.template
 
-# Prisma generated client and local database
-backend/node_modules/@prisma/
+# Local Databases
 *.db
 *.db-journal
 *.sqlite
 *.sqlite3
 
-# Logs and Debug
+# Logs
 logs/
 *.log
 npm-debug.log*
@@ -69,7 +55,7 @@ lerna-debug.log*
 [Ee]hthumbs.db
 desktop.ini
 
-# IDE & Editor Configs
+# IDE and Editor Files
 .vscode/
 .idea/
 *.suo

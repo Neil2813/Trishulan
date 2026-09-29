@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# Trishulan Industrial B2B Platform
 
-## Getting Started
+> **Architecture**: Next.js frontend | Express + PostgreSQL backend | Prisma ORM
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Project Structure
+
+```
+Trishulan Website/
+├── backend/     ← Express.js REST API + Prisma + PostgreSQL
+└── frontend/    ← Next.js 16 App Router
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quick Start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Setup PostgreSQL
 
-## Learn More
+Create a database named `trishulan_db` in your local PostgreSQL instance.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Backend
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cd backend
+npm install
+# Edit .env — set DATABASE_URL to your PostgreSQL connection string
+npm run generate      # Generate Prisma client
+npm run db:push       # Push schema to DB (dev)
+npm run db:seed       # Seed demo data
+npm run dev           # Start backend on http://localhost:5000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Frontend
 
-## Deploy on Vercel
+```bash
+cd frontend
+npm install
+npm run dev           # Start Next.js on http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Base URL
+
+All frontend API calls proxy through Next.js rewrites to `http://localhost:5000/api`.
+
+| Route                     | Method | Description              |
+|---------------------------|--------|--------------------------|
+| `/api/auth/register`      | POST   | Register new user        |
+| `/api/auth/login`         | POST   | Login (JWT or Firebase)  |
+| `/api/auth/logout`        | POST   | Clear auth cookie        |
+| `/api/auth/me`            | GET    | Current session user     |
+| `/api/auth/profile`       | PUT    | Update profile           |
+| `/api/listings`           | GET    | List products            |
+| `/api/listings`           | POST   | Create listing (Seller)  |
+| `/api/rfq`                | GET    | List RFQs                |
+| `/api/rfq`                | POST   | Submit RFQ (Buyer)       |
+| `/api/chat`               | GET    | Get messages             |
+| `/api/chat`               | POST   | Send message             |
+| `/api/market`             | GET    | Live market prices       |
+| `/api/subscription`       | POST   | Update subscription tier |
+| `/api/kyc/verify-gstin`   | POST   | Verify GSTIN             |
+| `/api/kyc/verify-pan`     | POST   | Verify PAN               |
+
+---
+
+## Demo Credentials (after seeding)
+
+| Role   | Email                      | Password   |
+|--------|----------------------------|------------|
+| Seller | seller@trishulan.com       | seller123  |
+| Buyer  | buyer@trishulan.com        | buyer123   |
