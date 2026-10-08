@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import PlatformIntelligenceReport from '@/components/ui/platform-intelligence-report';
+import IndustrialAnalyzerProductIntelligence from '@/components/market-analyzer/IndustrialAnalyzerProductIntelligence';
+import AiMarketPriceAnalyzer from '@/components/market-analyzer/AiMarketPriceAnalyzer';
 
 export default function MarketAnalyzerPage() {
   const [selectedIndustry, setSelectedIndustry] = useState('Steel Manufacturing Industry');
@@ -71,6 +74,49 @@ export default function MarketAnalyzerPage() {
               </select>
             </div>
           </div>
+        </div>
+
+        {/* NEW REFERENCE SPECIFICATIONS: INDUSTRIAL ANALYZER & AI MARKET PRICE ANALYZER */}
+        <div className="space-y-8">
+          <IndustrialAnalyzerProductIntelligence />
+          <AiMarketPriceAnalyzer />
+        </div>
+
+        {/* SECTION: B2B PLATFORM COMPETITIVE INTELLIGENCE MATRIX */}
+        <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-4 border-b border-gray-100">
+            <div>
+              <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.14em]">REPORT BENCHMARK</span>
+              <h2 className="text-[20px] font-black text-[#0A1629]">B2B Platform Competitive Landscape Matrix</h2>
+            </div>
+            <span className="text-xs font-bold text-[#475569] bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+              Report Date: 30 September 2026
+            </span>
+          </div>
+
+          <PlatformIntelligenceReport />
+        </div>
+
+        {/* SECTION: PROPOSED FEATURE EXPANSION BANNER */}
+        <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-[24px] p-6 md:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-700">
+          <div>
+            <span className="text-[11px] font-extrabold text-[#EA580C] uppercase tracking-wider block">
+              NEXT-GEN PLATFORM EXTENSION
+            </span>
+            <h3 className="text-xl md:text-2xl font-black text-white mt-1">
+              Unified AI Search & Buyer RFQ Matching Workbench
+            </h3>
+            <p className="text-xs md:text-sm text-slate-300 font-medium mt-1 max-w-2xl">
+              Natural language industrial search, AI match reasons, side-by-side quote comparison, and privacy-first WhatsApp lead sharing.
+            </p>
+          </div>
+
+          <Link
+            href="/feature-expansion"
+            className="px-6 py-3 bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all shrink-0 whitespace-nowrap"
+          >
+            Launch AI Discovery & RFQ Workbench →
+          </Link>
         </div>
 
         {/* SECTION 1: MARKET LEVEL & FUTURE SCOPE */}

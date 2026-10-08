@@ -199,6 +199,21 @@ export default function DashboardPage() {
                 </Link>
               </div>
 
+              {/* Customer Tasks & Buyer Contact Preferences Banner */}
+              <div className="p-6 rounded-[20px] bg-gradient-to-r from-cyan-950 via-slate-900 to-slate-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-cyan-800/60 shadow-lg">
+                <div>
+                  <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block">NEW REFERENCE SPEC</span>
+                  <h3 className="text-[18px] font-extrabold mt-0.5">Customer Home, Buyer/Seller Tasks & Consent</h3>
+                  <p className="text-xs text-cyan-200 mt-1">Manage buyer phone/WhatsApp consent routing, lead inbox rules, and support desk.</p>
+                </div>
+                <Link
+                  href="/customer-workspace"
+                  className="px-6 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow-md shrink-0"
+                >
+                  Customer Workspace →
+                </Link>
+              </div>
+
               {/* Recent RFQs List */}
               <div className="bg-white p-6 rounded-[20px] border border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between mb-4">

@@ -84,15 +84,19 @@ export function signRefreshToken(payload: object): string {
 
 export function signJwtToken(payload: object, expiresIn: string | number = '7d'): string {
   const secret = getJwtSecret();
-  return jwt.sign(payload, secret, { expiresIn: expiresIn as any });
+  return jwt.sign(payload, secret, { expiresIn: expiresIn as jwt.SignOptions['expiresIn'] });
 }
 
-export function verifyJwtToken(token: string): any {
+export function verifyJwtToken(token: string): (jwt.JwtPayload & { id?: string; email?: string; role?: string }) | null {
   try {
     if (revokedTokens.has(token)) return null;
     const secret = getJwtSecret();
-    return jwt.verify(token, secret);
-  } catch (error) {
+    const verified = jwt.verify(token, secret);
+    if (typeof verified === 'object' && verified !== null) {
+      return verified as jwt.JwtPayload & { id?: string; email?: string; role?: string };
+    }
+    return null;
+  } catch {
     return null;
   }
 }
@@ -102,6 +106,6 @@ export function revokeToken(token: string): void {
 }
 
 export function requireRole(userRole: string, allowedRoles: ('BUYER' | 'SELLER')[]): boolean {
-  return allowedRoles.includes(userRole as any);
+  return allowedRoles.includes(userRole as 'BUYER' | 'SELLER');
 }
 

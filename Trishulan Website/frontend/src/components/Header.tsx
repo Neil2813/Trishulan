@@ -86,7 +86,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white border-b border-line sticky top-0 z-[100]">
+      <header suppressHydrationWarning className="bg-white border-b border-line sticky top-0 z-[100]">
         <div className="w-full px-4 lg:px-8 max-w-[1600px] mx-auto flex items-center justify-between h-[66px]">
           
           {/* Logo */}
@@ -103,6 +103,7 @@ export default function Header() {
             {/* Mega Menu Toggle */}
             {!isLandingPage && (
               <button
+                suppressHydrationWarning
                 onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
                 className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-[13px] font-bold text-[#0A1629] transition-all"
               >
@@ -113,6 +114,7 @@ export default function Header() {
 
             {/* Trishulan Service Points Button */}
             <button
+              suppressHydrationWarning
               onClick={() => setIsServicePointsOpen(true)}
               className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#EA580C] text-[12px] font-bold border border-orange-200 transition-all"
               title="View physical Trishulan Service Point Locations"
@@ -120,6 +122,16 @@ export default function Header() {
               <MapPin className="w-3.5 h-3.5" />
               <span>Service Points</span>
             </button>
+
+            {/* Customer Tasks & Contact Preferences Workspace Link */}
+            <Link
+              href="/customer-workspace"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-800 text-[12px] font-bold border border-cyan-200 transition-all"
+              title="Customer Tasks Dashboard & Buyer Contact Preferences"
+            >
+              <span>📋</span>
+              <span>Customer Workspace</span>
+            </Link>
           </div>
 
           {/* Search Bar */}
@@ -127,6 +139,7 @@ export default function Header() {
             <div className="flex-1 max-w-[560px] mx-[16px] relative hidden md:block">
               <div className="flex border-[1.5px] border-line rounded-[9px] overflow-hidden transition focus-within:border-ink">
                 <input
+                  suppressHydrationWarning
                   id="hdSearch"
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
@@ -137,6 +150,7 @@ export default function Header() {
                 
                 {/* Search Tools Trigger Button */}
                 <button
+                  suppressHydrationWarning
                   type="button"
                   onClick={() => openTools('barcode')}
                   className="px-3 text-[12px] font-bold text-gray-700 hover:text-[#EA580C] bg-gray-100 border-l border-gray-200 flex items-center gap-1.5 transition-colors"
@@ -147,6 +161,7 @@ export default function Header() {
                 </button>
 
                 <button
+                  suppressHydrationWarning
                   onClick={() => handleSearch(searchQuery)}
                   className="bg-ink text-white px-[18px] text-[12.5px] font-semibold hover:bg-opacity-90"
                   aria-label="Search"
@@ -191,6 +206,7 @@ export default function Header() {
 
             {/* Mobile Search Tool Trigger */}
             <button
+              suppressHydrationWarning
               onClick={() => openTools('barcode')}
               className="relative w-[36px] h-[36px] rounded-[9px] bg-bg border border-line flex items-center justify-center text-ink transition hover:bg-navy-bg hover:border-line-2 md:hidden"
               title="Search Tools"
@@ -201,6 +217,7 @@ export default function Header() {
             {/* Notifications Icon Button & Drawer */}
             <div className="relative">
               <button
+                suppressHydrationWarning
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className="relative w-[36px] h-[36px] rounded-[9px] bg-bg border border-line flex items-center justify-center text-ink transition hover:bg-navy-bg hover:border-line-2"
                 title="Notifications"
@@ -219,6 +236,7 @@ export default function Header() {
                   <div className="flex items-center justify-between pb-3 border-b border-gray-200 mb-2">
                     <h4 className="font-extrabold text-[14px] text-[#0A1629]">Notifications</h4>
                     <button
+                      suppressHydrationWarning
                       onClick={() => setNotifications(notifications.map(n => ({ ...n, unread: false })))}
                       className="text-[11px] font-bold text-[#EA580C] hover:underline"
                     >
@@ -267,13 +285,13 @@ export default function Header() {
                 <Link className="btn btn-primary btn-sm bg-amber-100 text-amber-900 border-none hover:bg-amber-200 font-bold" href="/profile">
                   Profile
                 </Link>
-                <button onClick={handleLogout} className="btn btn-primary btn-sm bg-red-100 text-red-700 border-none hover:bg-red-200 font-bold">
+                <button suppressHydrationWarning onClick={handleLogout} className="btn btn-primary btn-sm bg-red-100 text-red-700 border-none hover:bg-red-200 font-bold">
                   Logout
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <button onClick={() => setIsAuthOpen(true)} className="btn btn-primary btn-sm">
+                <button suppressHydrationWarning onClick={() => setIsAuthOpen(true)} className="btn btn-primary btn-sm">
                   LogIn
                 </button>
                 <Link href="/register" className="btn btn-primary btn-sm bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold">

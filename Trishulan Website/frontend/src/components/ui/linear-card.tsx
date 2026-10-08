@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   forwardRef
 } from 'react';
 import {
@@ -17,7 +18,12 @@ import {
   Variant,
 } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { XIcon, Plus } from 'lucide-react';
+import { XIcon } from 'lucide-react';
+
+const subscribeMounted = () => () => {};
+function useIsMounted() {
+  return useSyncExternalStore(subscribeMounted, () => true, () => false);
+}
 
 interface DialogContextType {
   isOpen: boolean;
@@ -209,15 +215,13 @@ type DialogContainerProps = {
 
 function DialogContainer({ children, className }: DialogContainerProps) {
   const { isOpen, setIsOpen, uniqueId } = useDialog();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
 
   useEffect(() => {
     if (isOpen) {
       window.scrollTo(0, 0);
     }
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
+  }, [isOpen]);
 
   if (!mounted) return null;
   return (

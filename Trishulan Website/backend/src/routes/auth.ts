@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { registerSchema, signJwtToken } from "../lib/security";
 import {
   createUserInDb,
@@ -42,7 +42,7 @@ router.post("/login", async (req, res) => {
 
     // Firebase SSO
     if (body.authProvider === "FIREBASE") {
-      let user = await findUserByEmail(body.email);
+      let user: any = await findUserByEmail(body.email);
       if (!user) {
         user = await createUserInDb({
           name: body.name || body.email.split("@")[0],
@@ -53,6 +53,7 @@ router.post("/login", async (req, res) => {
           phone: body.phone,
         });
       }
+      if (!user) return res.status(500).json({ error: "Failed to create or find user" });
       const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
       res.cookie("trishulan_token", token, COOKIE);
       return res.json({ success: true, user });

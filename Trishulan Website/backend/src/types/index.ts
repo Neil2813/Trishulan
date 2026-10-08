@@ -124,3 +124,27 @@ export interface SubscriptionPlan {
   logisticsAccess: string;
   customerSupport: string;
 }
+
+export interface KYCDocument {
+  id: string;
+  requirement: string;
+  requestedItem: string;
+  status: string;
+  fileUrl: string | null;
+  statusColor: string;
+  issueExplanation?: string;
+}
+
+export interface AdviserAppointment {
+  appointmentId: string;
+  name: string;
+  phone: string;
+  email: string;
+  serviceNeeded: string;
+  state: string;
+  status: string;
+  assignedAdvisor: string;
+  scheduledTime: string;
+  timestamp: string;
+}
+
