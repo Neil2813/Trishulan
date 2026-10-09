@@ -17,6 +17,7 @@ export interface User {
   state?: string;
   verifiedSeller?: boolean;
   subscriptionTier: SubscriptionTier;
+  chatPublicKey?: string | null;
   createdAt: string;
 }
 
@@ -60,10 +61,42 @@ export interface ChatMessage {
   senderName: string;
   receiverId: string;
   receiverName: string;
-  rfqId?: string;
+  rfqId?: string | null;
+  listingId?: string | null;
   text: string;
-  attachmentUrl?: string;
+  isEncrypted?: boolean;
+  senderKey?: string | null;
+  receiverKey?: string | null;
+  read?: boolean;
+  attachmentUrl?: string | null;
   timestamp: string;
+}
+
+export interface ChatPartner {
+  id: string;
+  name: string;
+  companyName?: string | null;
+  role: UserRole;
+  city?: string | null;
+  state?: string | null;
+  verifiedSeller?: boolean;
+  chatPublicKey?: string | null;
+}
+
+export interface ChatConversation {
+  partner: ChatPartner;
+  lastMessage: ChatMessage;
+  unread: number;
+}
+
+export interface ChatListingCard {
+  id: string;
+  title: string;
+  price: number;
+  unit: string;
+  location: string;
+  category: ListingCategory;
+  imagePath: string;
 }
 
 export interface HistoricalPoint {

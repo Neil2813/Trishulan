@@ -84,6 +84,7 @@ model User {
   state            String?
   verifiedSeller   Boolean          @default(false)
   subscriptionTier SubscriptionTier @default(BASIC)
+  chatPublicKey    String?          // ECDH P-256 public key (JWK JSON) for E2EE DMs
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   listings         Listing[]
@@ -111,6 +112,8 @@ model Listing {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   seller           User            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  @@index([category, isVerifiedSeller])
+  @@index([sellerId])
   @@map("listings")
 }
 
@@ -128,6 +131,8 @@ model RFQ {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   buyer        User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  @@index([buyerId, status])
+  @@index([category])
   @@map("rfqs")
 }
 
@@ -138,11 +143,18 @@ model ChatMessage {
   receiverId    String
   receiverName  String
   rfqId         String?
-  text          String   @default("")
+  listingId     String?
+  text          String   @default("") // E2EE payload: [ENC:v1:<iv_b64>:<ciphertext_b64>]
+  isEncrypted   Boolean  @default(false)
+  senderKey     String?  // sender public key (JWK) used for this message
+  receiverKey   String?  // receiver public key (JWK) used for this message
+  read          Boolean  @default(false)
   attachmentUrl String?
   timestamp     DateTime @default(now())
   sender        User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiver      User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  @@index([senderId, receiverId, timestamp])
+  @@index([receiverId, read])
   @@map("chat_messages")
 }
 
@@ -158,6 +170,7 @@ model MarketPrice {
   historicalYear Json    @default("[]")
   lastUpdated   DateTime @default(now())
   dataSource    String?
+  @@index([commodity, lastUpdated])
   @@map("market_prices")
 }
 

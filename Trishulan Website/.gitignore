@@ -79,3 +79,6 @@ desktop.ini
 *.sw?
 *.bak
 *.tmp
+# SQLite fallback DB (backend/scripts/db-setup.mjs)
+backend/prisma/dev.db*
+backend/prisma/sqlite/

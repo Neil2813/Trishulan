@@ -1,3 +1,4 @@
+import "./lib/env";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -21,16 +22,41 @@ import businessServicesRouter from "./routes/businessServices";
 import buyerPreferencesRouter from "./routes/buyerPreferences";
 import featureExpansionRouter from "./routes/featureExpansion";
 
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { prisma } from "./lib/db";
+
 dotenv.config();
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
+// ── Rate Limiters ─────────────────────────────────────────────────────────────
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later." }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: "Too many authentication requests, please try again later." }
+});
+
 // ── Middlewares ─────────────────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
+}));
 app.use(cors({ origin: process.env.FRONTEND_URL || true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use("/api/", globalLimiter);
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
 app.use(extractUserMiddleware);
 
 // ── Routes ──────────────────────────────────────────────────────────────────
@@ -53,9 +79,25 @@ app.use("/api/feature-expansion", featureExpansionRouter);
 app.use("/api/discovery",        featureExpansionRouter);
 app.use("/api/customer",         buyerPreferencesRouter);
 
-// ── Health check ────────────────────────────────────────────────────────────
+// ── Health checks ────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => {
   res.json({ status: "OK", message: "Trishulan Express + PostgreSQL Backend" });
+});
+
+app.get("/health/deep", async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: "HEALTHY",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      services: {
+        database: "OK",
+      }
+    });
+  } catch (err: any) {
+    res.status(500).json({ status: "UNHEALTHY", error: err.message });
+  }
 });
 
 // ── 404 ─────────────────────────────────────────────────────────────────────
@@ -71,10 +113,17 @@ app.use(
   }
 );
 
+import http from "http";
+import { initSocketServer } from "./services/socketService";
+
+const server = http.createServer(app);
+initSocketServer(server);
+
 if (process.env.NODE_ENV !== "test") {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`====================================================`);
     console.log(`⚡  Trishulan Backend  →  http://localhost:${PORT}`);
+    console.log(`🔌  WebSockets        →  Socket.io Enabled`);
     console.log(`🐘  Database          →  PostgreSQL (Prisma)`);
     console.log(`====================================================`);
   });

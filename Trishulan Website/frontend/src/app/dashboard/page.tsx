@@ -260,7 +260,7 @@ export default function DashboardPage() {
 
         {activeTab === 'CHAT' && (
           <div className="max-w-4xl mx-auto">
-            <ChatSuite partnerName="Sreegopalakrishnacollections Prop J..." />
+            <ChatSuite currentUser={user} />
           </div>
         )}
 
