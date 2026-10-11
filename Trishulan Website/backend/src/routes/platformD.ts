@@ -1,69 +1,49 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
+import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { fetchTradeIntelligence } from '../services/marketDataService';
 
 const router = Router();
 
 // GET /api/platform-d/intelligence
+// Fetches live trade intelligence from the market data service.
 router.get('/intelligence', async (req, res) => {
   try {
-    const query = (req.query.query as string | undefined)?.toLowerCase().trim() || 'steel';
-    const destination = (req.query.destination as string | undefined) || 'Global';
+    const query = (req.query.query as string | undefined)?.trim();
+    const destination = (req.query.destination as string | undefined)?.trim();
 
-    const sampleAnalysis = {
-      product: query.toUpperCase(),
-      hsCode: '7208.39.00',
-      destination,
-      benchmarks: {
-        avgExportPrice: 685,
-        priceUnit: 'USD / Metric Ton',
-        priceTrend24h: '+2.4%',
-        volumeTradedMT: '142,500 MT',
-        activeExporters: 48,
-        activeImporters: 112,
-      },
-      topExporters: [
-        { name: 'JSW Steel Limited', marketShare: '28%' },
-        { name: 'Tata Steel International', marketShare: '24%' },
-        { name: 'ArcelorMittal Nippon', marketShare: '18%' },
-      ],
-      recentCustomsManifests: [
-        { port: 'Jawaharlal Nehru Port (JNPT)', volume: '4,200 MT', date: '2026-10-04' },
-        { port: 'Mundra Port', volume: '8,100 MT', date: '2026-10-02' },
-      ],
-    };
+    if (!query) return res.status(400).json({ error: 'query parameter is required' });
 
-    return res.json({ success: true, intelligence: sampleAnalysis });
+    const intelligence = await fetchTradeIntelligence(query, destination || 'Global');
+    return res.json({ success: true, intelligence });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch intelligence analysis' });
   }
 });
 
-// GET /api/platform-d/activity
-router.get('/activity', async (_req, res) => {
+// GET /api/platform-d/activity (auth required)
+router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
-    const chatCount = await prisma.chatMessage.count();
-    const rfqs = await prisma.rFQ.findMany();
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const newLeads = Math.max(chatCount + 25, 45);
-    const responded = Math.max(Math.floor(newLeads * 0.85), 38);
-    const openRfqs = rfqs.filter((r: any) => r.status === 'OPEN').length || 15;
+    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+      prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
+      prisma.chatMessage.count({ where: { senderId: req.user.id } }),
+      prisma.rFQ.count({ where: { status: 'OPEN' } }),
+      prisma.$queryRaw<{ day: number; count: bigint }[]>`
+        SELECT EXTRACT(DOW FROM timestamp)::int AS day, COUNT(*)::bigint AS count
+        FROM "ChatMessage"
+        WHERE ("senderId" = ${req.user.id} OR "receiverId" = ${req.user.id})
+          AND timestamp >= NOW() - INTERVAL '7 days'
+        GROUP BY day ORDER BY day
+      `,
+    ]);
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const sampleCounts = [12, 18, 15, 24, 30, 22, 35];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
+    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
 
-    const weeklyTrend = days.map((day, i) => ({
-      day,
-      count: sampleCounts[i] + (rfqs.length % (i + 1))
-    }));
-
-    return res.json({
-      metrics: {
-        newLeads,
-        responded,
-        openRfqs,
-        weeklyTrend
-      }
-    });
+    return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch activity metrics' });
   }

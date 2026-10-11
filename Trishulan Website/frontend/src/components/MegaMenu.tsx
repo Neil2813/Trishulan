@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Boxes, Cog, Wrench, Truck, X } from 'lucide-react';
+import { Boxes, Cog, Wrench, Truck, X, Heart, FileText, LifeBuoy } from 'lucide-react';
 
 interface MegaMenuProps {
   isOpen: boolean;
@@ -12,30 +12,30 @@ const categories = [
     title: 'Raw Materials & Metals',
     icon: Boxes,
     links: [
-      { label: 'Steel & Rebars', href: '/categories?cat=RAW_MATERIALS&sub=steel' },
-      { label: 'Polymers & Plastics', href: '/categories?cat=RAW_MATERIALS&sub=polymers' },
-      { label: 'Industrial Chemicals', href: '/categories?cat=RAW_MATERIALS&sub=chemicals' },
-      { label: 'Aluminum & Non-Ferrous', href: '/categories?cat=RAW_MATERIALS&sub=aluminum' },
+      { label: 'Steel & Rebars', href: '/platform-a?cat=RAW_MATERIALS&sub=steel' },
+      { label: 'Polymers & Plastics', href: '/platform-a?cat=RAW_MATERIALS&sub=polymers' },
+      { label: 'Industrial Chemicals', href: '/platform-a?cat=RAW_MATERIALS&sub=chemicals' },
+      { label: 'Aluminum & Non-Ferrous', href: '/platform-a?cat=RAW_MATERIALS&sub=aluminum' },
     ]
   },
   {
     title: 'Machinery & Equipment',
     icon: Cog,
     links: [
-      { label: 'CNC Milling & Lathes', href: '/categories?cat=MACHINERY&sub=cnc' },
-      { label: 'Hydraulic Presses', href: '/categories?cat=MACHINERY&sub=hydraulic' },
-      { label: 'Packaging Machinery', href: '/categories?cat=MACHINERY&sub=packaging' },
-      { label: 'Generators & Power Systems', href: '/categories?cat=MACHINERY&sub=power' },
+      { label: 'CNC Milling & Lathes', href: '/platform-a?cat=MACHINERY&sub=cnc' },
+      { label: 'Hydraulic Presses', href: '/platform-a?cat=MACHINERY&sub=hydraulic' },
+      { label: 'Packaging Machinery', href: '/platform-a?cat=MACHINERY&sub=packaging' },
+      { label: 'Generators & Power Systems', href: '/platform-a?cat=MACHINERY&sub=power' },
     ]
   },
   {
     title: 'Spares & Components',
     icon: Wrench,
     links: [
-      { label: 'Hydraulic Cylinders & Valves', href: '/categories?cat=SPARES&sub=cylinders' },
-      { label: 'Bearings & Bushings', href: '/categories?cat=SPARES&sub=bearings' },
-      { label: 'Industrial Fasteners', href: '/categories?cat=SPARES&sub=fasteners' },
-      { label: 'Pneumatic Systems', href: '/categories?cat=SPARES&sub=pneumatics' },
+      { label: 'Hydraulic Cylinders & Valves', href: '/platform-a?cat=SPARES&sub=cylinders' },
+      { label: 'Bearings & Bushings', href: '/platform-a?cat=SPARES&sub=bearings' },
+      { label: 'Industrial Fasteners', href: '/platform-a?cat=SPARES&sub=fasteners' },
+      { label: 'Pneumatic Systems', href: '/platform-a?cat=SPARES&sub=pneumatics' },
     ]
   },
   {
@@ -44,10 +44,30 @@ const categories = [
     links: [
       { label: 'Transport & Freight', href: '/logistics?type=TRANSPORT' },
       { label: 'Professional Packing', href: '/logistics?type=PACKING' },
-      { label: 'Labour Insurance', href: '/logistics?type=INSURANCE' },
+      { label: 'Shipment Control Tower', href: '/logistics' },
       { label: 'Skilled Workforce', href: '/logistics?type=WORKFORCE' },
     ]
-  }
+  },
+  {
+    title: 'Business Services',
+    icon: FileText,
+    links: [
+      { label: 'Billing & Invoicing', href: '/operations' },
+      { label: 'Inventory Management', href: '/operations?tab=inventory' },
+      { label: 'KYC & Registration', href: '/kyc' },
+      { label: 'Corporate Services', href: '/corporate' },
+    ]
+  },
+  {
+    title: 'Benefits & Support',
+    icon: Heart,
+    links: [
+      { label: 'Health Insurance Access', href: '/insurance' },
+      { label: 'Market Price Analyzer', href: '/market-prices' },
+      { label: 'Industrial Analyzer', href: '/market-analyzer' },
+      { label: 'Help & Support', href: '/help' },
+    ]
+  },
 ];
 
 export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
@@ -70,20 +90,20 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
           {categories.map((cat, idx) => (
-            <div key={idx} className="bg-card/50 p-5 rounded-2xl border border-gray-100 hover:border-line transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <cat.icon className="w-5 h-5 text-accent" />
-                <h4 className="font-bold text-[16px] text-ink">{cat.title}</h4>
+            <div key={idx} className="bg-card/50 p-4 rounded-2xl border border-gray-100 hover:border-line transition-all">
+              <div className="flex items-center gap-2.5 mb-3">
+                <cat.icon className="w-4 h-4 text-accent" />
+                <h4 className="font-bold text-[14px] text-ink">{cat.title}</h4>
               </div>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2">
                 {cat.links.map((link, lIdx) => (
                   <li key={lIdx}>
                     <Link 
                       href={link.href} 
                       onClick={onClose}
-                      className="text-[13.5px] text-[#475569] hover:text-accent hover:translate-x-1 inline-block transition-all font-medium"
+                      className="text-[12.5px] text-[#475569] hover:text-accent hover:translate-x-1 inline-block transition-all font-medium"
                     >
                       {link.label}
                     </Link>
@@ -94,14 +114,20 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
           ))}
         </div>
 
-        <div className="mt-8 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between text-xs text-[#64748B] gap-4">
+        <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between text-xs text-[#64748B] gap-4">
           <span>Need custom sourcing or bulk procurement?</span>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <Link href="/rfq" onClick={onClose} className="font-bold text-accent hover:underline">
               Post an RFQ →
             </Link>
             <Link href="/sell" onClick={onClose} className="font-bold text-ink hover:underline">
               Become a Verified Seller →
+            </Link>
+            <Link href="/insurance" onClick={onClose} className="font-bold text-ink hover:underline">
+              Health Insurance →
+            </Link>
+            <Link href="/operations" onClick={onClose} className="font-bold text-ink hover:underline">
+              Business Operations →
             </Link>
           </div>
         </div>

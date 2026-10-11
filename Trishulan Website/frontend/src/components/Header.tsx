@@ -130,9 +130,30 @@ export default function Header() {
               title="Customer Tasks Dashboard & Buyer Contact Preferences"
             >
               <span>📋</span>
-              <span>Customer Workspace</span>
+              <span>Workspace</span>
+            </Link>
+
+            {/* NEW: Health Insurance Access */}
+            <Link
+              href="/insurance"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[12px] font-bold border border-rose-200 transition-all"
+              title="Health Insurance Access for Industrial Workers"
+            >
+              <span>🛡️</span>
+              <span>Insurance</span>
+            </Link>
+
+            {/* NEW: Billing & Operations */}
+            <Link
+              href="/operations"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[12px] font-bold border border-emerald-200 transition-all"
+              title="Billing, Inventory & Business Accounts"
+            >
+              <span>📑</span>
+              <span>Operations</span>
             </Link>
           </div>
+
 
           {/* Search Bar */}
           {!isLandingPage && (

@@ -21,6 +21,9 @@ import platformERouter        from "./routes/platformE";
 import businessServicesRouter from "./routes/businessServices";
 import buyerPreferencesRouter from "./routes/buyerPreferences";
 import featureExpansionRouter from "./routes/featureExpansion";
+import insuranceRouter        from "./routes/insurance";
+import operationsRouter       from "./routes/operations";
+import quotesRouter           from "./routes/quotes";
 
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -78,6 +81,9 @@ app.use("/api/buyer-preferences", buyerPreferencesRouter);
 app.use("/api/feature-expansion", featureExpansionRouter);
 app.use("/api/discovery",        featureExpansionRouter);
 app.use("/api/customer",         buyerPreferencesRouter);
+app.use("/api/insurance",        insuranceRouter);
+app.use("/api/operations",       operationsRouter);
+app.use("/api/quotes",           quotesRouter);
 
 // ── Health checks ────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => {

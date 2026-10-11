@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="bg-bg text-[#475569] mt-[54px] pt-[60px] pb-[30px] border-t border-line relative overflow-hidden">
       
-      {/* Decorative background elements (optional curve lines from the image) */}
+      {/* Decorative background elements */}
       <div className="absolute left-0 bottom-0 w-[300px] h-[300px] bg-[#EBE4DB]/30 rounded-full blur-[80px] -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
       
       <div className="w-full px-6 lg:px-8 max-w-[1600px] mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-12 gap-[40px] lg:gap-[30px]">
@@ -38,11 +38,15 @@ export default function Footer() {
           <h6 className="text-[12px] text-ink tracking-[.1em] uppercase font-bold mb-[8px]">For buyers</h6>
           <div className="w-[32px] h-[2px] bg-accent mb-[16px]"></div>
           <ul>
-            <li className="mb-[12px]"><Link href="/categories" className="text-[13px] hover:text-accent transition-colors">All categories</Link></li>
-            <li className="mb-[12px]"><Link href="/sellers" className="text-[13px] hover:text-accent transition-colors">Verified sellers</Link></li>
+            {/* Fixed: /categories → / (landing page has categories anchor) */}
+            <li className="mb-[12px]"><Link href="/" className="text-[13px] hover:text-accent transition-colors">All categories</Link></li>
+            {/* Fixed: /sellers → /platform-a (supplier discovery) */}
+            <li className="mb-[12px]"><Link href="/platform-a" className="text-[13px] hover:text-accent transition-colors">Verified sellers</Link></li>
             <li className="mb-[12px]"><Link href="/rfq" className="text-[13px] hover:text-accent transition-colors">Post a requirement</Link></li>
-            <li className="mb-[12px]"><Link href="/market" className="text-[13px] hover:text-accent transition-colors">Market prices</Link></li>
-            <li className="mb-[12px]"><Link href="/orders" className="text-[13px] hover:text-accent transition-colors">Track an order</Link></li>
+            {/* Fixed: /market → /market-prices */}
+            <li className="mb-[12px]"><Link href="/market-prices" className="text-[13px] hover:text-accent transition-colors">Market prices</Link></li>
+            {/* Fixed: /orders → /logistics (Shipment Control Tower) */}
+            <li className="mb-[12px]"><Link href="/logistics" className="text-[13px] hover:text-accent transition-colors">Track an order</Link></li>
           </ul>
         </div>
 
@@ -54,7 +58,10 @@ export default function Footer() {
             <li className="mb-[12px]"><Link href="/sell" className="text-[13px] hover:text-accent transition-colors">Sell on Trishulan</Link></li>
             <li className="mb-[12px]"><Link href="/register" className="text-[13px] hover:text-accent transition-colors">Create seller account</Link></li>
             <li className="mb-[12px]"><Link href="/dashboard" className="text-[13px] hover:text-accent transition-colors">Manage orders</Link></li>
-            <li className="mb-[12px]"><Link href="/analyzer" className="text-[13px] hover:text-accent transition-colors">Demand insights</Link></li>
+            {/* Fixed: /analyzer → /market-analyzer */}
+            <li className="mb-[12px]"><Link href="/market-analyzer" className="text-[13px] hover:text-accent transition-colors">Demand insights</Link></li>
+            {/* New: Operations / Billing */}
+            <li className="mb-[12px]"><Link href="/operations" className="text-[13px] hover:text-accent transition-colors">Billing & Inventory</Link></li>
           </ul>
         </div>
 
@@ -63,12 +70,20 @@ export default function Footer() {
           <h6 className="text-[12px] text-ink tracking-[.1em] uppercase font-bold mb-[8px]">Trade data</h6>
           <div className="w-[32px] h-[2px] bg-accent mb-[16px]"></div>
           <ul>
-            <li className="mb-[12px]"><Link href="/trade" className="text-[13px] hover:text-accent transition-colors">All trade tools</Link></li>
-            <li className="mb-[12px]"><Link href="/shipments" className="text-[13px] hover:text-accent transition-colors">Shipment records</Link></li>
-            <li className="mb-[12px]"><Link href="/benchmark" className="text-[13px] hover:text-accent transition-colors">Price benchmark</Link></li>
-            <li className="mb-[12px]"><Link href="/landed" className="text-[13px] hover:text-accent transition-colors">Landed cost</Link></li>
+            <li className="mb-[12px]"><Link href="/feature-expansion" className="text-[13px] hover:text-accent transition-colors">All trade tools</Link></li>
+            {/* Fixed: /shipments → /logistics */}
+            <li className="mb-[12px]"><Link href="/logistics" className="text-[13px] hover:text-accent transition-colors">Shipment records</Link></li>
+            {/* Fixed: /benchmark → /market-analyzer */}
+            <li className="mb-[12px]"><Link href="/market-analyzer" className="text-[13px] hover:text-accent transition-colors">Price benchmark</Link></li>
+            {/* Fixed: /landed → /feature-expansion */}
+            <li className="mb-[12px]"><Link href="/feature-expansion" className="text-[13px] hover:text-accent transition-colors">Landed cost</Link></li>
+            {/* New: Health Insurance */}
+            <li className="mb-[12px]"><Link href="/insurance" className="text-[13px] hover:text-accent transition-colors">Health Insurance</Link></li>
+            {/* New: Help & Support */}
+            <li className="mb-[12px]"><Link href="/help" className="text-[13px] hover:text-accent transition-colors">Help & Support</Link></li>
           </ul>
         </div>
+
 
         {/* Column 5: Subscribe */}
         <div className="col-span-1 sm:col-span-2 md:col-span-5 lg:col-span-3">

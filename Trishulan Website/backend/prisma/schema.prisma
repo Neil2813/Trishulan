@@ -67,13 +67,23 @@ enum CorporateStatus {
   COMPLETED
 }
 
-// ── Models ─────────────────────────────────
+// New: Document type for billing module (pp. 28-29)
+enum DocType {
+  ESTIMATE
+  QUOTATION
+  PROFORMA_INVOICE
+  SALES_ORDER
+  DELIVERY_CHALLAN
+  TAX_INVOICE
+}
+
+// ── Core Models ─────────────────────────────────
 model User {
-  id               String           @id @default(cuid())
+  id               String              @id @default(cuid())
   name             String
-  email            String           @unique
-  role             UserRole         @default(BUYER)
-  authProvider     AuthProvider     @default(JWT)
+  email            String              @unique
+  role             UserRole            @default(BUYER)
+  authProvider     AuthProvider        @default(JWT)
   passwordHash     String?
   companyName      String?
   phone            String?
@@ -82,17 +92,25 @@ model User {
   address          String?
   city             String?
   state            String?
-  verifiedSeller   Boolean          @default(false)
-  subscriptionTier SubscriptionTier @default(BASIC)
-  chatPublicKey    String?          // ECDH P-256 public key (JWK JSON) for E2EE DMs
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  verifiedSeller   Boolean             @default(false)
+  subscriptionTier SubscriptionTier    @default(BASIC)
+  chatPublicKey    String?             // ECDH P-256 public key (JWK JSON) for E2EE DMs
+  // AI lookup quota enforcement (Guide pp. 26-27)
+  aiLookupsUsed    Int                 @default(0)
+  aiLookupsResetAt DateTime            @default(now())
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
   listings         Listing[]
   rfqs             RFQ[]
-  sentMessages     ChatMessage[]    @relation("SentMessages")
-  receivedMessages ChatMessage[]    @relation("ReceivedMessages")
+  quotes           Quote[]
+  sentMessages     ChatMessage[]       @relation("SentMessages")
+  receivedMessages ChatMessage[]       @relation("ReceivedMessages")
   logistics        LogisticsBooking[]
   corporateReqs    CorporateRequest[]
+  supportTickets   SupportTicket[]
+  insuranceLeads   HealthInsuranceLead[]
+  documents        BusinessDocument[]
+  inventoryItems   InventoryItem[]
   @@map("users")
 }
 
@@ -118,19 +136,20 @@ model Listing {
 }
 
 model RFQ {
-  id           String          @id @default(cuid())
-  buyerId      String
-  buyerName    String
-  title        String
-  category     ListingCategory
-  quantity     String
-  targetPrice  Float
-  details      String
-  status       RFQStatus       @default(OPEN)
-  documentUrl  String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  buyer        User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  id          String          @id @default(cuid())
+  buyerId     String
+  buyerName   String
+  title       String
+  category    ListingCategory
+  quantity    String
+  targetPrice Float
+  details     String
+  status      RFQStatus       @default(OPEN)
+  documentUrl String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  buyer       User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  quotes      Quote[]
   @@index([buyerId, status])
   @@index([category])
   @@map("rfqs")
@@ -159,32 +178,55 @@ model ChatMessage {
 }
 
 model MarketPrice {
-  id            String   @id @default(cuid())
-  commodity     String
-  category      String
-  currentPrice  Float
-  unit          String
-  change24h     Float    @default(0)
-  history7d     Float[]
-  history30d    Float[]
-  historicalYear Json    @default("[]")
-  lastUpdated   DateTime @default(now())
-  dataSource    String?
+  id             String   @id @default(cuid())
+  commodity      String
+  category       String
+  currentPrice   Float
+  unit           String
+  change24h      Float    @default(0)
+  history7d      Float[]
+  history30d     Float[]
+  historicalYear Json     @default("[]")
+  lastUpdated    DateTime @default(now())
+  dataSource     String?
   @@index([commodity, lastUpdated])
   @@map("market_prices")
 }
 
 model LogisticsBooking {
-  id          String               @id @default(cuid())
-  userId      String
-  userName    String
-  serviceType LogisticsServiceType
-  origin      String
-  destination String
-  details     String
-  status      LogisticsStatus      @default(PENDING)
-  createdAt   DateTime             @default(now())
-  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String               @id @default(cuid())
+  userId            String
+  userName          String
+  serviceType       LogisticsServiceType
+  origin            String
+  destination       String
+  details           String
+  status            LogisticsStatus      @default(PENDING)
+  // Shipment Control Tower milestone fields (Guide pp. 20-23)
+  shipmentRef       String?              // e.g. TRC-2048
+  carrierName       String?
+  transportMode     String?              // Road-FTL, Road-PTL, Rail, Air, Sea, Multimodal
+  estimatedPrice    Float?
+  insuranceIncluded Boolean              @default(false)
+  transitDays       Int?
+  // 5-step milestone timestamps
+  bookedAt          DateTime?
+  pickedUpAt        DateTime?
+  inTransitAt       DateTime?
+  atDestinationAt   DateTime?
+  deliveredAt       DateTime?
+  // Exception / alert banner data
+  exceptionNote     String?
+  // Freight reconciliation (quoted vs final)
+  quotedFreight     Float?
+  finalFreight      Float?
+  // Uploaded document URLs (shared shipment folder)
+  lrDocUrl          String?              // Lorry Receipt / Transport Receipt
+  ewayBillUrl       String?              // e-Way Bill
+  packingListUrl    String?
+  epodUrl           String?              // Electronic Proof of Delivery
+  createdAt         DateTime             @default(now())
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("logistics_bookings")
 }
 
@@ -200,4 +242,132 @@ model CorporateRequest {
   createdAt   DateTime             @default(now())
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("corporate_requests")
+}
+
+// ── New Models — Blueprint Extension ────────────
+
+// 1. Structured Quotes for Side-by-Side Comparison (Guide pp. 14, 30)
+model Quote {
+  id             String   @id @default(cuid())
+  rfqId          String
+  sellerId       String
+  sellerName     String
+  unitPrice      Float
+  currency       String   @default("INR")
+  moq            String
+  leadTimeDays   Int
+  freightCost    Float    @default(0)
+  taxRatePercent Float    @default(18.0)
+  incoterm       String   @default("EXW") // EXW, FOB, CIF
+  paymentTerms   String   @default("30% Advance, 70% against BL/POD")
+  validUntil     DateTime
+  notes          String?
+  status         String   @default("SUBMITTED") // SUBMITTED, ACCEPTED, REJECTED, EXPIRED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  rfq            RFQ      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  seller         User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  @@index([rfqId, sellerId])
+  @@map("quotes")
+}
+
+// 2. Granular Buyer Contact Consent Log (Guide pp. 14-15)
+model BuyerConsentLog {
+  id                  String   @id @default(cuid())
+  buyerId             String
+  rfqId               String?
+  targetSellerId      String
+  allowPhoneSharing   Boolean  @default(false)
+  allowWhatsappAlerts Boolean  @default(false)
+  allowMarketing      Boolean  @default(false)
+  consentWording      String
+  ipAddress           String?
+  userAgent           String?
+  createdAt           DateTime @default(now())
+  @@index([buyerId, targetSellerId])
+  @@map("buyer_consent_logs")
+}
+
+// 3. Centralized Support Desk & Disputes (Guide pp. 16, 34)
+model SupportTicket {
+  id            String   @id @default(cuid())
+  caseNumber    String   @unique // e.g. CS-0158
+  userId        String
+  category      String   // Account, KYC, RFQ, Logistics, Billing, Dispute
+  subject       String
+  details       String
+  priority      String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status        String   @default("OPEN")   // OPEN, WAITING_ON_REPLY, RESOLVED, CLOSED
+  assignedAgent String?  @default("Trishulan Support Desk")
+  nextUpdateSla String   @default("Within 24 hours")
+  attachmentUrl String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, status])
+  @@map("support_tickets")
+}
+
+// 4. Health Insurance Referral Leads (Guide p. 24)
+model HealthInsuranceLead {
+  id             String   @id @default(cuid())
+  userId         String
+  coverageType   String   // GROUP_EMPLOYEE, INDIVIDUAL, FAMILY, BUSINESS_OWNER
+  employeeCount  Int      @default(10)
+  coverageSum    String   @default("5 Lakh / Employee")
+  contactPhone   String
+  companyName    String?
+  selectedPlan   String?  // Plan A, Plan B, Plan C (Custom)
+  consentGranted Boolean  @default(true)
+  status         String   @default("REQUESTED") // REQUESTED, HANDED_OFF, CONTACTED, CLOSED
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("health_insurance_leads")
+}
+
+// 5. Small-Business Billing, Invoicing & Challans (Guide pp. 28-29)
+model BusinessDocument {
+  id           String   @id @default(cuid())
+  userId       String   // Owner of the document
+  docNumber    String   // e.g. INV-1042, DC-0308, SO-5012
+  docType      DocType  @default(TAX_INVOICE)
+  partyName    String   // Buyer or Client entity name
+  partyGstin   String?
+  partyAddress String?
+  subtotal     Float
+  taxAmount    Float
+  totalAmount  Float
+  paidAmount   Float     @default(0)
+  status       String    @default("DRAFT") // DRAFT, ISSUED, PAID, PARTIAL, CANCELLED
+  dueDate      DateTime?
+  notes        String?
+  items        Json      // [{description, hsn, qty, unitPrice, gstRate, total}]
+  parentDocId  String?   // Conversion chain: source doc that generated this one
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, docType, status])
+  @@map("business_documents")
+}
+
+// 6. Inventory & Stock Tracking (Guide pp. 28-29)
+model InventoryItem {
+  id               String   @id @default(cuid())
+  userId           String
+  skuCode          String
+  itemName         String
+  category         String
+  hsnCode          String?
+  unit             String   @default("Units") // Pieces, MT, kg, Boxes
+  costPrice        Float
+  salePrice        Float
+  currentStock     Float    @default(0)
+  reorderPoint     Float    @default(10)
+  reorderAlertSent Boolean  @default(false)
+  batchNumber      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, skuCode])
+  @@map("inventory_items")
 }

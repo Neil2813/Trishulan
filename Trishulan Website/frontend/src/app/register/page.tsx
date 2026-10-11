@@ -419,7 +419,7 @@ export default function RegisterPage() {
               name={name || registeredUser?.name || 'Industrial Member'}
               role={role === 'SELLER' ? 'SELLER' : 'BUYER'}
               companyName={companyName || registeredUser?.companyName || 'Trishulan Enterprise'}
-              gstNumber={gstNumber || '27AAAAA0000A1Z5'}
+              gstNumber={gstNumber || undefined}
               email={email || registeredUser?.email}
               photoUrl={photoPreviewUrl || undefined}
             />

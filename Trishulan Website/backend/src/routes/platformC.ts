@@ -12,38 +12,43 @@ router.get('/trade-leads', async (req, res) => {
 
     let listings = await prisma.listing.findMany({
       orderBy: { createdAt: 'desc' },
+      include: {
+        seller: { select: { verifiedSeller: true, exportReady: true, moq: true } },
+      },
     });
 
     if (query) {
       listings = listings.filter((l: any) =>
         l.title.toLowerCase().includes(query) ||
         l.description.toLowerCase().includes(query) ||
-        l.sellerName.toLowerCase().includes(query)
+        (l.sellerName && l.sellerName.toLowerCase().includes(query))
       );
     }
-
     if (location && location !== 'india') {
       listings = listings.filter((l: any) => l.location.toLowerCase().includes(location));
     }
 
-    const tradeLeads = listings.map((l: any, index: number) => {
-      const isVerified = Boolean(l.isVerifiedSeller);
-      let badge: 'VERIFIED' | 'EXPORT_READY' | 'ACTIVE_LEAD' = 'ACTIVE_LEAD';
-      if (isVerified) badge = 'VERIFIED';
-      else if (index % 2 === 0) badge = 'EXPORT_READY';
+    const tradeLeads = listings.map((l: any) => {
+      const isVerified = Boolean(l.seller?.verifiedSeller ?? l.isVerifiedSeller);
+      const isExportReady = Boolean(l.seller?.exportReady ?? l.exportReady);
+      const badge: 'VERIFIED' | 'EXPORT_READY' | 'ACTIVE_LEAD' = isVerified
+        ? 'VERIFIED'
+        : isExportReady
+          ? 'EXPORT_READY'
+          : 'ACTIVE_LEAD';
 
       return {
         id: l.id,
         title: l.title,
-        buyerName: l.sellerName || `Trade Partner ${index + 1}`,
+        buyerName: l.sellerName,
         location: l.location,
         category: l.category,
-        quantity: index === 0 ? '50,000 Units' : '10,000 Kgs',
+        quantity: l.seller?.moq ?? l.moq ?? null,
         targetPrice: `₹${l.price} / ${l.unit}`,
         badge,
-        matchScore: Math.min(99, 85 + (index * 3) % 15),
+        matchScore: l.matchScore ?? null,
         details: l.description,
-        postedDate: new Date(Date.now() - (index * 86400000)).toISOString().split('T')[0],
+        postedDate: l.createdAt,
       };
     });
 
@@ -53,65 +58,63 @@ router.get('/trade-leads', async (req, res) => {
   }
 });
 
-// POST /api/platform-c/requirement
+// POST /api/platform-c/requirement (auth required)
 router.post('/requirement', async (req: AuthenticatedRequest, res) => {
   try {
-    const { title, targetPrice, quantity, category, details } = req.body;
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
+    const { title, targetPrice, quantity, category, details } = req.body;
     if (!title || !quantity) {
       return res.status(400).json({ error: 'Missing title or quantity' });
     }
 
-    let validCategory: 'RAW_MATERIALS' | 'MACHINERY' | 'SPARES' = 'MACHINERY';
-    if (category === 'RAW_MATERIALS' || category === 'SPARES') {
-      validCategory = category;
+    const VALID_CATEGORIES = ['RAW_MATERIALS', 'MACHINERY', 'SPARES'];
+    if (!category || !VALID_CATEGORIES.includes(category)) {
+      return res.status(400).json({ error: `category must be one of: ${VALID_CATEGORIES.join(', ')}` });
     }
 
-    const newRfq = {
-      id: 'trade_req_' + Math.random().toString(36).substring(2, 9),
-      buyerId: req.user?.id || 'usr_buyer1',
-      buyerName: req.user?.companyName || req.user?.name || 'Verified Trader',
-      title,
-      category: validCategory,
-      quantity: String(quantity),
-      targetPrice: Number(targetPrice) || 0,
-      details: details || 'Trade requirement posted',
-      status: 'OPEN',
-      createdAt: new Date().toISOString()
-    };
+    const requirement = await prisma.rFQ.create({
+      data: {
+        buyerId: req.user.id,
+        buyerName: req.user.companyName || req.user.name,
+        title,
+        category,
+        quantity: String(quantity),
+        targetPrice: Number(targetPrice) || 0,
+        details: details || null,
+        status: 'OPEN',
+      },
+    });
 
-    return res.json({ success: true, message: 'Trade requirement successfully posted to network', requirement: newRfq });
+    return res.json({ success: true, message: 'Trade requirement successfully posted to network', requirement });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to submit requirement' });
   }
 });
 
-// GET /api/platform-c/activity
-router.get('/activity', async (_req, res) => {
+// GET /api/platform-c/activity (auth required)
+router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
-    const chatCount = await prisma.chatMessage.count();
-    const rfqs = await prisma.rFQ.findMany();
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const newLeads = Math.max(chatCount + 18, 32);
-    const responded = Math.max(Math.floor(newLeads * 0.8), 24);
-    const openRfqs = rfqs.filter((r: any) => r.status === 'OPEN').length || 12;
+    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+      prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
+      prisma.chatMessage.count({ where: { senderId: req.user.id } }),
+      prisma.rFQ.count({ where: { status: 'OPEN' } }),
+      prisma.$queryRaw<{ day: number; count: bigint }[]>`
+        SELECT EXTRACT(DOW FROM "createdAt")::int AS day, COUNT(*)::bigint AS count
+        FROM "RFQ"
+        WHERE "buyerId" = ${req.user.id}
+          AND "createdAt" >= NOW() - INTERVAL '7 days'
+        GROUP BY day ORDER BY day
+      `,
+    ]);
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const sampleCounts = [8, 14, 11, 19, 22, 17, 26];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
+    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
 
-    const weeklyTrend = days.map((day, i) => ({
-      day,
-      count: sampleCounts[i] + (rfqs.length % (i + 1))
-    }));
-
-    return res.json({
-      metrics: {
-        newLeads,
-        responded,
-        openRfqs,
-        weeklyTrend
-      }
-    });
+    return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch activity dashboard' });
   }

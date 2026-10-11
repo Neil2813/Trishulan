@@ -12,36 +12,55 @@ router.get('/sme-network', async (req, res) => {
 
     let listings = await prisma.listing.findMany({
       orderBy: { createdAt: 'desc' },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            companyName: true,
+            verifiedSeller: true,
+            city: true,
+            state: true,
+            employeeCount: true,
+            websiteUrl: true,
+            averageRating: true,
+            reviewsCount: true,
+            digitalCatalogEnabled: true,
+          },
+        },
+      },
     });
 
     if (query) {
       listings = listings.filter((l: any) =>
         l.title.toLowerCase().includes(query) ||
-        l.sellerName.toLowerCase().includes(query)
+        (l.sellerName && l.sellerName.toLowerCase().includes(query))
       );
     }
-
     if (location && location !== 'india') {
       listings = listings.filter((l: any) => l.location.toLowerCase().includes(location));
     }
 
-    const smeNetwork = listings.map((l: any, index: number) => {
-      const isVerified = Boolean(l.isVerifiedSeller);
-      let badge: 'VERIFIED_SME' | 'DIGITAL_CATALOG' | 'CERTIFIED' = 'CERTIFIED';
-      if (isVerified) badge = 'VERIFIED_SME';
-      else if (index % 2 === 0) badge = 'DIGITAL_CATALOG';
+    const smeNetwork = listings.map((l: any) => {
+      const seller = l.seller;
+      const isVerified = Boolean(seller?.verifiedSeller ?? l.isVerifiedSeller);
+      const hasCatalog = Boolean(seller?.digitalCatalogEnabled);
+      const badge: 'VERIFIED_SME' | 'DIGITAL_CATALOG' | 'CERTIFIED' = isVerified
+        ? 'VERIFIED_SME'
+        : hasCatalog
+          ? 'DIGITAL_CATALOG'
+          : 'CERTIFIED';
 
       return {
         id: l.id,
-        smeName: l.sellerName || `Industrial SME ${index + 1}`,
+        smeName: seller?.companyName || l.sellerName,
         coreSpecialty: l.title,
         location: l.location,
-        employeeCount: `${10 + (index * 5)}-50 Employees`,
+        employeeCount: seller?.employeeCount ?? null,
         badge,
-        hasWebsite: true,
+        hasWebsite: Boolean(seller?.websiteUrl),
         catalogUrl: `/sme/${l.id}`,
-        rating: 4.8,
-        reviewsCount: 12 + index * 4,
+        rating: seller?.averageRating ?? null,
+        reviewsCount: seller?.reviewsCount ?? 0,
       };
     });
 
@@ -51,60 +70,67 @@ router.get('/sme-network', async (req, res) => {
   }
 });
 
-// POST /api/platform-e/rfq
+// POST /api/platform-e/rfq (auth required)
 router.post('/rfq', async (req: AuthenticatedRequest, res) => {
   try {
-    const { smeId, productRequirement, quantity, targetDate } = req.body;
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
+    const { smeId, productRequirement, quantity, targetDate, category } = req.body;
     if (!productRequirement) {
       return res.status(400).json({ error: 'Missing product requirement details' });
     }
 
-    const newRfq = {
-      id: 'sme_rfq_' + Math.random().toString(36).substring(2, 9),
-      buyerId: req.user?.id || 'usr_buyer1',
-      buyerName: req.user?.companyName || req.user?.name || 'Verified SME Partner',
-      title: productRequirement,
-      category: 'MACHINERY',
-      quantity: String(quantity || '1'),
-      targetPrice: 0,
-      details: `SME Target: ${smeId || 'All Network'}. Target Date: ${targetDate || 'Flexible'}`,
-      status: 'OPEN',
-      createdAt: new Date().toISOString()
-    };
+    const VALID_CATEGORIES = ['RAW_MATERIALS', 'MACHINERY', 'SPARES'];
+    const resolvedCategory = VALID_CATEGORIES.includes(category) ? category : null;
+    if (!resolvedCategory) {
+      return res.status(400).json({ error: `category must be one of: ${VALID_CATEGORIES.join(', ')}` });
+    }
 
-    return res.json({ success: true, message: 'Direct SME RFQ submitted successfully', rfq: newRfq });
+    const rfq = await prisma.rFQ.create({
+      data: {
+        buyerId: req.user.id,
+        buyerName: req.user.companyName || req.user.name,
+        title: productRequirement,
+        category: resolvedCategory,
+        quantity: String(quantity || 1),
+        targetPrice: 0,
+        details: [
+          smeId ? `SME Target: ${smeId}` : null,
+          targetDate ? `Target Date: ${targetDate}` : null,
+        ].filter(Boolean).join('. ') || null,
+        status: 'OPEN',
+      },
+    });
+
+    return res.json({ success: true, message: 'Direct SME RFQ submitted successfully', rfq });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to submit SME RFQ' });
   }
 });
 
-// GET /api/platform-e/activity
-router.get('/activity', async (_req, res) => {
+// GET /api/platform-e/activity (auth required)
+router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
-    const chatCount = await prisma.chatMessage.count();
-    const rfqs = await prisma.rFQ.findMany();
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const newLeads = Math.max(chatCount + 12, 20);
-    const responded = Math.max(Math.floor(newLeads * 0.7), 14);
-    const openRfqs = rfqs.filter((r: any) => r.status === 'OPEN').length || 6;
+    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+      prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
+      prisma.chatMessage.count({ where: { senderId: req.user.id } }),
+      prisma.rFQ.count({ where: { status: 'OPEN' } }),
+      prisma.$queryRaw<{ day: number; count: bigint }[]>`
+        SELECT EXTRACT(DOW FROM timestamp)::int AS day, COUNT(*)::bigint AS count
+        FROM "ChatMessage"
+        WHERE ("senderId" = ${req.user.id} OR "receiverId" = ${req.user.id})
+          AND timestamp >= NOW() - INTERVAL '7 days'
+        GROUP BY day ORDER BY day
+      `,
+    ]);
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const sampleCounts = [4, 8, 6, 11, 15, 9, 16];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
+    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
 
-    const weeklyTrend = days.map((day, i) => ({
-      day,
-      count: sampleCounts[i] + (rfqs.length % (i + 1))
-    }));
-
-    return res.json({
-      metrics: {
-        newLeads,
-        responded,
-        openRfqs,
-        weeklyTrend
-      }
-    });
+    return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch SME activity metrics' });
   }

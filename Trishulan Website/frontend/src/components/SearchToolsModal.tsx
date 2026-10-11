@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Camera, Mic, Tag, Upload, ImageIcon, Search, QrCode, X } from 'lucide-react';
 
 interface SearchToolsModalProps {
@@ -17,20 +17,35 @@ export default function SearchToolsModal({
   const [tab, setTab] = useState<'barcode' | 'image' | 'voice' | 'hsn'>(activeTabDefault);
   const [scanning, setScanning] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [hsnQuery, setHsnQuery] = useState('');
+  const [scanError, setScanError] = useState('');
+  const [imageError, setImageError] = useState('');
+  const recognitionRef = useRef<any>(null);
 
   if (!isOpen) return null;
 
-  const handleSimulateScan = () => {
+  // Upload a barcode image to the backend and retrieve the matched product query
+  const handleSimulateScan = async (e?: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e?.target?.files?.[0];
+    if (!file) return;
+    setScanError('');
     setScanning(true);
-    setTimeout(() => {
-      setScanning(false);
-      const code = '8901030678912 (Hydraulic Bearing 6205-ZZ)';
-      if (onSearchSelect) onSearchSelect('Hydraulic Bearing 6205');
+    try {
+      const form = new FormData();
+      form.append('image', file);
+      const res = await fetch('/api/search/barcode', { method: 'POST', body: form });
+      if (!res.ok) throw new Error('Barcode lookup failed');
+      const data = await res.json();
+      if (onSearchSelect && data.query) onSearchSelect(data.query);
       onClose();
-    }, 1800);
+    } catch (err: any) {
+      setScanError(err.message || 'Could not decode barcode. Please try again.');
+    } finally {
+      setScanning(false);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,25 +53,67 @@ export default function SearchToolsModal({
     if (file) {
       const url = URL.createObjectURL(file);
       setSelectedImage(url);
+      setSelectedImageFile(file);
+      setImageError('');
     }
   };
 
-  const handleExecuteImageSearch = () => {
-    if (onSearchSelect) onSearchSelect('Steel TMT Rebar 12mm Fe550D');
-    onClose();
+  // Send the uploaded product image to the backend for AI visual matching
+  const handleExecuteImageSearch = async () => {
+    if (!selectedImageFile) {
+      setImageError('Please upload an image first.');
+      return;
+    }
+    setImageError('');
+    try {
+      const form = new FormData();
+      form.append('image', selectedImageFile);
+      const res = await fetch('/api/search/visual', { method: 'POST', body: form });
+      if (!res.ok) throw new Error('Visual search failed');
+      const data = await res.json();
+      if (onSearchSelect && data.query) onSearchSelect(data.query);
+      onClose();
+    } catch (err: any) {
+      setImageError(err.message || 'Visual search failed. Please try again.');
+    }
   };
 
+  // Use the browser Web Speech API for voice recognition
   const handleToggleVoice = () => {
-    if (isListening) {
-      setIsListening(false);
-    } else {
-      setIsListening(true);
-      setVoiceQuery('Listening... Say product name like "TMT Steel 16mm"');
-      setTimeout(() => {
-        setVoiceQuery('TMT Steel 16mm Tata Tiscon');
-        setIsListening(false);
-      }, 2500);
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setVoiceQuery('Voice search is not supported in this browser.');
+      return;
     }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognitionRef.current = recognition;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceQuery('');
+    };
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((r: any) => r[0].transcript)
+        .join('');
+      setVoiceQuery(transcript);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
   };
 
   const handleVoiceSearchSubmit = () => {
@@ -135,7 +192,7 @@ export default function SearchToolsModal({
               {scanning ? (
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-12 h-12 rounded-full border-4 border-[#EA580C] border-t-transparent animate-spin"></div>
-                  <span className="text-xs font-bold text-accent animate-pulse">Scanning barcode & decoding catalog item...</span>
+                  <span className="text-xs font-bold text-accent animate-pulse">Decoding barcode — looking up catalog item...</span>
                 </div>
               ) : (
                 <>
@@ -143,7 +200,7 @@ export default function SearchToolsModal({
                     ▤
                   </div>
                   <span className="text-xs font-bold text-gray-700">Scan Product Barcode or EAN / QR Code</span>
-                  <span className="text-[11px] text-muted/70 mt-0.5">Position camera over product barcode or upload image</span>
+                  <span className="text-[11px] text-muted/70 mt-0.5">Upload a barcode image to identify the product</span>
                 </>
               )}
 
@@ -153,22 +210,17 @@ export default function SearchToolsModal({
               )}
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleSimulateScan}
-                disabled={scanning}
-                className="flex-1 py-3 bg-accent hover:bg-[#c2410a] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
-              >
-                <Camera className="w-4 h-4" />
-                <span>{scanning ? 'Scanning...' : 'Start Camera Scan'}</span>
-              </button>
+            {scanError && (
+              <p className="text-xs text-red-600 font-semibold">{scanError}</p>
+            )}
 
-              <label className="flex-1 py-3 bg-line/30 hover:bg-gray-200 text-ink font-bold text-xs rounded-xl border border-gray-300 text-center cursor-pointer transition-all flex items-center justify-center gap-2">
-                <Upload className="w-4 h-4" />
-                <span>Upload Barcode File</span>
-                <input type="file" accept="image/*" onChange={handleSimulateScan} className="hidden" />
-              </label>
-            </div>
+            <label className={`w-full py-3 rounded-xl font-bold text-xs text-center cursor-pointer transition-all flex items-center justify-center gap-2 ${
+              scanning ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-accent hover:bg-[#c2410a] text-white shadow'
+            }`}>
+              <Upload className="w-4 h-4" />
+              <span>{scanning ? 'Scanning...' : 'Upload Barcode / QR Image'}</span>
+              <input type="file" accept="image/*" onChange={handleSimulateScan} disabled={scanning} className="hidden" />
+            </label>
           </div>
         )}
 
@@ -177,9 +229,9 @@ export default function SearchToolsModal({
             <div className="h-44 border-2 border-dashed border-gray-300 rounded-2xl bg-card flex flex-col items-center justify-center relative overflow-hidden">
               {selectedImage ? (
                 <div className="relative w-full h-full p-2">
-                  <img src={selectedImage} alt="Uploaded sample" className="w-full h-full object-contain rounded-xl" />
+                  <img src={selectedImage} alt="Uploaded product" className="w-full h-full object-contain rounded-xl" />
                   <button
-                    onClick={() => setSelectedImage(null)}
+                    onClick={() => { setSelectedImage(null); setSelectedImageFile(null); setImageError(''); }}
                     className="absolute top-4 right-4 bg-red-600 text-white text-xs px-2 py-1 rounded-md font-bold shadow"
                   >
                     Change Image
@@ -197,9 +249,14 @@ export default function SearchToolsModal({
               )}
             </div>
 
+            {imageError && (
+              <p className="text-xs text-red-600 font-semibold">{imageError}</p>
+            )}
+
             <button
               onClick={handleExecuteImageSearch}
-              className="w-full py-3 bg-accent hover:bg-[#c2410a] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
+              disabled={!selectedImageFile}
+              className="w-full py-3 bg-accent hover:bg-[#c2410a] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Search className="w-4 h-4" />
               <span>Run AI Visual Product Match</span>
