@@ -76,21 +76,21 @@ export default function ServicePointsModal({ isOpen, onClose }: ServicePointsMod
 
   return (
     <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.15s_ease]">
-      <div className="bg-white rounded-[24px] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative border border-gray-100 max-h-[85vh] flex flex-col">
+      <div className="bg-card rounded-[24px] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative border border-gray-100 max-h-[85vh] flex flex-col">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-sm transition-colors"
+          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-line/30 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-sm transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Title */}
         <div className="mb-4 pr-10">
-          <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.14em]">PHYSICAL VERIFICATION HUBS</span>
-          <h3 className="text-[24px] font-black text-[#0A1629] mt-0.5">Trishulan Service Point Locations</h3>
-          <p className="text-xs text-gray-500 mt-1">
+          <span className="text-[11px] font-bold text-accent uppercase tracking-[.14em]">PHYSICAL VERIFICATION HUBS</span>
+          <h3 className="text-[24px] font-black text-ink mt-0.5">Trishulan Service Point Locations</h3>
+          <p className="text-xs text-muted mt-1">
             Verified physical centers across industrial corridors for quality testing, escrow collection, and weight inspection.
           </p>
         </div>
@@ -109,31 +109,31 @@ export default function ServicePointsModal({ isOpen, onClose }: ServicePointsMod
         {/* List of Service Points */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           {filteredPoints.length === 0 ? (
-            <div className="text-center py-10 text-xs text-gray-500">No service points found matching your search.</div>
+            <div className="text-center py-10 text-xs text-muted">No service points found matching your search.</div>
           ) : (
             filteredPoints.map((pt) => (
-              <div key={pt.id} className="p-5 rounded-2xl bg-gray-50 border border-gray-200 hover:border-[#EA580C] transition-all">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 gap-2">
+              <div key={pt.id} className="p-5 rounded-2xl bg-card border border-line hover:border-[#EA580C] transition-all">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-line gap-2">
                   <div>
-                    <span className="text-[10px] font-bold text-[#EA580C] uppercase tracking-wider">{pt.state}</span>
-                    <h4 className="text-[17px] font-extrabold text-[#0A1629]">{pt.city}</h4>
+                    <span className="text-[10px] font-bold text-accent uppercase tracking-wider">{pt.state}</span>
+                    <h4 className="text-[17px] font-extrabold text-ink">{pt.city}</h4>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-[10px] font-extrabold">
                       ● {pt.status}
                     </span>
-                    <span className="text-xs font-bold text-[#0A1629]">{pt.phone}</span>
+                    <span className="text-xs font-bold text-ink">{pt.phone}</span>
                   </div>
                 </div>
 
-                <div className="mt-3 text-xs text-gray-600">
+                <div className="mt-3 text-xs text-muted">
                   <span className="font-semibold text-gray-700 block">Address:</span>
                   <span>{pt.address}</span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {pt.services.map((svc, idx) => (
-                    <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-gray-200 text-[11px] font-bold text-[#0A1629]">
+                    <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-card border border-line text-[11px] font-bold text-ink">
                       <Check className="w-3 h-3 text-green-600" />
                       <span>{svc}</span>
                     </span>
@@ -145,9 +145,9 @@ export default function ServicePointsModal({ isOpen, onClose }: ServicePointsMod
         </div>
 
         {/* Footer info */}
-        <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between text-[11px] text-gray-500">
+        <div className="mt-4 pt-3 border-t border-line flex items-center justify-between text-[11px] text-muted">
           <span>Need a custom quality inspection at your factory?</span>
-          <a href="/rfq" className="font-bold text-[#EA580C] hover:underline">Book Trishulan Inspector →</a>
+          <a href="/rfq" className="font-bold text-accent hover:underline">Book Trishulan Inspector →</a>
         </div>
 
       </div>

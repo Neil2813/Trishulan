@@ -52,11 +52,11 @@ export default function BuyerLeadSharingWhatsapp() {
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-md space-y-6">
+    <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider">FEATURE EXPANSION MODULE 3</span>
-        <h2 className="text-xl md:text-2xl font-black text-[#0A1629] mt-0.5">
+        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">FEATURE EXPANSION MODULE 3</span>
+        <h2 className="text-xl md:text-2xl font-black text-ink mt-0.5">
           Buyer lead sharing, WhatsApp and company database
         </h2>
         <p className="text-xs md:text-sm text-[#475569] font-medium mt-1 leading-relaxed max-w-4xl">
@@ -65,7 +65,7 @@ export default function BuyerLeadSharingWhatsapp() {
       </div>
 
       {/* Screen Form Container */}
-      <div className="border border-slate-300 rounded-2xl overflow-hidden bg-slate-50 shadow-xs">
+      <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
@@ -85,7 +85,7 @@ export default function BuyerLeadSharingWhatsapp() {
                 value={buyerName}
                 onChange={(e) => setBuyerName(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#EA580C]"
+                className="w-full px-3 py-2 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#EA580C]"
               />
             </div>
 
@@ -100,7 +100,7 @@ export default function BuyerLeadSharingWhatsapp() {
                   value={buyerPhone}
                   onChange={(e) => setBuyerPhone(e.target.value)}
                   required
-                  className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#EA580C]"
+                  className="flex-1 px-3 py-2 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#EA580C]"
                 />
               </div>
             </div>
@@ -125,8 +125,8 @@ export default function BuyerLeadSharingWhatsapp() {
                     onClick={() => handleToggleSeller(seller.id)}
                     className={`p-3 rounded-xl border text-left font-bold transition-all flex items-center justify-between ${
                       isSelected
-                        ? 'bg-orange-50 border-[#EA580C] text-[#EA580C]'
-                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                        ? 'bg-orange-50 border-[#EA580C] text-accent'
+                        : 'bg-card border-line text-muted hover:border-line'
                     }`}
                   >
                     <span className="text-[11px]">{seller.name}</span>
@@ -144,20 +144,20 @@ export default function BuyerLeadSharingWhatsapp() {
               value={inquiryText}
               onChange={(e) => setInquiryText(e.target.value)}
               required
-              className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-[#0A1629] focus:outline-none focus:border-[#EA580C]"
+              className="w-full p-3 bg-card border border-line rounded-xl text-xs font-medium text-ink focus:outline-none focus:border-[#EA580C]"
             ></textarea>
           </div>
 
           {/* WhatsApp Permission Checkbox */}
-          <div className="p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-3">
+          <div className="p-3 bg-card border border-line rounded-xl flex items-center gap-3">
             <input
               type="checkbox"
               id="waCheck"
               checked={allowWhatsapp}
               onChange={(e) => setAllowWhatsapp(e.target.checked)}
-              className="w-4 h-4 text-[#EA580C] accent-[#EA580C] rounded cursor-pointer"
+              className="w-4 h-4 text-accent accent-[#EA580C] rounded cursor-pointer"
             />
-            <label htmlFor="waCheck" className="text-xs font-bold text-[#0A1629] cursor-pointer">
+            <label htmlFor="waCheck" className="text-xs font-bold text-ink cursor-pointer">
               Allow selected sellers to contact me on WhatsApp Business with quote updates & stock availability.
             </label>
           </div>
@@ -172,7 +172,7 @@ export default function BuyerLeadSharingWhatsapp() {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-3 bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-md transition-all"
+              className="px-6 py-3 bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow transition-all"
             >
               {submitting ? 'Delivering Lead...' : 'Deliver Lead to Selected Sellers'}
             </button>

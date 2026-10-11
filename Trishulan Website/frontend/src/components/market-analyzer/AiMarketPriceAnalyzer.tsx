@@ -95,10 +95,10 @@ export default function AiMarketPriceAnalyzer() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-6xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-xs font-bold tracking-widest text-[#0A1629] uppercase flex items-center gap-2">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
+        <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>AI MARKET PRICE ANALYZER / ILLUSTRATIVE</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Live Frankfurter FX & Yahoo Finance API)</span>}
         </h2>
@@ -109,43 +109,43 @@ export default function AiMarketPriceAnalyzer() {
 
       <div className="p-6 space-y-6">
         {/* Product Criteria Bar */}
-        <form onSubmit={handleFormSubmit} className="bg-slate-50/80 border border-slate-200 p-4 rounded-xl space-y-3">
+        <form onSubmit={handleFormSubmit} className="bg-card/80 border border-line p-4 rounded-xl space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">Product</label>
+              <label className="block text-[11px] font-semibold text-muted mb-1">Product</label>
               <input
                 type="text"
                 value={product}
                 onChange={(e) => setProduct(e.target.value)}
                 placeholder="e.g. stainless steel sheet 304"
-                className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs text-[#0A1629] focus:outline-none focus:border-[#EA580C]"
+                className="w-full bg-card border border-line rounded px-3 py-2 text-xs text-ink focus:outline-none focus:border-[#EA580C]"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">Grade</label>
+              <label className="block text-[11px] font-semibold text-muted mb-1">Grade</label>
               <input
                 type="text"
                 value={grade}
                 onChange={(e) => setGrade(e.target.value)}
                 placeholder="e.g. 2B or SS316"
-                className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs text-[#0A1629] focus:outline-none focus:border-[#EA580C]"
+                className="w-full bg-card border border-line rounded px-3 py-2 text-xs text-ink focus:outline-none focus:border-[#EA580C]"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">Thickness / Spec</label>
+              <label className="block text-[11px] font-semibold text-muted mb-1">Thickness / Spec</label>
               <input
                 type="text"
                 value={thickness}
                 onChange={(e) => setThickness(e.target.value)}
                 placeholder="e.g. 2 mm"
-                className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs text-[#0A1629] focus:outline-none focus:border-[#EA580C]"
+                className="w-full bg-card border border-line rounded px-3 py-2 text-xs text-ink focus:outline-none focus:border-[#EA580C]"
               />
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2">
-            <div className="text-[11px] text-slate-600 font-mono">
-              Product: <span className="text-[#0A1629] font-bold">{product}</span> | Grade: <span className="text-[#0A1629] font-bold">{grade}</span> | Thickness: <span className="text-[#0A1629] font-bold">{thickness}</span>
+            <div className="text-[11px] text-muted font-mono">
+              Product: <span className="text-ink font-bold">{product}</span> | Grade: <span className="text-ink font-bold">{grade}</span> | Thickness: <span className="text-ink font-bold">{thickness}</span>
             </div>
             <button
               type="submit"
@@ -164,10 +164,10 @@ export default function AiMarketPriceAnalyzer() {
         )}
 
         {/* Live Market Price Table */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
+        <div className="bg-card border border-line rounded-xl overflow-x-auto shadow-sm">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[10px] tracking-wider">
+              <tr className="bg-card text-muted border-b border-line uppercase text-[10px] tracking-wider">
                 <th className="p-3.5 font-bold">Market</th>
                 <th className="p-3.5 font-bold">Indicative range</th>
                 <th className="p-3.5 font-bold">Currency / unit</th>
@@ -181,11 +181,11 @@ export default function AiMarketPriceAnalyzer() {
                 { market: 'International - East Asia', indicativeRange: 'USD 2.42-2.76', currencyUnit: 'per kg', updated: 'Today, 08:30', confidence: 'Medium' },
                 { market: 'International - Europe', indicativeRange: 'EUR 2.35-2.69', currencyUnit: 'per kg', updated: 'Yesterday', confidence: 'Low' },
               ]).map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 transition">
-                  <td className="p-3.5 font-bold text-[#0A1629]">{row.market}</td>
+                <tr key={idx} className="hover:bg-card transition">
+                  <td className="p-3.5 font-bold text-ink">{row.market}</td>
                   <td className="p-3.5 font-mono font-bold text-emerald-700">{row.indicativeRange}</td>
                   <td className="p-3.5 text-slate-700 font-medium">{row.currencyUnit}</td>
-                  <td className="p-3.5 text-slate-500">{row.updated}</td>
+                  <td className="p-3.5 text-muted">{row.updated}</td>
                   <td className="p-3.5">
                     <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${
                       row.confidence === 'High'
@@ -204,12 +204,12 @@ export default function AiMarketPriceAnalyzer() {
         </div>
 
         {/* AI Summary Box */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-1">
-          <p className="text-xs font-bold text-[#0A1629]">
+        <div className="bg-card border border-line p-4 rounded-xl space-y-1">
+          <p className="text-xs font-bold text-ink">
             <span className="text-emerald-700">AI summary: </span>
             {data?.aiSummary || 'national benchmark is stable; international ranges differ by delivery basis and currency.'}
           </p>
-          <p className="text-[11px] text-slate-600 italic">
+          <p className="text-[11px] text-muted italic">
             {data?.aiSummarySubtext || 'Compare grade, tax, freight, incoterms, quantity and payment terms before treating quotes as equivalent.'}
           </p>
         </div>
@@ -230,9 +230,9 @@ export default function AiMarketPriceAnalyzer() {
         </div>
 
         {/* Price Data Controls and Trust Labels */}
-        <div className="bg-slate-50 border border-slate-200 p-5 rounded-xl space-y-3">
+        <div className="bg-card border border-line p-5 rounded-xl space-y-3">
           <div className="flex justify-between items-center">
-            <h3 className="text-xs font-bold text-[#0A1629] uppercase">Price Data Controls & Trust Labels</h3>
+            <h3 className="text-xs font-bold text-ink uppercase">Price Data Controls & Trust Labels</h3>
             <button
               onClick={() => setShowReportForm(!showReportForm)}
               className="text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-1.5 rounded-lg border border-rose-200 transition"
@@ -240,20 +240,20 @@ export default function AiMarketPriceAnalyzer() {
               🚩 Report Incorrect Listing / Anomaly
             </button>
           </div>
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-muted leading-relaxed">
             {data?.trustControlNotice || 'A daily price panel needs a dependable feed strategy. It should label delayed data, stale data, low sample counts and model estimates. It should never present an AI-generated number as an official market price. Keep source attribution, timestamp, currency conversion time and user-submitted quote status visible. Provide a way to report an incorrect listing and a record of the assumptions used in each comparison.'}
           </p>
 
           {/* Anomaly Form Drawer */}
           {showReportForm && (
-            <form onSubmit={handleReportSubmit} className="mt-4 p-4 bg-white rounded-xl border border-slate-200 space-y-3">
+            <form onSubmit={handleReportSubmit} className="mt-4 p-4 bg-card rounded-xl border border-line space-y-3">
               <h4 className="text-xs font-bold text-rose-700">Report Listing or Price Anomaly</h4>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">Reason</label>
+                <label className="block text-[11px] font-semibold text-muted mb-1">Reason</label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-1.5 text-xs text-[#0A1629]"
+                  className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-ink"
                 >
                   <option value="Price anomaly / Stale quote">Price anomaly / Stale quote</option>
                   <option value="Incorrect unit or currency conversion">Incorrect unit or currency conversion</option>
@@ -262,13 +262,13 @@ export default function AiMarketPriceAnalyzer() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">Comments / Audit Notes</label>
+                <label className="block text-[11px] font-semibold text-muted mb-1">Comments / Audit Notes</label>
                 <textarea
                   rows={2}
                   value={reportComments}
                   onChange={(e) => setReportComments(e.target.value)}
                   placeholder="Describe why this market price or listing seems inaccurate..."
-                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-1.5 text-xs text-[#0A1629]"
+                  className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-ink"
                 />
               </div>
               <button

@@ -43,29 +43,29 @@ export default function MarketAnalyzerPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FCFBF8] py-8 px-4 sm:px-6">
+    <div className="min-h-screen bg-transparent py-8 px-4 sm:px-6">
       <div className="max-w-[1500px] mx-auto space-y-8">
         
         {/* Title Header */}
         {/* Title Header */}
-        <div className="bg-gradient-to-r from-orange-50/90 via-white to-amber-50/80 text-[#0A1629] rounded-[24px] p-6 md:p-8 border-2 border-orange-200 shadow-lg relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-96 h-96 bg-[#EA580C]/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="bg-card text-ink rounded-[24px] p-6 md:p-8 border border-line shadow-lg relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-accent/15 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.16em]">PAGE 3 REFERENCE SPECIFICATION</span>
-              <h1 className="text-[28px] md:text-[36px] font-black text-[#0A1629] mt-1">Industrial Analyzer & Setup Feasibility</h1>
+              <span className="text-[11px] font-bold text-accent uppercase tracking-[.16em]">PAGE 3 REFERENCE SPECIFICATION</span>
+              <h1 className="text-[28px] md:text-[36px] font-black text-ink mt-1">Industrial Analyzer & Setup Feasibility</h1>
               <p className="text-[13.5px] text-[#64748B] font-medium mt-1 max-w-2xl">
                 Comprehensive setup insights for new factories, machinery combinations, production workflows, investment tiers, and fraud risk alerts.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-300 shadow-sm">
-              <span className="text-xs text-gray-600 font-bold">Industry Sector:</span>
+            <div className="flex items-center gap-3 bg-card p-3 rounded-2xl border border-gray-300 shadow-sm">
+              <span className="text-xs text-muted font-bold">Industry Sector:</span>
               <select
                 value={selectedIndustry}
                 onChange={(e) => setSelectedIndustry(e.target.value)}
-                className="bg-gray-50 text-[#0A1629] font-extrabold text-xs px-3 py-2 rounded-xl border border-gray-200 focus:outline-none"
+                className="bg-card text-ink font-extrabold text-xs px-3 py-2 rounded-xl border border-line focus:outline-none"
               >
                 <option value="Steel Manufacturing Industry">Steel Manufacturing Industry</option>
                 <option value="Textile & Garment Machinery">Textile & Garment Machinery</option>
@@ -83,13 +83,13 @@ export default function MarketAnalyzerPage() {
         </div>
 
         {/* SECTION: B2B PLATFORM COMPETITIVE INTELLIGENCE MATRIX */}
-        <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl space-y-6">
+        <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow-xl space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-4 border-b border-gray-100">
             <div>
-              <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.14em]">REPORT BENCHMARK</span>
-              <h2 className="text-[20px] font-black text-[#0A1629]">B2B Platform Competitive Landscape Matrix</h2>
+              <span className="text-[11px] font-bold text-accent uppercase tracking-[.14em]">REPORT BENCHMARK</span>
+              <h2 className="text-[20px] font-black text-ink">B2B Platform Competitive Landscape Matrix</h2>
             </div>
-            <span className="text-xs font-bold text-[#475569] bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <span className="text-xs font-bold text-[#475569] bg-line/30 px-3 py-1.5 rounded-xl border border-line">
               Report Date: 30 September 2026
             </span>
           </div>
@@ -100,7 +100,7 @@ export default function MarketAnalyzerPage() {
         {/* SECTION: PROPOSED FEATURE EXPANSION BANNER */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-[24px] p-6 md:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-700">
           <div>
-            <span className="text-[11px] font-extrabold text-[#EA580C] uppercase tracking-wider block">
+            <span className="text-[11px] font-extrabold text-accent uppercase tracking-wider block">
               NEXT-GEN PLATFORM EXTENSION
             </span>
             <h3 className="text-xl md:text-2xl font-black text-white mt-1">
@@ -113,29 +113,29 @@ export default function MarketAnalyzerPage() {
 
           <Link
             href="/feature-expansion"
-            className="px-6 py-3 bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all shrink-0 whitespace-nowrap"
+            className="px-6 py-3 bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all shrink-0 whitespace-nowrap"
           >
             Launch AI Discovery & RFQ Workbench →
           </Link>
         </div>
 
         {/* SECTION 1: MARKET LEVEL & FUTURE SCOPE */}
-        <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl">
+        <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow-xl">
           <div className="flex items-center gap-2 mb-6">
-            <span className="w-7 h-7 rounded-lg bg-[#EA580C] text-white flex items-center justify-center font-black text-xs">1</span>
-            <h2 className="text-[20px] font-black text-[#0A1629]">Market Level & Future Scope</h2>
+            <span className="w-7 h-7 rounded-lg bg-accent text-white flex items-center justify-center font-black text-xs">1</span>
+            <h2 className="text-[20px] font-black text-ink">Market Level & Future Scope</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Trend chart visual */}
-            <div className="md:col-span-2 bg-slate-50 text-[#0A1629] rounded-2xl p-6 border border-gray-200 space-y-4 shadow-sm">
-              <div className="flex justify-between items-center text-xs font-bold text-gray-600">
+            <div className="md:col-span-2 bg-card text-ink rounded-2xl p-6 border border-line space-y-4 shadow-sm">
+              <div className="flex justify-between items-center text-xs font-bold text-muted">
                 <span>Market Size & Growth Trend (USD Billion)</span>
                 <span className="text-green-600 font-bold">CAGR: +6.9% (2025-2030)</span>
               </div>
 
-              <div className="h-36 flex items-end gap-4 pt-6 border-b border-gray-200 pb-2">
+              <div className="h-36 flex items-end gap-4 pt-6 border-b border-line pb-2">
                 {[
                   { year: '2021', val: 130 },
                   { year: '2022', val: 142 },
@@ -148,55 +148,55 @@ export default function MarketAnalyzerPage() {
                   <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                     <div
                       style={{ height: `${(pt.val / 250) * 100}%` }}
-                      className="w-full bg-[#EA580C] rounded-t transition-all hover:bg-[#c2410a]"
+                      className="w-full bg-accent rounded-t transition-all hover:bg-[#c2410a]"
                     ></div>
-                    <span className="text-[10px] text-gray-500 font-mono font-semibold">{pt.year}</span>
+                    <span className="text-[10px] text-muted font-mono font-semibold">{pt.year}</span>
                   </div>
                 ))}
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-xs pt-2">
-                <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
-                  <span className="text-[10px] text-gray-500 block font-semibold">Current Market Level (2025)</span>
-                  <span className="text-[20px] font-black text-[#0A1629]">USD 165 Billion</span>
+                <div className="bg-card p-3 rounded-xl border border-line shadow-2xs">
+                  <span className="text-[10px] text-muted block font-semibold">Current Market Level (2025)</span>
+                  <span className="text-[20px] font-black text-ink">USD 165 Billion</span>
                   <span className="text-[10px] text-green-600 block font-bold">+6.8% vs 2024</span>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
-                  <span className="text-[10px] text-gray-500 block font-semibold">Future Scope (2030 Forecast)</span>
-                  <span className="text-[20px] font-black text-[#EA580C]">USD 230 Billion</span>
+                <div className="bg-card p-3 rounded-xl border border-line shadow-2xs">
+                  <span className="text-[10px] text-muted block font-semibold">Future Scope (2030 Forecast)</span>
+                  <span className="text-[20px] font-black text-accent">USD 230 Billion</span>
                   <span className="text-[10px] text-green-600 block font-bold">+6.9% CAGR (2025-2030)</span>
                 </div>
               </div>
             </div>
 
             {/* Key Market Indicators */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-4">
-              <h3 className="font-extrabold text-sm text-[#0A1629] uppercase tracking-wider">Key Market Indicators</h3>
+            <div className="bg-card border border-line rounded-2xl p-6 space-y-4">
+              <h3 className="font-extrabold text-sm text-ink uppercase tracking-wider">Key Market Indicators</h3>
               
               <div className="space-y-3">
-                <div className="p-3 bg-white rounded-xl border border-gray-200 flex justify-between items-center">
-                  <span className="text-xs text-gray-600 font-bold">Market Growth (CAGR)</span>
+                <div className="p-3 bg-card rounded-xl border border-line flex justify-between items-center">
+                  <span className="text-xs text-muted font-bold">Market Growth (CAGR)</span>
                   <span className="text-xs font-black text-green-600">6.9% (2025-2030)</span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-gray-200 flex justify-between items-center">
-                  <span className="text-xs text-gray-600 font-bold">Demand Trend</span>
-                  <span className="text-xs font-black text-[#EA580C]">Increasing</span>
+                <div className="p-3 bg-card rounded-xl border border-line flex justify-between items-center">
+                  <span className="text-xs text-muted font-bold">Demand Trend</span>
+                  <span className="text-xs font-black text-accent">Increasing</span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-gray-200 flex justify-between items-center">
-                  <span className="text-xs text-gray-600 font-bold">Market Size (2025)</span>
-                  <span className="text-xs font-black text-[#0A1629]">USD 165 Billion</span>
+                <div className="p-3 bg-card rounded-xl border border-line flex justify-between items-center">
+                  <span className="text-xs text-muted font-bold">Market Size (2025)</span>
+                  <span className="text-xs font-black text-ink">USD 165 Billion</span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-gray-200 flex justify-between items-center">
-                  <span className="text-xs text-gray-600 font-bold">Future Outlook</span>
+                <div className="p-3 bg-card rounded-xl border border-line flex justify-between items-center">
+                  <span className="text-xs text-muted font-bold">Future Outlook</span>
                   <span className="text-xs font-black text-green-600">Positive</span>
                 </div>
               </div>
 
-              <p className="text-[11px] text-gray-500 leading-relaxed">
+              <p className="text-[11px] text-muted leading-relaxed">
                 The steel industry is expected to show steady growth due to infrastructure, automotive, and construction demand in India.
               </p>
             </div>
@@ -208,35 +208,35 @@ export default function MarketAnalyzerPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* Section 2: Industrial Setup */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl space-y-4">
+          <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow-xl space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-[#0A1629] text-white flex items-center justify-center font-black text-xs">2</span>
-              <h2 className="text-[20px] font-black text-[#0A1629]">Industrial Setup Requirements</h2>
+              <h2 className="text-[20px] font-black text-ink">Industrial Setup Requirements</h2>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                <span className="text-[10px] text-gray-400 font-bold block uppercase">Land Requirement</span>
-                <span className="font-black text-[#0A1629] text-sm">5 - 50 Acres</span>
-                <span className="text-[10px] text-gray-500 block">Depending on scale</span>
+              <div className="p-3.5 bg-card rounded-xl border border-line">
+                <span className="text-[10px] text-muted/70 font-bold block uppercase">Land Requirement</span>
+                <span className="font-black text-ink text-sm">5 - 50 Acres</span>
+                <span className="text-[10px] text-muted block">Depending on scale</span>
               </div>
 
-              <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                <span className="text-[10px] text-gray-400 font-bold block uppercase">Power Grid Capacity</span>
-                <span className="font-black text-[#0A1629] text-sm">15 - 50 MW</span>
-                <span className="text-[10px] text-gray-500 block">Dedicated HT connection</span>
+              <div className="p-3.5 bg-card rounded-xl border border-line">
+                <span className="text-[10px] text-muted/70 font-bold block uppercase">Power Grid Capacity</span>
+                <span className="font-black text-ink text-sm">15 - 50 MW</span>
+                <span className="text-[10px] text-muted block">Dedicated HT connection</span>
               </div>
 
-              <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                <span className="text-[10px] text-gray-400 font-bold block uppercase">Labor Requirement</span>
-                <span className="font-black text-[#0A1629] text-sm">10 - 500 Workers</span>
-                <span className="text-[10px] text-gray-500 block">Skilled + Unskilled</span>
+              <div className="p-3.5 bg-card rounded-xl border border-line">
+                <span className="text-[10px] text-muted/70 font-bold block uppercase">Labor Requirement</span>
+                <span className="font-black text-ink text-sm">10 - 500 Workers</span>
+                <span className="text-[10px] text-muted block">Skilled + Unskilled</span>
               </div>
 
-              <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-                <span className="text-[10px] text-gray-400 font-bold block uppercase">Logistics Access</span>
-                <span className="font-black text-[#0A1629] text-sm">NH Highway / Rail</span>
-                <span className="text-[10px] text-gray-500 block">Heavy freight access</span>
+              <div className="p-3.5 bg-card rounded-xl border border-line">
+                <span className="text-[10px] text-muted/70 font-bold block uppercase">Logistics Access</span>
+                <span className="font-black text-ink text-sm">NH Highway / Rail</span>
+                <span className="text-[10px] text-muted block">Heavy freight access</span>
               </div>
             </div>
 
@@ -252,10 +252,10 @@ export default function MarketAnalyzerPage() {
           </div>
 
           {/* Section 3: Step-by-Step Production Process */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl space-y-4">
+          <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow-xl space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-[#0A1629] text-white flex items-center justify-center font-black text-xs">3</span>
-              <h2 className="text-[20px] font-black text-[#0A1629]">Production Process (Step-by-Step)</h2>
+              <h2 className="text-[20px] font-black text-ink">Production Process (Step-by-Step)</h2>
             </div>
 
             <div className="space-y-2">
@@ -268,13 +268,13 @@ export default function MarketAnalyzerPage() {
                 { step: 6, title: 'Hot / Cold Rolling', desc: 'Shaping billets into TMT rebar, wire rods, or coils.' },
                 { step: 7, title: 'Packaging & Dispatch', desc: 'Quality bundle tagging, weighbridge & dispatch.' },
               ].map((st) => (
-                <div key={st.step} className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#EA580C] text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
+                <div key={st.step} className="p-3 bg-card border border-line rounded-xl flex items-center gap-3">
+                  <span className="w-6 h-6 rounded-full bg-accent text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">
                     {st.step}
                   </span>
                   <div>
-                    <h4 className="font-bold text-xs text-[#0A1629]">{st.title}</h4>
-                    <p className="text-[11px] text-gray-500">{st.desc}</p>
+                    <h4 className="font-bold text-xs text-ink">{st.title}</h4>
+                    <p className="text-[11px] text-muted">{st.desc}</p>
                   </div>
                 </div>
               ))}
@@ -287,19 +287,19 @@ export default function MarketAnalyzerPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* Section 4: Verified Sellers Table */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl space-y-4">
+          <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow-xl space-y-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-[#EA580C] text-white flex items-center justify-center font-black text-xs">4</span>
-                <h2 className="text-[20px] font-black text-[#0A1629]">Verified Sellers on Trishulan</h2>
+                <span className="w-7 h-7 rounded-lg bg-accent text-white flex items-center justify-center font-black text-xs">4</span>
+                <h2 className="text-[20px] font-black text-ink">Verified Sellers on Trishulan</h2>
               </div>
-              <Link href="/dashboard" className="text-xs font-bold text-[#EA580C] hover:underline">View All Sellers →</Link>
+              <Link href="/dashboard" className="text-xs font-bold text-accent hover:underline">View All Sellers →</Link>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px]">
+                  <tr className="border-b border-line text-muted/70 font-bold uppercase text-[10px]">
                     <th className="py-2.5">Product / Service</th>
                     <th className="py-2.5">Seller Name</th>
                     <th className="py-2.5">Location</th>
@@ -308,10 +308,10 @@ export default function MarketAnalyzerPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {verifiedSellers.map((s) => (
-                    <tr key={s.id} className="hover:bg-gray-50">
-                      <td className="py-3 font-bold text-[#0A1629]">{s.product}</td>
-                      <td className="py-3 text-gray-600">{s.seller}</td>
-                      <td className="py-3 text-gray-500">{s.location}</td>
+                    <tr key={s.id} className="hover:bg-card">
+                      <td className="py-3 font-bold text-ink">{s.product}</td>
+                      <td className="py-3 text-muted">{s.seller}</td>
+                      <td className="py-3 text-muted">{s.location}</td>
                       <td className="py-3">
                         <Link href="/dashboard" className="px-3 py-1 bg-amber-100 text-amber-900 rounded-lg font-bold text-[10px]">
                           View
@@ -325,35 +325,35 @@ export default function MarketAnalyzerPage() {
           </div>
 
           {/* Section 5: Three Industry Sizes & Estimated Investment */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-xl space-y-4">
+          <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow-xl space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-lg bg-[#0A1629] text-white flex items-center justify-center font-black text-xs">5</span>
-              <h2 className="text-[20px] font-black text-[#0A1629]">Three Industry Sizes & Investment</h2>
+              <h2 className="text-[20px] font-black text-ink">Three Industry Sizes & Investment</h2>
             </div>
 
             <div className="space-y-3">
               <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-200">
                 <div className="flex justify-between items-center">
-                  <span className="font-extrabold text-sm text-[#0A1629]">Small Scale Setup</span>
-                  <span className="font-black text-[#EA580C] text-sm">₹5 - 15 Crore</span>
+                  <span className="font-extrabold text-sm text-ink">Small Scale Setup</span>
+                  <span className="font-black text-accent text-sm">₹5 - 15 Crore</span>
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Land: 5-10 acres • Production: 85,000 - 25,000 MT/yr • Employees: 10-100</div>
+                <div className="text-xs text-muted mt-1">Land: 5-10 acres • Production: 85,000 - 25,000 MT/yr • Employees: 10-100</div>
               </div>
 
               <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200">
                 <div className="flex justify-between items-center">
-                  <span className="font-extrabold text-sm text-[#0A1629]">Medium Scale Setup</span>
+                  <span className="font-extrabold text-sm text-ink">Medium Scale Setup</span>
                   <span className="font-black text-blue-700 text-sm">₹15 - 50 Crore</span>
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Land: 10-25 acres • Production: 25,000 - 75,000 MT/yr • Employees: 100-250</div>
+                <div className="text-xs text-muted mt-1">Land: 10-25 acres • Production: 25,000 - 75,000 MT/yr • Employees: 100-250</div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-100 border border-slate-300">
+              <div className="p-4 rounded-xl bg-line/30 border border-line">
                 <div className="flex justify-between items-center">
-                  <span className="font-extrabold text-sm text-[#0A1629]">Large Scale Setup</span>
-                  <span className="font-black text-[#0A1629] text-sm">₹50 - 200+ Crore</span>
+                  <span className="font-extrabold text-sm text-ink">Large Scale Setup</span>
+                  <span className="font-black text-ink text-sm">₹50 - 200+ Crore</span>
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Land: 25-100+ acres • Production: 75,000 - 500,000+ MT/yr • Employees: 250-1,000+</div>
+                <div className="text-xs text-muted mt-1">Land: 25-100+ acres • Production: 75,000 - 500,000+ MT/yr • Employees: 250-1,000+</div>
               </div>
             </div>
           </div>
@@ -364,18 +364,18 @@ export default function MarketAnalyzerPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           {/* Recommended Machine Combination */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 shadow-xl space-y-3">
+          <div className="bg-card rounded-[24px] border border-line p-6 shadow-xl space-y-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-6 h-6 rounded-lg bg-[#EA580C] text-white flex items-center justify-center font-black text-xs">6</span>
-              <h3 className="text-base font-black text-[#0A1629]">Recommended Machines</h3>
+              <span className="w-6 h-6 rounded-lg bg-accent text-white flex items-center justify-center font-black text-xs">6</span>
+              <h3 className="text-base font-black text-ink">Recommended Machines</h3>
             </div>
             <div className="space-y-2">
               {machineCombinations.map((m, idx) => (
-                <div key={idx} className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs">
-                  <div className="font-bold text-[#0A1629]">{m.name}</div>
-                  <div className="flex justify-between text-[11px] text-gray-500 mt-1">
+                <div key={idx} className="p-3 bg-card rounded-xl border border-line text-xs">
+                  <div className="font-bold text-ink">{m.name}</div>
+                  <div className="flex justify-between text-[11px] text-muted mt-1">
                     <span>Cap: {m.capacity}</span>
-                    <span className="font-bold text-[#EA580C]">{m.price}</span>
+                    <span className="font-bold text-accent">{m.price}</span>
                   </div>
                 </div>
               ))}
@@ -383,10 +383,10 @@ export default function MarketAnalyzerPage() {
           </div>
 
           {/* Industry Risks & Fraud Alerts */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 shadow-xl space-y-3">
+          <div className="bg-card rounded-[24px] border border-line p-6 shadow-xl space-y-3">
             <div className="flex items-center gap-2 mb-1">
               <span className="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center font-black text-xs">8</span>
-              <h3 className="text-base font-black text-[#0A1629]">Industry Risks & Fraud Alerts</h3>
+              <h3 className="text-base font-black text-ink">Industry Risks & Fraud Alerts</h3>
             </div>
             <div className="space-y-2 text-xs">
               <div className="p-3 bg-red-50 border border-red-200 text-red-900 rounded-xl">
@@ -405,26 +405,26 @@ export default function MarketAnalyzerPage() {
           </div>
 
           {/* Business Survival & Risk Analysis */}
-          <div className="bg-white rounded-[24px] border border-gray-200 p-6 shadow-xl space-y-3">
+          <div className="bg-card rounded-[24px] border border-line p-6 shadow-xl space-y-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-6 h-6 rounded-lg bg-[#EA580C] text-white flex items-center justify-center font-black text-xs">9</span>
-              <h3 className="text-base font-black text-[#0A1629]">Business Survival Analysis</h3>
+              <span className="w-6 h-6 rounded-lg bg-accent text-white flex items-center justify-center font-black text-xs">9</span>
+              <h3 className="text-base font-black text-ink">Business Survival Analysis</h3>
             </div>
 
-            <div className="p-4 bg-gradient-to-r from-orange-50 via-white to-amber-50 text-[#0A1629] border-2 border-orange-200 rounded-2xl text-center space-y-2 shadow-sm">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Estimated 5-Year Survival Rate</span>
+            <div className="p-4 bg-gradient-to-r from-orange-50 via-white to-amber-50 text-ink border border-line rounded-2xl text-center space-y-2 shadow-sm">
+              <span className="text-[10px] text-muted font-bold uppercase tracking-wider block">Estimated 5-Year Survival Rate</span>
               <div className="text-[34px] font-black text-green-600">78%</div>
               <span className="text-xs text-[#64748B] font-medium block">High demand in domestic infrastructure</span>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl flex justify-between">
-                <span className="text-gray-600 font-semibold">Break-Even Timeline</span>
-                <span className="font-bold text-[#0A1629]">2.5 - 3.5 Years</span>
+              <div className="p-2.5 bg-card border border-line rounded-xl flex justify-between">
+                <span className="text-muted font-semibold">Break-Even Timeline</span>
+                <span className="font-bold text-ink">2.5 - 3.5 Years</span>
               </div>
 
-              <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl flex justify-between">
-                <span className="text-gray-600 font-semibold">Net Profit Margin</span>
+              <div className="p-2.5 bg-card border border-line rounded-xl flex justify-between">
+                <span className="text-muted font-semibold">Net Profit Margin</span>
                 <span className="font-bold text-green-600">12.4% - 16.8%</span>
               </div>
             </div>

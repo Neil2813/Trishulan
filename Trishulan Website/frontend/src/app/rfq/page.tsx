@@ -57,13 +57,13 @@ export default function RFQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFBF8] py-12 px-4 sm:px-6">
-      <div className="max-w-[620px] mx-auto bg-white rounded-[24px] border border-gray-200 shadow-2xl p-6 md:p-10">
+    <div className="min-h-screen bg-transparent py-12 px-4 sm:px-6">
+      <div className="max-w-[620px] mx-auto bg-card rounded-[24px] border border-line shadow-2xl p-6 md:p-10">
         
         {/* Page 5 Header: Post Requirement option & Let Us Provide You Verified Sellers */}
         <div className="text-center mb-8">
-          <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.14em]">PAGE 5 SPECIFICATION</span>
-          <h1 className="text-[28px] font-black text-[#0A1629] mt-0.5">Post Requirement Option</h1>
+          <span className="text-[11px] font-bold text-accent uppercase tracking-[.14em]">PAGE 5 SPECIFICATION</span>
+          <h1 className="text-[28px] font-black text-ink mt-0.5">Post Requirement Option</h1>
           <p className="text-[14px] text-teal-600 font-bold mt-1">
             Let Us Provide You Verified Sellers
           </p>
@@ -79,7 +79,7 @@ export default function RFQPage() {
         {step === 1 && (
           <form onSubmit={handleNext} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-gray-500 mb-2">Enter Product or Service Name *</label>
+              <label className="block text-xs font-bold text-muted mb-2">Enter Product or Service Name *</label>
               <div className="relative">
                 <input
                   type="text"
@@ -87,15 +87,15 @@ export default function RFQPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Embroidery Machine 12 Needle, Steel TMT Rebar 12mm..."
-                  className="w-full px-4 py-3.5 rounded-2xl border-2 border-teal-500 text-sm font-semibold focus:outline-none focus:border-[#EA580C] pr-10"
+                  className="w-full px-4 py-3.5 rounded-2xl border border-line text-sm font-semibold focus:outline-none focus:border-[#EA580C] pr-10"
                 />
-                <Mic className="w-5 h-5 text-gray-400 absolute right-3.5 top-4 pointer-events-none" />
+                <Mic className="w-5 h-5 text-muted/70 absolute right-3.5 top-4 pointer-events-none" />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm shadow-md transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm shadow transition-all flex items-center justify-center gap-2"
             >
               <span>Next</span>
               <span>&gt;</span>
@@ -106,7 +106,7 @@ export default function RFQPage() {
               <div className="w-20 h-20 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mb-2">
                 <Store className="w-9 h-9" />
               </div>
-              <span className="text-xs text-gray-500 font-medium">Top verified manufacturers ready to quote.</span>
+              <span className="text-xs text-muted font-medium">Top verified manufacturers ready to quote.</span>
             </div>
           </form>
         )}
@@ -121,7 +121,7 @@ export default function RFQPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Quantity & Unit *</label>
+                <label className="block text-xs font-bold text-ink mb-1">Quantity & Unit *</label>
                 <input
                   type="text"
                   required
@@ -133,7 +133,7 @@ export default function RFQPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Target Budget (₹/unit)</label>
+                <label className="block text-xs font-bold text-ink mb-1">Target Budget (₹/unit)</label>
                 <input
                   type="number"
                   value={targetPrice}
@@ -146,7 +146,7 @@ export default function RFQPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Delivery City / Location *</label>
+                <label className="block text-xs font-bold text-ink mb-1">Delivery City / Location *</label>
                 <input
                   type="text"
                   required
@@ -158,7 +158,7 @@ export default function RFQPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Contact Phone Number *</label>
+                <label className="block text-xs font-bold text-ink mb-1">Contact Phone Number *</label>
                 <input
                   type="tel"
                   required
@@ -171,7 +171,7 @@ export default function RFQPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#0A1629] mb-1">Additional Specifications / Notes</label>
+              <label className="block text-xs font-bold text-ink mb-1">Additional Specifications / Notes</label>
               <textarea
                 rows={3}
                 value={details}
@@ -184,7 +184,7 @@ export default function RFQPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-xl bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition-all"
+              className="w-full py-4 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition-all"
             >
               {loading ? 'Submitting to Verified Sellers...' : 'Post Requirement & Match Verified Sellers →'}
             </button>

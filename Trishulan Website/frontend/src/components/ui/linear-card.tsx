@@ -230,7 +230,7 @@ function DialogContainer({ children, className }: DialogContainerProps) {
         <>
           <motion.div
             key={`backdrop-${uniqueId}`}
-            className='fixed inset-0 h-full z-50  w-full bg-white/40 backdrop-blur-sm dark:bg-black/40 '
+            className='fixed inset-0 h-full z-50  w-full bg-card/40 backdrop-blur-sm dark:bg-black/40 '
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -409,7 +409,7 @@ const Component = forwardRef<HTMLDivElement, ComponentProps>(({ items }, ref) =>
                 style={{
                   borderRadius: '24px',
                 }}
-                className='flex w-full md:w-1/4 flex-col overflow-hidden border border-gray-100 bg-white hover:bg-orange-50/30 hover:border-orange-100 hover:shadow-xl transition-all shadow-sm'
+                className='flex w-full md:w-1/4 flex-col overflow-hidden border border-gray-100 bg-card hover:bg-orange-50/30 hover:border-orange-100 hover:shadow-xl transition-all shadow-sm'
               >
                 <DialogImage
                   src={item.url.src}
@@ -421,7 +421,7 @@ const Component = forwardRef<HTMLDivElement, ComponentProps>(({ items }, ref) =>
                     <DialogTitle className='text-[#0b1b36] text-xl font-bold'>
                       {item.title}
                     </DialogTitle>
-                    <p className="text-gray-500 text-[14px] mt-2 leading-relaxed">{item.description}</p>
+                    <p className="text-muted text-[14px] mt-2 leading-relaxed">{item.description}</p>
                   </div>
                 </div>
               </DialogTrigger>
@@ -430,7 +430,7 @@ const Component = forwardRef<HTMLDivElement, ComponentProps>(({ items }, ref) =>
                   style={{
                     borderRadius: '24px',
                   }}
-                  className=' relative flex h-fit max-h-[80vh] mx-auto flex-col overflow-y-auto border bg-white lg:w-[500px] w-[90%] shadow-2xl '
+                  className=' relative flex h-fit max-h-[80vh] mx-auto flex-col overflow-y-auto border bg-card lg:w-[500px] w-[90%] shadow-2xl '
                 >
                   <DialogImage
                     src={item.url.src}

@@ -45,13 +45,13 @@ export default function SellPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFBF8] py-12 px-6">
-      <div className="max-w-[720px] mx-auto bg-white rounded-[24px] border border-gray-200 shadow-xl p-8 md:p-10">
+    <div className="min-h-screen bg-transparent py-12 px-6">
+      <div className="max-w-[720px] mx-auto bg-card rounded-[24px] border border-line shadow-xl p-8 md:p-10">
         
         <div className="mb-8 text-center">
           <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">SELLER DISTRIBUTION PORTAL</span>
-          <h1 className="text-[32px] font-black text-[#0A1629] mt-1">List Product / Machinery</h1>
-          <p className="text-xs text-gray-500 mt-1">
+          <h1 className="text-[32px] font-black text-ink mt-1">List Product / Machinery</h1>
+          <p className="text-xs text-muted mt-1">
             Display your industrial equipment, spares, or raw materials to thousands of buyers.
           </p>
         </div>
@@ -64,7 +64,7 @@ export default function SellPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-[#0A1629] mb-1.5">Product Title</label>
+            <label className="block text-xs font-bold text-ink mb-1.5">Product Title</label>
             <input
               type="text"
               required
@@ -77,11 +77,11 @@ export default function SellPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#0A1629] mb-1.5">Category</label>
+              <label className="block text-xs font-bold text-ink mb-1.5">Category</label>
               <select
                 value={category}
                 onChange={(e: any) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-blue-600 bg-white font-semibold"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-blue-600 bg-card font-semibold"
               >
                 <option value="RAW_MATERIALS">Raw Materials</option>
                 <option value="MACHINERY">Machinery & Equipment</option>
@@ -90,7 +90,7 @@ export default function SellPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#0A1629] mb-1.5">Location (City, State)</label>
+              <label className="block text-xs font-bold text-ink mb-1.5">Location (City, State)</label>
               <input
                 type="text"
                 required
@@ -104,7 +104,7 @@ export default function SellPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#0A1629] mb-1.5">Price (₹)</label>
+              <label className="block text-xs font-bold text-ink mb-1.5">Price (₹)</label>
               <input
                 type="number"
                 required
@@ -116,7 +116,7 @@ export default function SellPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#0A1629] mb-1.5">Unit of Measurement</label>
+              <label className="block text-xs font-bold text-ink mb-1.5">Unit of Measurement</label>
               <input
                 type="text"
                 required
@@ -129,7 +129,7 @@ export default function SellPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#0A1629] mb-1.5">Detailed Description</label>
+            <label className="block text-xs font-bold text-ink mb-1.5">Detailed Description</label>
             <textarea
               required
               rows={4}

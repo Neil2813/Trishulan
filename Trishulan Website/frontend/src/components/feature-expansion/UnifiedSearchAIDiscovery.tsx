@@ -41,11 +41,11 @@ export default function UnifiedSearchAIDiscovery() {
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-md space-y-6">
+    <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider">FEATURE EXPANSION MODULE 1</span>
-        <h2 className="text-xl md:text-2xl font-black text-[#0A1629] mt-0.5">
+        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">FEATURE EXPANSION MODULE 1</span>
+        <h2 className="text-xl md:text-2xl font-black text-ink mt-0.5">
           Unified search bar and AI discovery
         </h2>
         <p className="text-xs md:text-sm text-[#475569] font-medium mt-1 leading-relaxed max-w-4xl">
@@ -54,7 +54,7 @@ export default function UnifiedSearchAIDiscovery() {
       </div>
 
       {/* Screen Mockup Container */}
-      <div className="border border-slate-300 rounded-2xl overflow-hidden bg-slate-50 shadow-xs">
+      <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
@@ -67,7 +67,7 @@ export default function UnifiedSearchAIDiscovery() {
         <div className="p-6 space-y-5">
           
           {/* Mode Tabs */}
-          <div className="flex flex-wrap bg-white p-1 rounded-xl border border-slate-200 gap-1">
+          <div className="flex flex-wrap bg-card p-1 rounded-xl border border-line gap-1">
             {(['Product name', 'HSN code', 'Industry', 'Seller company', 'Barcode', 'AI search'] as const).map((tab) => (
               <button
                 key={tab}
@@ -86,7 +86,7 @@ export default function UnifiedSearchAIDiscovery() {
                 className={`flex-1 min-w-[110px] py-2 px-3 rounded-lg text-xs font-extrabold transition-all text-center ${
                   activeTab === tab
                     ? 'bg-[#00A896] text-white shadow-xs'
-                    : 'text-slate-600 hover:bg-slate-100'
+                    : 'text-muted hover:bg-line/30'
                 }`}
               >
                 {tab}
@@ -95,13 +95,13 @@ export default function UnifiedSearchAIDiscovery() {
           </div>
 
           {/* Search Input Bar */}
-          <form onSubmit={handleFormSubmit} className="flex gap-2 bg-white p-2 rounded-xl border border-slate-300 shadow-2xs">
+          <form onSubmit={handleFormSubmit} className="flex gap-2 bg-card p-2 rounded-xl border border-line shadow-2xs">
             <input
               type="text"
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
               placeholder="Enter product name, HSN code, or natural-language AI prompt..."
-              className="flex-1 px-4 py-3 text-xs font-semibold text-[#0A1629] border-none outline-none"
+              className="flex-1 px-4 py-3 text-xs font-semibold text-ink border-none outline-none"
             />
             <button
               type="submit"
@@ -124,18 +124,18 @@ export default function UnifiedSearchAIDiscovery() {
           )}
 
           {/* Search Results Table */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+          <div className="bg-card border border-line rounded-xl overflow-hidden shadow-2xs">
             {loading ? (
-              <div className="p-8 text-center text-xs font-bold text-slate-400 animate-pulse">
+              <div className="p-8 text-center text-xs font-bold text-muted/70 animate-pulse">
                 Executing AI search across Express database...
               </div>
             ) : (
               <div className="divide-y divide-slate-100 text-xs">
                 {searchResults.map((item, idx) => (
-                  <div key={item.id || idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
+                  <div key={item.id || idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-card transition-colors">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-[#0A1629] text-sm">{item.title}</span>
+                        <span className="font-extrabold text-ink text-sm">{item.title}</span>
                         {item.isVerified && (
                           <span className="px-2 py-0.5 bg-green-100 text-green-800 text-[10px] font-bold rounded">
                             ✓ Verified
@@ -143,7 +143,7 @@ export default function UnifiedSearchAIDiscovery() {
                         )}
                       </div>
 
-                      <div className="text-slate-600 font-medium mt-1 flex flex-wrap items-center gap-3">
+                      <div className="text-muted font-medium mt-1 flex flex-wrap items-center gap-3">
                         <span className="text-[#1D4ED8] font-bold">{item.matchReason}</span>
                         <span>• Seller: {item.sellerName}</span>
                         <span>• {item.location}</span>
@@ -151,7 +151,7 @@ export default function UnifiedSearchAIDiscovery() {
                       </div>
                     </div>
 
-                    <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#0A1629] font-extrabold text-xs rounded-lg border border-slate-200 shrink-0">
+                    <button className="px-4 py-2 bg-line/30 hover:bg-slate-200 text-ink font-extrabold text-xs rounded-lg border border-line shrink-0">
                       {item.action}
                     </button>
                   </div>

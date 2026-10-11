@@ -65,10 +65,10 @@ export default function GuidedRegistrationChecklist() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-6xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-xs font-bold tracking-widest text-[#0A1629] uppercase flex items-center gap-2">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
+        <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>BUSINESS REGISTRATION / ILLUSTRATIVE SCREEN</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
@@ -85,11 +85,11 @@ export default function GuidedRegistrationChecklist() {
         )}
 
         {/* Guided Registration Table */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-card border border-line rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-bold">
+                <tr className="bg-card border-b border-line text-muted text-[10px] uppercase font-bold">
                   <th className="p-3.5">Task</th>
                   <th className="p-3.5">Needed Item</th>
                   <th className="p-3.5">Status</th>
@@ -106,8 +106,8 @@ export default function GuidedRegistrationChecklist() {
                       { id: '4', task: 'Adviser support', neededItem: 'Appointment request', status: 'Optional', nextAction: 'Request callback', actionType: 'APPOINTMENT' },
                     ]
                 ).map((row: any) => (
-                  <tr key={row.id} className="hover:bg-slate-50 transition">
-                    <td className="p-3.5 font-bold text-[#0A1629]">{row.title || row.task}</td>
+                  <tr key={row.id} className="hover:bg-card transition">
+                    <td className="p-3.5 font-bold text-ink">{row.title || row.task}</td>
                     <td className="p-3.5 text-slate-700">{row.neededItem || 'Required verification doc'}</td>
                     <td className="p-3.5">
                       <span
@@ -118,7 +118,7 @@ export default function GuidedRegistrationChecklist() {
                             ? 'bg-sky-100 text-sky-800 border-sky-300'
                             : row.status === 'Optional'
                             ? 'bg-purple-100 text-purple-800 border-purple-300'
-                            : 'bg-slate-100 text-slate-600 border-slate-300'
+                            : 'bg-line/30 text-muted border-line'
                         }`}
                       >
                         {row.completed ? 'Complete' : row.status || 'Pending'}
@@ -128,7 +128,7 @@ export default function GuidedRegistrationChecklist() {
                       {row.actionType === 'APPOINTMENT' || row.id === 'step-4' ? (
                         <button
                           onClick={() => setShowAppointmentModal(true)}
-                          className="px-3 py-1 bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold text-[10px] rounded-lg shadow transition"
+                          className="px-3 py-1 bg-accent hover:bg-[#c2410a] text-white font-bold text-[10px] rounded-lg shadow transition"
                         >
                           {row.nextAction || 'Request Adviser Callback'}
                         </button>
@@ -146,7 +146,7 @@ export default function GuidedRegistrationChecklist() {
               </tbody>
             </table>
           </div>
-          <div className="bg-slate-50 px-4 py-2 text-[11px] text-slate-500 border-t border-slate-200 italic">
+          <div className="bg-card px-4 py-2 text-[11px] text-muted border-t border-line italic">
             Sample checklist only; requirements depend on jurisdiction and business type.
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function GuidedRegistrationChecklist() {
               <h3 className="text-xs font-extrabold text-purple-900 uppercase">
                 Request Callback from Listed Business & Tax Advisor
               </h3>
-              <button onClick={() => setShowAppointmentModal(false)} className="text-slate-500 hover:text-slate-900 text-xs font-bold">
+              <button onClick={() => setShowAppointmentModal(false)} className="text-muted hover:text-slate-900 text-xs font-bold">
                 ✕ Close
               </button>
             </div>
@@ -181,7 +181,7 @@ export default function GuidedRegistrationChecklist() {
                     placeholder="e.g. Ramesh Kumar"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-[#0A1629]"
+                    className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-ink"
                   />
                 </div>
                 <div>
@@ -192,7 +192,7 @@ export default function GuidedRegistrationChecklist() {
                     placeholder="e.g. +91 9876543210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-[#0A1629]"
+                    className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-ink"
                   />
                 </div>
                 <div>
@@ -200,7 +200,7 @@ export default function GuidedRegistrationChecklist() {
                   <select
                     value={serviceNeeded}
                     onChange={(e) => setServiceNeeded(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-[#0A1629]"
+                    className="w-full bg-card border border-line rounded px-3 py-1.5 text-xs text-ink"
                   >
                     <option value="Company Secretary / GST Registration">Company Secretary / GST Registration</option>
                     <option value="Licensing & Pollution Clearance">Licensing & Pollution Clearance</option>

@@ -28,21 +28,21 @@ export default function DigitalIDCard({
   };
 
   return (
-    <div className="bg-gradient-to-br from-white via-slate-50 to-orange-50/40 text-[#0A1629] rounded-[24px] p-6 md:p-8 shadow-xl border-2 border-orange-200 relative overflow-hidden max-w-lg mx-auto">
+    <div className="bg-gradient-to-br from-white via-slate-50 to-orange-50/40 text-ink rounded-[24px] p-6 md:p-8 shadow-xl border border-line relative overflow-hidden max-w-lg mx-auto">
       
       {/* Background Accent Gradients */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#EA580C]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Card Header */}
-      <div className="flex items-center justify-between pb-5 border-b border-gray-200 mb-6">
+      <div className="flex items-center justify-between pb-5 border-b border-line mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center font-extrabold text-[#EA580C] text-lg font-alata shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center font-extrabold text-accent text-lg font-alata shadow-sm">
             T
           </div>
           <div>
-            <h4 className="font-extrabold text-[15px] tracking-wider text-[#0A1629]">TRISHULAN CONNECT</h4>
-            <span className="text-[9.5px] uppercase font-bold text-gray-500 tracking-widest block">OFFICIAL B2B INDUSTRIAL ID</span>
+            <h4 className="font-extrabold text-[15px] tracking-wider text-ink">TRISHULAN CONNECT</h4>
+            <span className="text-[9.5px] uppercase font-bold text-muted tracking-widest block">OFFICIAL B2B INDUSTRIAL ID</span>
           </div>
         </div>
 
@@ -57,14 +57,14 @@ export default function DigitalIDCard({
         
         {/* User Photo Box */}
         <div className="flex flex-col items-center">
-          <div className="w-28 h-28 rounded-2xl bg-white border-2 border-[#EA580C] p-1 shadow-md relative overflow-hidden flex items-center justify-center text-4xl">
+          <div className="w-28 h-28 rounded-2xl bg-card border-2 border-[#EA580C] p-1 shadow relative overflow-hidden flex items-center justify-center text-4xl">
             {photoUrl ? (
               <img src={photoUrl} alt={name} className="w-full h-full object-cover rounded-xl" />
             ) : (
-              <User className="w-12 h-12 text-slate-400" />
+              <User className="w-12 h-12 text-muted/70" />
             )}
           </div>
-          <span className="mt-2 text-[10px] font-extrabold text-[#EA580C] uppercase tracking-widest">
+          <span className="mt-2 text-[10px] font-extrabold text-accent uppercase tracking-widest">
             {role === 'SELLER' ? 'VERIFIED SELLER' : 'VERIFIED BUYER'}
           </span>
         </div>
@@ -72,26 +72,26 @@ export default function DigitalIDCard({
         {/* Member Details */}
         <div className="sm:col-span-2 space-y-2.5">
           <div>
-            <span className="text-[9.5px] font-bold text-gray-500 uppercase tracking-wider block">Member / Firm Representative</span>
-            <h3 className="text-[18px] font-black text-[#0A1629] leading-tight">{name || 'Industrial Member'}</h3>
+            <span className="text-[9.5px] font-bold text-muted uppercase tracking-wider block">Member / Firm Representative</span>
+            <h3 className="text-[18px] font-black text-ink leading-tight">{name || 'Industrial Member'}</h3>
           </div>
 
           <div>
-            <span className="text-[9.5px] font-bold text-gray-500 uppercase tracking-wider block">Company / Firm Name</span>
-            <div className="text-[13.5px] font-extrabold text-[#EA580C]">{companyName || 'Trishulan Enterprise'}</div>
+            <span className="text-[9.5px] font-bold text-muted uppercase tracking-wider block">Company / Firm Name</span>
+            <div className="text-[13.5px] font-extrabold text-accent">{companyName || 'Trishulan Enterprise'}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <div>
-              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Company ID</span>
-              <span className="text-xs font-mono font-bold text-[#0A1629] bg-white px-2 py-0.5 rounded border border-gray-300 block shadow-2xs">
+              <span className="text-[9px] font-bold text-muted uppercase tracking-wider block">Company ID</span>
+              <span className="text-xs font-mono font-bold text-ink bg-card px-2 py-0.5 rounded border border-gray-300 block shadow-2xs">
                 {companyId}
               </span>
             </div>
 
             <div>
-              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">GSTIN / Tax ID</span>
-              <span className="text-xs font-mono font-bold text-[#0A1629] bg-white px-2 py-0.5 rounded border border-gray-300 block truncate shadow-2xs">
+              <span className="text-[9px] font-bold text-muted uppercase tracking-wider block">GSTIN / Tax ID</span>
+              <span className="text-xs font-mono font-bold text-ink bg-card px-2 py-0.5 rounded border border-gray-300 block truncate shadow-2xs">
                 {gstNumber}
               </span>
             </div>
@@ -101,11 +101,11 @@ export default function DigitalIDCard({
       </div>
 
       {/* QR Code & Verification Row */}
-      <div className="mt-6 pt-5 border-t border-gray-200 flex items-center justify-between gap-4">
+      <div className="mt-6 pt-5 border-t border-line flex items-center justify-between gap-4">
         
         <div className="flex items-center gap-3">
           {/* Simulated QR Code matrix */}
-          <div className="w-16 h-16 bg-white p-1.5 rounded-xl shrink-0 border border-gray-300 shadow-sm">
+          <div className="w-16 h-16 bg-card p-1.5 rounded-xl shrink-0 border border-gray-300 shadow-sm">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <rect width="100" height="100" fill="white" />
               {/* Corner markers */}
@@ -137,8 +137,8 @@ export default function DigitalIDCard({
           </div>
 
           <div className="text-[11px] text-gray-700">
-            <span className="font-bold text-[#0A1629] block">Scan to Verify Authenticity</span>
-            <span className="text-[10px] text-gray-500">Encrypted Trishulan Trust Chain ID</span>
+            <span className="font-bold text-ink block">Scan to Verify Authenticity</span>
+            <span className="text-[10px] text-muted">Encrypted Trishulan Trust Chain ID</span>
           </div>
         </div>
 
@@ -146,7 +146,7 @@ export default function DigitalIDCard({
         <div className="flex flex-col gap-2 shrink-0">
           <button
             onClick={handleSendEmail}
-            className="px-3.5 py-2 rounded-xl bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-bold text-xs shadow transition-colors flex items-center justify-center gap-1.5"
           >
             <Mail className="w-3.5 h-3.5" />
             <span>{emailSent ? 'Sent to Email!' : 'Send to Email'}</span>
@@ -154,7 +154,7 @@ export default function DigitalIDCard({
 
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-300 text-[#0A1629] font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl bg-line/30 hover:bg-gray-200 border border-gray-300 text-ink font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download ID</span>

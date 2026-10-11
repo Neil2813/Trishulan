@@ -48,22 +48,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-[fadeIn_0.2s_ease]">
-      <div className="bg-white w-full max-w-[420px] rounded-[20px] p-8 shadow-2xl relative border border-gray-100">
+      <div className="bg-card w-full max-w-[420px] rounded-[20px] p-8 shadow-2xl relative border border-gray-100">
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-5 top-5 text-gray-400 hover:text-gray-600 text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
+          className="absolute right-5 top-5 text-muted/70 hover:text-muted text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center bg-line/30 hover:bg-gray-200 transition-colors"
         >
           ✕
         </button>
 
         {/* Title */}
         <div className="mb-8 text-center">
-          <span className="text-[11px] font-bold tracking-[.1em] text-[#EA580C] uppercase">
+          <span className="text-[11px] font-bold tracking-[.1em] text-accent uppercase">
             TRISHULAN AUTHENTICATION
           </span>
-          <h2 className="text-[24px] font-black text-[#0A1629] mt-1">
+          <h2 className="text-[24px] font-black text-ink mt-1">
             Sign In to Your Account
           </h2>
           <p className="text-[13px] text-[#64748B] mt-1">
@@ -79,7 +79,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
         {/* Role Selector */}
         <div className="mb-6">
-          <label className="block text-[12px] font-bold text-[#0A1629] mb-2">
+          <label className="block text-[12px] font-bold text-ink mb-2">
             I am signing in as a…
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -88,8 +88,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               onClick={() => setRole('BUYER')}
               className={`py-2.5 rounded-xl text-[13px] font-bold border transition-all ${
                 role === 'BUYER'
-                  ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-md'
-                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300'
+                  ? 'bg-accent text-white border-[#EA580C] shadow'
+                  : 'bg-card text-muted border-line hover:border-gray-300'
               }`}
             >
               🛒 Buyer
@@ -99,8 +99,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               onClick={() => setRole('SELLER')}
               className={`py-2.5 rounded-xl text-[13px] font-bold border transition-all ${
                 role === 'SELLER'
-                  ? 'bg-[#0A1629] text-white border-[#0A1629] shadow-md'
-                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300'
+                  ? 'bg-[#0A1629] text-white border-[#0A1629] shadow'
+                  : 'bg-card text-muted border-line hover:border-gray-300'
               }`}
             >
               🏭 Seller
@@ -113,7 +113,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           type="button"
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full py-3.5 px-4 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-[#0A1629] font-bold text-[14px] flex items-center justify-center gap-3 transition-all shadow-sm disabled:opacity-60"
+          className="w-full py-3.5 px-4 rounded-xl border border-gray-300 bg-card hover:bg-card text-ink font-bold text-[14px] flex items-center justify-center gap-3 transition-all shadow-sm disabled:opacity-60"
         >
           <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

@@ -282,16 +282,16 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
   // ── Render ─────────────────────────────────────────────────────────────────
   if (me === null && !currentUser) {
     return (
-      <div className="bg-white rounded-[24px] border border-gray-200 shadow-xl p-10 text-center text-sm text-gray-600">
+      <div className="bg-card rounded-[24px] border border-line shadow-xl p-10 text-center text-sm text-muted">
         Please log in to access your secure messages.
       </div>
     );
   }
 
   return (
-    <div className="relative bg-white rounded-[24px] border border-gray-200 shadow-2xl overflow-hidden flex flex-col md:flex-row h-[680px]">
+    <div className="relative bg-card rounded-[24px] border border-line shadow-2xl overflow-hidden flex flex-col md:flex-row h-[680px]">
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-      <aside className={`w-full md:w-[320px] bg-gray-50 border-r border-gray-200 flex-col shrink-0 ${activePartnerId ? 'hidden md:flex' : 'flex'}`}>
+      <aside className={`w-full md:w-[320px] bg-card border-r border-line flex-col shrink-0 ${activePartnerId ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 bg-gradient-to-r from-teal-800 to-teal-700 text-white flex items-center justify-between">
           <div>
             <h3 className="font-extrabold text-[16px] flex items-center gap-2">
@@ -306,15 +306,15 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
             id="chat-new-conversation"
             onClick={() => setShowNewChat(true)}
             disabled={!identity}
-            className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 disabled:opacity-50 text-xs font-bold transition-colors"
+            className="px-3 py-1.5 rounded-full bg-card/15 hover:bg-card/25 disabled:opacity-50 text-xs font-bold transition-colors"
           >
             + New chat
           </button>
         </div>
 
-        <div className="p-3 border-b border-gray-200 bg-white space-y-2">
-          <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200 focus-within:border-teal-600 transition-colors">
-            <span className="text-gray-400 text-xs">🔍</span>
+        <div className="p-3 border-b border-line bg-card space-y-2">
+          <div className="flex items-center gap-2 bg-line/30 px-3 py-1.5 rounded-full border border-line focus-within:border-teal-600 transition-colors">
+            <span className="text-muted/70 text-xs">🔍</span>
             <input
               id="chat-search"
               type="text"
@@ -331,7 +331,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 id={`chat-filter-${f.toLowerCase()}`}
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  filter === f ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  filter === f ? 'bg-teal-700 text-white' : 'bg-line/30 text-muted hover:bg-gray-200'
                 }`}
               >
                 {f}
@@ -342,12 +342,12 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
 
         <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
           {!identity && !setupError && (
-            <div className="p-6 text-center text-xs text-gray-500 animate-pulse">Setting up secure keys…</div>
+            <div className="p-6 text-center text-xs text-muted animate-pulse">Setting up secure keys…</div>
           )}
           {identity && visibleConversations.length === 0 && (
             <div className="p-8 text-center space-y-3">
               <div className="text-3xl">💬</div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted">
                 {conversations.length === 0
                   ? `No conversations yet. Start one with a ${me?.role === 'SELLER' ? 'buyer' : 'seller'}.`
                   : 'No chats match your filter.'}
@@ -369,7 +369,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 id={`chat-conversation-${c.partner.id}`}
                 onClick={() => setActivePartnerId(c.partner.id)}
                 className={`w-full text-left p-3 flex items-start gap-3 transition-colors ${
-                  active ? 'bg-teal-50 border-l-4 border-teal-700' : 'hover:bg-gray-100 border-l-4 border-transparent'
+                  active ? 'bg-teal-50 border-l-4 border-teal-700' : 'hover:bg-line/30 border-l-4 border-transparent'
                 }`}
               >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0A1629] to-teal-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
@@ -377,10 +377,10 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h4 className={`text-[12.5px] text-[#0A1629] truncate ${c.unread ? 'font-black' : 'font-bold'}`}>{displayName(c.partner)}</h4>
-                    <span className="text-[10px] text-gray-400 font-mono shrink-0">{formatTime(c.lastMessage.timestamp)}</span>
+                    <h4 className={`text-[12.5px] text-ink truncate ${c.unread ? 'font-black' : 'font-bold'}`}>{displayName(c.partner)}</h4>
+                    <span className="text-[10px] text-muted/70 font-mono shrink-0">{formatTime(c.lastMessage.timestamp)}</span>
                   </div>
-                  <p className={`text-[11px] truncate mt-0.5 ${c.unread ? 'text-gray-800 font-semibold' : 'text-gray-500'}`}>
+                  <p className={`text-[11px] truncate mt-0.5 ${c.unread ? 'text-gray-800 font-semibold' : 'text-muted'}`}>
                     {mine && 'You: '}
                     {preview === undefined ? '…' : preview === null ? '🔒 Encrypted message' : preview.text || '📎 Attachment'}
                   </p>
@@ -397,14 +397,14 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
       </aside>
 
       {/* ── Thread ──────────────────────────────────────────────────────── */}
-      <section className={`flex-1 flex-col bg-slate-50/60 min-w-0 ${activePartnerId ? 'flex' : 'hidden md:flex'}`}>
+      <section className={`flex-1 flex-col bg-card/60 min-w-0 ${activePartnerId ? 'flex' : 'hidden md:flex'}`}>
         {setupError ? (
           <div className="flex-1 flex items-center justify-center p-8 text-center text-sm text-red-600">{setupError}</div>
         ) : !activePartnerId ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3">
             <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center text-3xl">🔒</div>
-            <h4 className="font-extrabold text-[#0A1629]">Private buyer–seller messaging</h4>
-            <p className="text-xs text-gray-500 max-w-xs">
+            <h4 className="font-extrabold text-ink">Private buyer–seller messaging</h4>
+            <p className="text-xs text-muted max-w-xs">
               Messages are encrypted in your browser before they are sent. Only you and the person you are chatting with can read them — not even Trishulan.
             </p>
           </div>
@@ -429,7 +429,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               <button
                 id="chat-verify-encryption"
                 onClick={() => setShowVerify((v) => !v)}
-                className="shrink-0 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-[11px] font-bold transition-colors"
+                className="shrink-0 px-3 py-1.5 rounded-full bg-card/15 hover:bg-card/25 text-[11px] font-bold transition-colors"
                 title="Verify encryption keys"
               >
                 🔒 Encrypted
@@ -437,13 +437,13 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
             </header>
 
             {showVerify && (
-              <div className="mx-4 mt-3 p-4 rounded-2xl bg-white border border-teal-200 shadow-md text-xs space-y-2 animate-[fadeIn_0.15s_ease]">
-                <p className="font-bold text-[#0A1629]">Verify end-to-end encryption</p>
-                <p className="text-gray-500">Compare these codes with {displayName(activePartner)} over a call or in person. If they match on both screens, nobody is intercepting your messages.</p>
+              <div className="mx-4 mt-3 p-4 rounded-2xl bg-card border border-teal-200 shadow text-xs space-y-2 animate-[fadeIn_0.15s_ease]">
+                <p className="font-bold text-ink">Verify end-to-end encryption</p>
+                <p className="text-muted">Compare these codes with {displayName(activePartner)} over a call or in person. If they match on both screens, nobody is intercepting your messages.</p>
                 {fingerprints ? (
                   <div className="grid grid-cols-2 gap-3 font-mono text-[11px]">
-                    <div className="p-2 rounded-lg bg-gray-50 border"><div className="text-gray-400 font-sans text-[10px] mb-1">Your key</div>{fingerprints.mine}</div>
-                    <div className="p-2 rounded-lg bg-gray-50 border"><div className="text-gray-400 font-sans text-[10px] mb-1">Their key</div>{fingerprints.theirs}</div>
+                    <div className="p-2 rounded-lg bg-card border"><div className="text-muted/70 font-sans text-[10px] mb-1">Your key</div>{fingerprints.mine}</div>
+                    <div className="p-2 rounded-lg bg-card border"><div className="text-muted/70 font-sans text-[10px] mb-1">Their key</div>{fingerprints.theirs}</div>
                   </div>
                 ) : (
                   <p className="text-amber-700">{activePartner?.chatPublicKey ? 'Computing…' : 'This contact has not set up secure chat yet.'}</p>
@@ -457,7 +457,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               </div>
 
               {messages.length === 0 && (
-                <div className="flex-1 flex items-center justify-center text-xs text-gray-400">
+                <div className="flex-1 flex items-center justify-center text-xs text-muted/70">
                   Say hello to {displayName(activePartner)} 👋
                 </div>
               )}
@@ -469,16 +469,16 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 return (
                   <div key={m.id} className={`flex flex-col max-w-[78%] gap-1 ${mine ? 'self-end items-end' : 'self-start items-start'}`}>
                     {listing && (
-                      <div className="w-64 bg-white border border-teal-200 rounded-2xl p-3 shadow-sm">
+                      <div className="w-64 bg-card border border-teal-200 rounded-2xl p-3 shadow-sm">
                         <div className="text-[9.5px] font-bold text-teal-700 uppercase tracking-wide">{listing.category.replace('_', ' ')}</div>
-                        <div className="font-extrabold text-[13px] text-[#0A1629] mt-0.5">{listing.title}</div>
-                        <div className="text-[12px] font-black text-[#EA580C] mt-1">₹{listing.price.toLocaleString('en-IN')} / {listing.unit}</div>
-                        <div className="text-[10.5px] text-gray-500">📍 {listing.location}</div>
+                        <div className="font-extrabold text-[13px] text-ink mt-0.5">{listing.title}</div>
+                        <div className="text-[12px] font-black text-accent mt-1">₹{listing.price.toLocaleString('en-IN')} / {listing.unit}</div>
+                        <div className="text-[10.5px] text-muted">📍 {listing.location}</div>
                       </div>
                     )}
                     <div
                       className={`px-4 py-2.5 rounded-2xl text-[13px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${
-                        mine ? 'bg-teal-700 text-white rounded-tr-sm' : 'bg-white text-[#0A1629] border border-gray-200 rounded-tl-sm'
+                        mine ? 'bg-teal-700 text-white rounded-tr-sm' : 'bg-card text-ink border border-line rounded-tl-sm'
                       }`}
                     >
                       {body === undefined ? (
@@ -501,7 +501,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                         </>
                       )}
                     </div>
-                    <span className="text-[10px] text-gray-400 px-1">
+                    <span className="text-[10px] text-muted/70 px-1">
                       {formatTime(m.timestamp)} {mine && (m.read ? '✓✓' : '✓')}
                     </span>
                   </div>
@@ -513,9 +513,9 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
             {(attachment || pendingListingId) && (
               <div className="mx-3 mb-1 flex flex-wrap gap-2 text-[11px]">
                 {attachment && (
-                  <span className="px-2 py-1 rounded-full bg-gray-100 border flex items-center gap-1 max-w-full">
+                  <span className="px-2 py-1 rounded-full bg-line/30 border flex items-center gap-1 max-w-full">
                     📎 <span className="truncate max-w-[220px]">{attachment}</span>
-                    <button onClick={() => setAttachment('')} className="font-bold text-gray-500 hover:text-gray-800">✕</button>
+                    <button onClick={() => setAttachment('')} className="font-bold text-muted hover:text-gray-800">✕</button>
                   </span>
                 )}
                 {pendingListingId && (
@@ -527,7 +527,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               </div>
             )}
 
-            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex items-center gap-2">
+            <form onSubmit={sendMessage} className="p-3 bg-card border-t border-line flex items-center gap-2">
               <input
                 id="chat-message-input"
                 type="text"
@@ -536,7 +536,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 placeholder={activePartner && !activePartner.chatPublicKey ? 'Waiting for contact to enable secure chat…' : 'Type an encrypted message'}
                 disabled={!activePartner?.chatPublicKey}
                 maxLength={4000}
-                className="flex-1 px-4 py-3 rounded-full border border-gray-300 text-xs focus:outline-none focus:border-teal-600 disabled:bg-gray-50"
+                className="flex-1 px-4 py-3 rounded-full border border-gray-300 text-xs focus:outline-none focus:border-teal-600 disabled:bg-card"
               />
               <button
                 id="chat-attach"
@@ -545,7 +545,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                   const url = prompt('Paste a document / spec sheet URL (it will be encrypted):');
                   if (url && /^https?:\/\//i.test(url.trim())) setAttachment(url.trim());
                 }}
-                className="w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-base transition-colors"
+                className="w-10 h-10 rounded-full border border-gray-300 hover:bg-line/30 flex items-center justify-center text-muted text-base transition-colors"
                 title="Attach document link"
               >
                 📎
@@ -554,7 +554,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 id="chat-send"
                 type="submit"
                 disabled={sending || !activePartner?.chatPublicKey || (!text.trim() && !attachment)}
-                className="w-10 h-10 rounded-full bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold flex items-center justify-center text-base shadow-md transition-all hover:scale-105"
+                className="w-10 h-10 rounded-full bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold flex items-center justify-center text-base shadow transition-all hover:scale-105"
                 title="Send"
               >
                 {sending ? '…' : '➤'}
@@ -601,10 +601,10 @@ function NewChatModal({
 
   return (
     <div className="absolute inset-0 z-20 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.15s_ease]" onClick={onClose}>
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b flex items-center justify-between">
-          <h4 className="font-extrabold text-[#0A1629]">New conversation</h4>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-800 font-bold" aria-label="Close">✕</button>
+          <h4 className="font-extrabold text-ink">New conversation</h4>
+          <button onClick={onClose} className="text-muted/70 hover:text-gray-800 font-bold" aria-label="Close">✕</button>
         </div>
         <div className="p-3 border-b">
           <input
@@ -617,8 +617,8 @@ function NewChatModal({
           />
         </div>
         <div className="max-h-[360px] overflow-y-auto divide-y">
-          {loading && <div className="p-6 text-center text-xs text-gray-400 animate-pulse">Searching…</div>}
-          {!loading && contacts.length === 0 && <div className="p-6 text-center text-xs text-gray-500">No {target} found.</div>}
+          {loading && <div className="p-6 text-center text-xs text-muted/70 animate-pulse">Searching…</div>}
+          {!loading && contacts.length === 0 && <div className="p-6 text-center text-xs text-muted">No {target} found.</div>}
           {!loading &&
             contacts.map((c) => (
               <button
@@ -631,16 +631,16 @@ function NewChatModal({
                   {displayName(c).charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-[12.5px] text-[#0A1629] truncate flex items-center gap-1.5">
+                  <div className="font-bold text-[12.5px] text-ink truncate flex items-center gap-1.5">
                     {displayName(c)}
                     {c.verifiedSeller && <span className="text-[9px] px-1 py-0.5 bg-amber-100 text-amber-800 rounded font-bold">✓ Verified</span>}
                   </div>
-                  <div className="text-[10.5px] text-gray-500 truncate">
+                  <div className="text-[10.5px] text-muted truncate">
                     {c.companyName && c.name !== c.companyName ? `${c.name} · ` : ''}
                     {[c.city, c.state].filter(Boolean).join(', ') || c.role}
                   </div>
                 </div>
-                {!c.chatPublicKey && <span className="text-[9.5px] text-gray-400 shrink-0">Not on secure chat yet</span>}
+                {!c.chatPublicKey && <span className="text-[9.5px] text-muted/70 shrink-0">Not on secure chat yet</span>}
               </button>
             ))}
         </div>

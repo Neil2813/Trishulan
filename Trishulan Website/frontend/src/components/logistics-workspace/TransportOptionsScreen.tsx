@@ -38,10 +38,10 @@ export default function TransportOptionsScreen() {
   }, []);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-6xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-xs font-bold tracking-widest text-[#0A1629] uppercase flex items-center gap-2">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
+        <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>TRANSPORT OPTIONS / ILLUSTRATIVE SCREEN</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
@@ -58,11 +58,11 @@ export default function TransportOptionsScreen() {
         )}
 
         {/* Transport Options Table */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-card border border-line rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-bold">
+                <tr className="bg-card border-b border-line text-muted text-[10px] uppercase font-bold">
                   <th className="p-3.5">Provider</th>
                   <th className="p-3.5">Route / service</th>
                   <th className="p-3.5">Estimate</th>
@@ -78,17 +78,17 @@ export default function TransportOptionsScreen() {
                       { id: '3', provider: 'Safexpress Cargo', route: 'Pune to Chennai / Rail Air-Ride', estimatedPrice: '₹62,000', status: 'Capacity check', statusType: 'CAPACITY' },
                     ]
                 ).map((row: any) => (
-                  <tr key={row.id} className="hover:bg-slate-50 transition">
-                    <td className="p-3.5 font-bold text-[#0A1629]">{row.carrierName || row.provider}</td>
+                  <tr key={row.id} className="hover:bg-card transition">
+                    <td className="p-3.5 font-bold text-ink">{row.carrierName || row.provider}</td>
                     <td className="p-3.5 text-slate-700">{row.mode || row.route}</td>
                     <td className="p-3.5 font-mono font-bold text-emerald-700">{row.rateQuote || row.estimatedPrice}</td>
-                    <td className="p-3.5 text-slate-600 font-medium">{row.vehicleType || row.status}</td>
+                    <td className="p-3.5 text-muted font-medium">{row.vehicleType || row.status}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="bg-slate-50 px-4 py-2 text-[11px] text-slate-500 border-t border-slate-200 italic">
+          <div className="bg-card px-4 py-2 text-[11px] text-muted border-t border-line italic">
             Illustrative quotes; verify cargo dimensions, insurance, exclusions and final charges.
           </div>
         </div>

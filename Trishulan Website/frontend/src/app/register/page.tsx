@@ -106,16 +106,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFBF8] py-12 px-4 sm:px-6">
-      <div className="max-w-[920px] mx-auto bg-white rounded-[24px] border border-gray-200 shadow-2xl p-6 md:p-10">
+    <div className="min-h-screen bg-transparent py-12 px-4 sm:px-6">
+      <div className="max-w-[920px] mx-auto bg-card rounded-[24px] border border-line shadow-2xl p-6 md:p-10">
 
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.14em]">TRISHULAN INDUSTRIAL CONNECT</span>
-          <h1 className="text-[28px] md:text-[34px] font-black text-[#0A1629] mt-1">
+          <span className="text-[11px] font-bold text-accent uppercase tracking-[.14em]">TRISHULAN INDUSTRIAL CONNECT</span>
+          <h1 className="text-[28px] md:text-[34px] font-black text-ink mt-1">
             {step === 3 ? 'Account Created & ID Card Generated' : 'Create Your Business Account'}
           </h1>
-          <p className="text-xs text-gray-500 mt-1 max-w-lg mx-auto">
+          <p className="text-xs text-muted mt-1 max-w-lg mx-auto">
             {step === 1 && 'Select your account role and tier, then sign in with Google to continue.'}
             {step === 2 && 'Complete mandatory KYC document upload and photo verification for your seller/buyer badge.'}
             {step === 3 && 'Your official Digital ID card has been issued and sent to your email.'}
@@ -123,8 +123,8 @@ export default function RegisterPage() {
 
           {/* Stepper indicator */}
           <div className="flex items-center justify-center gap-2 mt-4">
-            <span className={`w-8 h-2 rounded-full transition-all ${step >= 1 ? 'bg-[#EA580C]' : 'bg-gray-200'}`}></span>
-            <span className={`w-8 h-2 rounded-full transition-all ${step >= 2 ? 'bg-[#EA580C]' : 'bg-gray-200'}`}></span>
+            <span className={`w-8 h-2 rounded-full transition-all ${step >= 1 ? 'bg-accent' : 'bg-gray-200'}`}></span>
+            <span className={`w-8 h-2 rounded-full transition-all ${step >= 2 ? 'bg-accent' : 'bg-gray-200'}`}></span>
             <span className={`w-8 h-2 rounded-full transition-all ${step === 3 ? 'bg-green-500' : 'bg-gray-200'}`}></span>
           </div>
         </div>
@@ -141,25 +141,25 @@ export default function RegisterPage() {
 
             {/* Account Type Cards */}
             <div>
-              <label className="block text-xs font-black text-[#0A1629] uppercase tracking-wider mb-3">
+              <label className="block text-xs font-black text-ink uppercase tracking-wider mb-3">
                 Which account would you like to create?
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
                   onClick={() => setRole('BUYER')}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 ${
-                    role === 'BUYER' ? 'border-[#EA580C] bg-orange-50/50 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300'
+                    role === 'BUYER' ? 'border-[#EA580C] bg-orange-50/50 shadow' : 'border-line bg-card hover:border-gray-300'
                   }`}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-orange-100 text-[#EA580C] flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 text-accent flex items-center justify-center shrink-0">
                     <ShoppingCart className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
-                      <h3 className="font-extrabold text-[16px] text-[#0A1629]">Buyer</h3>
+                      <h3 className="font-extrabold text-[16px] text-ink">Buyer</h3>
                       <input type="radio" checked={role === 'BUYER'} onChange={() => setRole('BUYER')} className="accent-[#EA580C]" />
                     </div>
-                    <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                    <p className="text-xs text-muted mt-1 leading-relaxed">
                       Access over 200 million products from 200,000 verified suppliers worldwide.
                     </p>
                   </div>
@@ -168,18 +168,18 @@ export default function RegisterPage() {
                 <div
                   onClick={() => setRole('SELLER')}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 ${
-                    role === 'SELLER' ? 'border-[#0A1629] bg-slate-50 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300'
+                    role === 'SELLER' ? 'border-[#0A1629] bg-card shadow' : 'border-line bg-card hover:border-gray-300'
                   }`}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-orange-100 text-[#EA580C] border border-orange-200 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 text-accent border border-orange-200 flex items-center justify-center shrink-0">
                     <Factory className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
-                      <h3 className="font-extrabold text-[16px] text-[#0A1629]">Supplier / Seller</h3>
+                      <h3 className="font-extrabold text-[16px] text-ink">Supplier / Seller</h3>
                       <input type="radio" checked={role === 'SELLER'} onChange={() => setRole('SELLER')} className="accent-[#0A1629]" />
                     </div>
-                    <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                    <p className="text-xs text-muted mt-1 leading-relaxed">
                       Sell your products to 40 million business buyers worldwide.
                     </p>
                   </div>
@@ -189,7 +189,7 @@ export default function RegisterPage() {
 
             {/* Subscription Tier Selection */}
             <div>
-              <label className="block text-xs font-black text-[#0A1629] uppercase tracking-wider mb-3">
+              <label className="block text-xs font-black text-ink uppercase tracking-wider mb-3">
                 Select Subscription Tier
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -197,40 +197,40 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() => setSubscriptionPlan('BASIC')}
                   className={`p-4 rounded-xl border text-left transition-all ${
-                    subscriptionPlan === 'BASIC' ? 'border-[#EA580C] bg-orange-50 font-bold' : 'border-gray-200 bg-gray-50'
+                    subscriptionPlan === 'BASIC' ? 'border-[#EA580C] bg-orange-50 font-bold' : 'border-line bg-card'
                   }`}
                 >
-                  <span className="text-[10px] font-bold text-gray-500 block">STANDARD</span>
-                  <div className="font-black text-[#0A1629]">BASIC PLAN</div>
-                  <div className="text-xs text-[#EA580C] font-extrabold mt-1">FREE</div>
-                  <span className="text-[10px] text-gray-500 block mt-1">Live market spot prices</span>
+                  <span className="text-[10px] font-bold text-muted block">STANDARD</span>
+                  <div className="font-black text-ink">BASIC PLAN</div>
+                  <div className="text-xs text-accent font-extrabold mt-1">FREE</div>
+                  <span className="text-[10px] text-muted block mt-1">Live market spot prices</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSubscriptionPlan('GROWTH')}
                   className={`p-4 rounded-xl border text-left transition-all relative ${
-                    subscriptionPlan === 'GROWTH' ? 'border-[#EA580C] bg-amber-50 font-bold shadow-md' : 'border-gray-200 bg-gray-50'
+                    subscriptionPlan === 'GROWTH' ? 'border-[#EA580C] bg-amber-50 font-bold shadow' : 'border-line bg-card'
                   }`}
                 >
-                  <span className="absolute -top-2 right-2 px-2 py-0.5 bg-[#EA580C] text-white text-[9px] font-bold rounded-full">POPULAR</span>
-                  <span className="text-[10px] font-bold text-gray-500 block">PRO B2B</span>
-                  <div className="font-black text-[#0A1629]">GROWTH TIER</div>
-                  <div className="text-xs text-[#EA580C] font-extrabold mt-1">₹1,999 / mo</div>
-                  <span className="text-[10px] text-gray-500 block mt-1">30-day price trend analyzer</span>
+                  <span className="absolute -top-2 right-2 px-2 py-0.5 bg-accent text-white text-[9px] font-bold rounded-full">POPULAR</span>
+                  <span className="text-[10px] font-bold text-muted block">PRO B2B</span>
+                  <div className="font-black text-ink">GROWTH TIER</div>
+                  <div className="text-xs text-accent font-extrabold mt-1">₹1,999 / mo</div>
+                  <span className="text-[10px] text-muted block mt-1">30-day price trend analyzer</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSubscriptionPlan('ENTERPRISE')}
                   className={`p-4 rounded-xl border text-left transition-all ${
-                    subscriptionPlan === 'ENTERPRISE' ? 'border-[#0A1629] bg-slate-100 font-bold' : 'border-gray-200 bg-gray-50'
+                    subscriptionPlan === 'ENTERPRISE' ? 'border-[#0A1629] bg-line/30 font-bold' : 'border-line bg-card'
                   }`}
                 >
-                  <span className="text-[10px] font-bold text-gray-500 block">CORPORATE</span>
-                  <div className="font-black text-[#0A1629]">ENTERPRISE TIER</div>
-                  <div className="text-xs text-[#0A1629] font-extrabold mt-1">₹4,999 / mo</div>
-                  <span className="text-[10px] text-gray-500 block mt-1">Predictive volume & historical analysis</span>
+                  <span className="text-[10px] font-bold text-muted block">CORPORATE</span>
+                  <div className="font-black text-ink">ENTERPRISE TIER</div>
+                  <div className="text-xs text-ink font-extrabold mt-1">₹4,999 / mo</div>
+                  <span className="text-[10px] text-muted block mt-1">Predictive volume & historical analysis</span>
                 </button>
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function RegisterPage() {
               type="button"
               onClick={handleGoogleRegister}
               disabled={loading}
-              className="w-full py-4 px-4 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-[#0A1629] font-bold text-[13px] flex items-center justify-center gap-3 transition-all shadow-sm disabled:opacity-60"
+              className="w-full py-4 px-4 rounded-xl border border-gray-300 bg-card hover:bg-card text-ink font-bold text-[13px] flex items-center justify-center gap-3 transition-all shadow-sm disabled:opacity-60"
             >
               <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -268,7 +268,7 @@ export default function RegisterPage() {
             {/* Company name (editable) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Company / Firm Name *</label>
+                <label className="block text-xs font-bold text-ink mb-1">Company / Firm Name *</label>
                 <input
                   type="text"
                   required
@@ -279,7 +279,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Phone Number</label>
+                <label className="block text-xs font-bold text-ink mb-1">Phone Number</label>
                 <input
                   type="tel"
                   value={phone}
@@ -293,7 +293,7 @@ export default function RegisterPage() {
             {/* Document Numbers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">AADHAR Number *</label>
+                <label className="block text-xs font-bold text-ink mb-1">AADHAR Number *</label>
                 <input
                   type="text"
                   required
@@ -304,7 +304,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">PAN Card Number *</label>
+                <label className="block text-xs font-bold text-ink mb-1">PAN Card Number *</label>
                 <input
                   type="text"
                   required
@@ -318,7 +318,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">GSTIN Number *</label>
+                <label className="block text-xs font-bold text-ink mb-1">GSTIN Number *</label>
                 <input
                   type="text"
                   required
@@ -329,7 +329,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">MSME / Udyam Reg. Number</label>
+                <label className="block text-xs font-bold text-ink mb-1">MSME / Udyam Reg. Number</label>
                 <input
                   type="text"
                   value={msmeNumber}
@@ -342,7 +342,7 @@ export default function RegisterPage() {
 
             {/* Document File Uploads */}
             <div>
-              <label className="block text-xs font-black text-[#0A1629] uppercase tracking-wider mb-2">
+              <label className="block text-xs font-black text-ink uppercase tracking-wider mb-2">
                 Upload Mandatory KYC Documents
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -355,12 +355,12 @@ export default function RegisterPage() {
                   <label
                     key={label}
                     className={`p-3 rounded-xl border text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
-                      uploaded ? 'bg-green-50 border-green-300 text-green-800' : 'bg-gray-50 border-gray-200'
+                      uploaded ? 'bg-green-50 border-green-300 text-green-800' : 'bg-card border-line'
                     }`}
                   >
                     <Icon className="w-5 h-5 mb-1 text-slate-700" />
                     <span className="text-[11px] font-bold block">{label}</span>
-                    <span className="text-[9px] text-gray-400">{uploaded ? '✓ Uploaded' : 'Click to Upload'}</span>
+                    <span className="text-[9px] text-muted/70">{uploaded ? '✓ Uploaded' : 'Click to Upload'}</span>
                     <input type="file" accept="image/*,.pdf" onChange={() => setUploaded(true)} className="hidden" />
                   </label>
                 ))}
@@ -369,32 +369,32 @@ export default function RegisterPage() {
 
             {/* Photo Verification & Factory Media */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
-                <span className="text-xs font-bold text-[#0A1629] block mb-2">Photo Verification (Selfie / Camera Snapshot)</span>
+              <div className="p-4 rounded-2xl bg-card border border-line text-center">
+                <span className="text-xs font-bold text-ink block mb-2">Photo Verification (Selfie / Camera Snapshot)</span>
                 {photoPreviewUrl ? (
-                  <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-2 border-green-500 mb-2">
+                  <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border border-line mb-2">
                     <img src={photoPreviewUrl} alt="Selfie preview" className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-slate-600 mb-2">
-                    <User className="w-8 h-8 text-slate-500" />
+                  <div className="w-16 h-16 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-muted mb-2">
+                    <User className="w-8 h-8 text-muted" />
                   </div>
                 )}
-                <label className="inline-block px-4 py-2 bg-[#EA580C] text-white text-xs font-bold rounded-xl cursor-pointer">
+                <label className="inline-block px-4 py-2 bg-accent text-white text-xs font-bold rounded-xl cursor-pointer">
                   {photoVerified ? '✓ Photo Verified' : 'Take Selfie / Upload Photo'}
                   <input type="file" accept="image/*" onChange={handlePhotoCapture} className="hidden" />
                 </label>
               </div>
 
-              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center flex flex-col justify-center gap-2">
-                <span className="text-xs font-bold text-[#0A1629] block">Factory Images & Video with Banner</span>
-                <span className="text-[10px] text-gray-500">Banner must contain GST number, address & firm name.</span>
+              <div className="p-4 rounded-2xl bg-card border border-line text-center flex flex-col justify-center gap-2">
+                <span className="text-xs font-bold text-ink block">Factory Images & Video with Banner</span>
+                <span className="text-[10px] text-muted">Banner must contain GST number, address & firm name.</span>
                 <div className="flex gap-2 justify-center">
-                  <label className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${bannerUploaded ? 'bg-green-100 text-green-800' : 'bg-white text-gray-700'}`}>
+                  <label className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${bannerUploaded ? 'bg-green-100 text-green-800' : 'bg-card text-gray-700'}`}>
                     {bannerUploaded ? '✓ Banner Uploaded' : 'Upload Banner'}
                     <input type="file" accept="image/*" onChange={() => setBannerUploaded(true)} className="hidden" />
                   </label>
-                  <label className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${videoUploaded ? 'bg-green-100 text-green-800' : 'bg-white text-gray-700'}`}>
+                  <label className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${videoUploaded ? 'bg-green-100 text-green-800' : 'bg-card text-gray-700'}`}>
                     {videoUploaded ? '✓ Video Uploaded' : 'Upload Video'}
                     <input type="file" accept="video/*" onChange={() => setVideoUploaded(true)} className="hidden" />
                   </label>
@@ -405,7 +405,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-xl bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition-all disabled:opacity-60"
+              className="w-full py-4 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition-all disabled:opacity-60"
             >
               {loading ? 'Verifying & Issuing Digital ID Card...' : 'Complete Registration & Generate Digital ID Card →'}
             </button>
@@ -427,13 +427,13 @@ export default function RegisterPage() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
               <Link
                 href="/dashboard"
-                className="px-8 py-3.5 bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg text-center"
+                className="px-8 py-3.5 bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg text-center"
               >
                 Go to Main Dashboard →
               </Link>
               <Link
                 href="/profile"
-                className="px-8 py-3.5 bg-gray-100 hover:bg-gray-200 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-300 text-center"
+                className="px-8 py-3.5 bg-line/30 hover:bg-gray-200 text-ink font-bold text-xs rounded-xl border border-gray-300 text-center"
               >
                 View Full Profile & KYC Docs
               </Link>

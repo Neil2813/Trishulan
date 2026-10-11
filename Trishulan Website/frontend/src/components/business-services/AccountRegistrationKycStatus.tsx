@@ -74,16 +74,16 @@ export default function AccountRegistrationKycStatus() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-6xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-xs font-bold tracking-widest text-[#0A1629] uppercase flex items-center gap-2">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
+        <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>ACCOUNT REGISTRATION / KYC STATUS / ILLUSTRATIVE</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
         <button
           onClick={fetchKycStatus}
-          className="text-xs font-bold bg-white hover:bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg text-slate-800 shadow-sm transition"
+          className="text-xs font-bold bg-card hover:bg-line/30 border border-line px-3 py-1 rounded-lg text-slate-800 shadow-sm transition"
         >
           🔄 Refresh State
         </button>
@@ -111,7 +111,7 @@ export default function AccountRegistrationKycStatus() {
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                   : st.status === 'In review'
                   ? 'bg-amber-50 border-amber-300 text-amber-900'
-                  : 'bg-slate-50 border-slate-200 text-slate-500'
+                  : 'bg-card border-line text-muted'
               }`}
             >
               <span
@@ -120,13 +120,13 @@ export default function AccountRegistrationKycStatus() {
                     ? 'bg-emerald-600 text-white'
                     : st.status === 'In review'
                     ? 'bg-amber-500 text-white'
-                    : 'bg-slate-300 text-slate-600'
+                    : 'bg-slate-300 text-muted'
                 }`}
               >
                 {st.step}
               </span>
               <div>
-                <div className="font-extrabold text-xs text-[#0A1629]">{st.title}</div>
+                <div className="font-extrabold text-xs text-ink">{st.title}</div>
                 <div className="text-[10px] font-mono font-semibold capitalize">{st.status}</div>
               </div>
             </div>
@@ -134,16 +134,16 @@ export default function AccountRegistrationKycStatus() {
         </div>
 
         {/* Submitted for business account Table */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-            <span className="text-xs font-extrabold text-[#0A1629]">Submitted for business account</span>
-            <span className="text-[10px] text-slate-600 font-mono font-bold">Role: {data?.accountType || 'BUSINESS_SELLER'}</span>
+        <div className="bg-card border border-line rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-card px-4 py-3 border-b border-line flex justify-between items-center">
+            <span className="text-xs font-extrabold text-ink">Submitted for business account</span>
+            <span className="text-[10px] text-muted font-mono font-bold">Role: {data?.accountType || 'BUSINESS_SELLER'}</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-600 text-[10px] uppercase font-bold bg-slate-50">
+                <tr className="border-b border-line text-muted text-[10px] uppercase font-bold bg-card">
                   <th className="p-3.5">Requirement</th>
                   <th className="p-3.5">Requested Item</th>
                   <th className="p-3.5">Status</th>
@@ -152,8 +152,8 @@ export default function AccountRegistrationKycStatus() {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {(data?.documents || []).map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-50 transition">
-                    <td className="p-3.5 font-bold text-[#0A1629]">{doc.requirement}</td>
+                  <tr key={doc.id} className="hover:bg-card transition">
+                    <td className="p-3.5 font-bold text-ink">{doc.requirement}</td>
                     <td className="p-3.5 text-slate-700">{doc.requestedItem}</td>
                     <td className="p-3.5">
                       <span
@@ -199,7 +199,7 @@ export default function AccountRegistrationKycStatus() {
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
                 placeholder="Enter filename or document reference (e.g. electricity_bill_2026.pdf)..."
-                className="flex-1 bg-white border border-slate-300 rounded px-3 py-2 text-xs text-[#0A1629] focus:outline-none"
+                className="flex-1 bg-card border border-line rounded px-3 py-2 text-xs text-ink focus:outline-none"
               />
               <button
                 type="submit"
@@ -224,8 +224,8 @@ export default function AccountRegistrationKycStatus() {
         </div>
 
         {/* 6-Step Journey Flow Timeline */}
-        <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-xl space-y-3">
-          <span className="text-xs font-bold text-[#0A1629] uppercase block">Account Creation and KYC Journey</span>
+        <div className="bg-card/80 border border-line p-4 rounded-xl space-y-3">
+          <span className="text-xs font-bold text-ink uppercase block">Account Creation and KYC Journey</span>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {(data?.journeySteps || [
               { step: 1, label: 'Create account', active: true },
@@ -236,17 +236,17 @@ export default function AccountRegistrationKycStatus() {
               { step: 6, label: 'KYC status active', active: false },
             ]).map((js, idx) => (
               <React.Fragment key={js.step}>
-                {idx > 0 && <span className="text-slate-400">→</span>}
+                {idx > 0 && <span className="text-muted/70">→</span>}
                 <div
                   className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 border ${
                     js.current
                       ? 'bg-amber-100 text-amber-900 font-bold border-amber-300'
                       : js.active
                       ? 'bg-emerald-100 text-emerald-900 font-medium border-emerald-300'
-                      : 'bg-white text-slate-400 border-slate-200'
+                      : 'bg-card text-muted/70 border-line'
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-[#EA580C] text-white font-bold flex items-center justify-center text-[10px]">
+                  <span className="w-4 h-4 rounded-full bg-accent text-white font-bold flex items-center justify-center text-[10px]">
                     {js.step}
                   </span>
                   <span>{js.label}</span>

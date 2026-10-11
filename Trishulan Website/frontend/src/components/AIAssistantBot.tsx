@@ -74,7 +74,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border-2 border-orange-300 animate-bounce"
+        className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-line animate-bounce"
       >
         <span className="text-xl">🤖</span>
         <span>Ask Trishulan AI Bot</span>
@@ -83,18 +83,18 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
   }
 
   return (
-    <div className={`bg-white rounded-[24px] border border-gray-200 shadow-2xl overflow-hidden flex flex-col ${
+    <div className={`bg-card rounded-[24px] border border-line shadow-2xl overflow-hidden flex flex-col ${
       embedded ? 'h-[520px] w-full' : 'fixed bottom-6 right-6 z-50 w-[360px] sm:w-[420px] h-[540px]'
     }`}>
       
       {/* Bot Header */}
-      <div className="bg-gradient-to-r from-orange-50 via-white to-amber-50 text-[#0A1629] border-b border-gray-200 p-4 px-6 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-orange-50 via-white to-amber-50 text-ink border-b border-line p-4 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#EA580C] text-white flex items-center justify-center font-bold text-xl shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center font-bold text-xl shadow">
             🤖
           </div>
           <div>
-            <h4 className="font-extrabold text-[15px] text-[#0A1629]">Trishulan AI Assistant</h4>
+            <h4 className="font-extrabold text-[15px] text-ink">Trishulan AI Assistant</h4>
             <div className="flex items-center gap-1.5 text-[10px] text-green-700 font-bold">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span>Online • Solves Doubts & Industrial Queries</span>
@@ -105,7 +105,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
         {!embedded && (
           <button
             onClick={() => setIsOpen(false)}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs border border-gray-300"
+            className="w-8 h-8 rounded-full bg-line/30 hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center text-xs border border-gray-300"
           >
             ✕
           </button>
@@ -113,12 +113,12 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
       </div>
 
       {/* Suggested Quick Questions */}
-      <div className="p-3 bg-gray-50 border-b border-gray-200 flex gap-1.5 overflow-x-auto scrollbar-none">
+      <div className="p-3 bg-card border-b border-line flex gap-1.5 overflow-x-auto scrollbar-none">
         {predefinedQuestions.map((q, idx) => (
           <button
             key={idx}
             onClick={() => handleSendMessage(q)}
-            className="px-3 py-1.5 rounded-lg bg-white border border-gray-200 hover:border-[#EA580C] text-[11px] font-semibold text-[#0A1629] shrink-0 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-card border border-line hover:border-[#EA580C] text-[11px] font-semibold text-ink shrink-0 transition-colors"
           >
             {q}
           </button>
@@ -126,7 +126,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
       </div>
 
       {/* Message History */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/50">
+      <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-card/50">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -135,19 +135,19 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
             <div
               className={`p-3.5 rounded-2xl text-[12.5px] leading-relaxed shadow-sm ${
                 m.sender === 'user'
-                  ? 'bg-[#EA580C] text-white rounded-tr-none'
-                  : 'bg-white text-[#0A1629] border border-gray-200 rounded-tl-none'
+                  ? 'bg-accent text-white rounded-tr-none'
+                  : 'bg-card text-ink border border-line rounded-tl-none'
               }`}
             >
               {m.text}
             </div>
-            <span className="text-[9px] text-gray-400 mt-1 px-1">{m.time}</span>
+            <span className="text-[9px] text-muted/70 mt-1 px-1">{m.time}</span>
           </div>
         ))}
 
         {isTyping && (
-          <div className="flex items-center gap-2 text-xs text-gray-400 p-2">
-            <span className="w-2 h-2 rounded-full bg-[#EA580C] animate-ping"></span>
+          <div className="flex items-center gap-2 text-xs text-muted/70 p-2">
+            <span className="w-2 h-2 rounded-full bg-accent animate-ping"></span>
             <span>Trishulan AI is resolving query...</span>
           </div>
         )}
@@ -159,7 +159,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
           e.preventDefault();
           handleSendMessage();
         }}
-        className="p-3 bg-white border-t border-gray-200 flex items-center gap-2"
+        className="p-3 bg-card border-t border-line flex items-center gap-2"
       >
         <input
           type="text"
@@ -170,7 +170,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
         />
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-xl bg-[#0A1629] hover:bg-[#1E293B] text-white font-bold text-xs shadow-md transition-colors"
+          className="px-5 py-2.5 rounded-xl bg-[#0A1629] hover:bg-[#1E293B] text-white font-bold text-xs shadow transition-colors"
         >
           Ask
         </button>

@@ -46,11 +46,11 @@ export default function ActivityDashboard() {
   const maxCount = Math.max(...weeklyTrend.map(t => t.count), 20);
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-md space-y-6">
+    <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       {/* Title Header */}
       <div>
-        <h2 className="text-xl font-black text-[#0A1629]">
+        <h2 className="text-xl font-black text-ink">
           Illustrative activity dashboard
         </h2>
         <p className="text-xs text-[#64748B] font-medium mt-1">
@@ -62,8 +62,8 @@ export default function ActivityDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* NEW LEADS */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between shadow-2xs">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <div className="bg-card border border-line p-4 rounded-xl flex items-center justify-between shadow-2xs">
+          <span className="text-xs font-bold text-muted uppercase tracking-wider">
             NEW LEADS
           </span>
           <span className="text-2xl md:text-3xl font-black text-[#1D4ED8]">
@@ -72,8 +72,8 @@ export default function ActivityDashboard() {
         </div>
 
         {/* RESPONDED */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between shadow-2xs">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <div className="bg-card border border-line p-4 rounded-xl flex items-center justify-between shadow-2xs">
+          <span className="text-xs font-bold text-muted uppercase tracking-wider">
             RESPONDED
           </span>
           <span className="text-2xl md:text-3xl font-black text-[#1D4ED8]">
@@ -82,8 +82,8 @@ export default function ActivityDashboard() {
         </div>
 
         {/* OPEN RFQs */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between shadow-2xs">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <div className="bg-card border border-line p-4 rounded-xl flex items-center justify-between shadow-2xs">
+          <span className="text-xs font-bold text-muted uppercase tracking-wider">
             OPEN RFQs
           </span>
           <span className="text-2xl md:text-3xl font-black text-[#1D4ED8]">
@@ -94,30 +94,30 @@ export default function ActivityDashboard() {
       </div>
 
       {/* Bar Chart Container */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs space-y-4">
-        <div className="flex justify-between items-center text-xs font-bold text-slate-600">
+      <div className="bg-card border border-line rounded-2xl p-6 shadow-2xs space-y-4">
+        <div className="flex justify-between items-center text-xs font-bold text-muted">
           <span>Weekly Buyer Lead Activity Volume</span>
           <span className="text-[#1D4ED8] font-bold">Mon - Sun Activity</span>
         </div>
 
         {/* Bar Chart Visual */}
-        <div className="h-44 flex items-end gap-3 md:gap-6 pt-6 border-b border-slate-200 pb-2">
+        <div className="h-44 flex items-end gap-3 md:gap-6 pt-6 border-b border-line pb-2">
           {weeklyTrend.map((item, idx) => {
             const heightPercent = Math.min((item.count / maxCount) * 100, 100);
 
             return (
               <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                <span className="text-[10px] font-bold text-slate-400 group-hover:text-[#1D4ED8] transition-colors">
+                <span className="text-[10px] font-bold text-muted/70 group-hover:text-[#1D4ED8] transition-colors">
                   {item.count}
                 </span>
-                <div className="w-full bg-slate-100 rounded-t h-32 flex items-end">
+                <div className="w-full bg-line/30 rounded-t h-32 flex items-end">
                   <div
                     style={{ height: `${heightPercent}%` }}
                     className="w-full bg-[#00A896] hover:bg-[#008073] rounded-t transition-all cursor-pointer shadow-xs"
                     title={`${item.day}: ${item.count} inquiries`}
                   ></div>
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-muted font-medium">
                   {item.day}
                 </span>
               </div>

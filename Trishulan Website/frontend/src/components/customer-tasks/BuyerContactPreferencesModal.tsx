@@ -69,16 +69,16 @@ export default function BuyerContactPreferencesModal({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-4xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-4xl w-full mx-auto my-6 font-sans">
       {/* Top Illustrative Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-emerald-800 uppercase">
           BUYER CONTACT PREFERENCES / ILLUSTRATIVE
         </h2>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-900 text-xs font-bold transition"
+            className="text-muted hover:text-slate-900 text-xs font-bold transition"
           >
             ✕ Close
           </button>
@@ -87,99 +87,99 @@ export default function BuyerContactPreferencesModal({
 
       <div className="p-6 space-y-6">
         {/* Main Mock Form Card */}
-        <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-6 space-y-5">
+        <div className="bg-card/80 border border-line rounded-xl p-6 space-y-5">
           <div>
-            <span className="text-sm font-semibold text-slate-600">Your RFQ: </span>
-            <span className="text-base font-extrabold text-[#0A1629]">
+            <span className="text-sm font-semibold text-muted">Your RFQ: </span>
+            <span className="text-base font-extrabold text-ink">
               {productName}, {quantity}
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700 font-medium">
-            <span className="font-bold text-[#0A1629]">Send request to:</span>
+            <span className="font-bold text-ink">Send request to:</span>
             {suppliers.map((sup) => (
               <label
                 key={sup.id}
-                className="flex items-center gap-1.5 cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-slate-300 hover:border-emerald-500 shadow-sm transition"
+                className="flex items-center gap-1.5 cursor-pointer bg-card px-3 py-1.5 rounded-lg border border-line hover:border-emerald-500 shadow-sm transition"
               >
                 <input
                   type="checkbox"
                   checked={selectedSuppliers.includes(sup.id)}
                   onChange={() => toggleSupplier(sup.id)}
-                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <span className="text-slate-800">{sup.name}</span>
               </label>
             ))}
           </div>
 
-          <hr className="border-slate-200 my-4" />
+          <hr className="border-line my-4" />
 
           {/* Consent Checkboxes */}
           <div className="space-y-4 text-sm">
-            <div className="flex items-start justify-between gap-4 p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-start justify-between gap-4 p-3.5 bg-card rounded-xl border border-line shadow-sm">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={sharePhone}
                   onChange={(e) => setSharePhone(e.target.checked)}
-                  className="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-1 rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <span className="font-bold text-[#0A1629]">
+                  <span className="font-bold text-ink">
                     Share phone with {selectedSuppliers.length === 1 ? suppliers.find(s => s.id === selectedSuppliers[0])?.name || 'Selected Supplier' : 'Selected Suppliers'}
                   </span>
                 </div>
               </label>
-              <span className="text-xs text-slate-500 italic">This seller may call about this RFQ.</span>
+              <span className="text-xs text-muted italic">This seller may call about this RFQ.</span>
             </div>
 
-            <div className="flex items-start justify-between gap-4 p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-start justify-between gap-4 p-3.5 bg-card rounded-xl border border-line shadow-sm">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={allowWhatsApp}
                   onChange={(e) => setAllowWhatsApp(e.target.checked)}
-                  className="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-1 rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <span className="font-bold text-[#0A1629]">
+                  <span className="font-bold text-ink">
                     Allow {selectedSuppliers.length === 1 ? suppliers.find(s => s.id === selectedSuppliers[0])?.name || 'Selected Supplier' : 'Selected Suppliers'} on WhatsApp
                   </span>
                 </div>
               </label>
-              <span className="text-xs text-slate-500 italic">This named seller may message about this RFQ.</span>
+              <span className="text-xs text-muted italic">This named seller may message about this RFQ.</span>
             </div>
 
-            <div className="flex items-start justify-between gap-4 p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-start justify-between gap-4 p-3.5 bg-card rounded-xl border border-line shadow-sm">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={futureOffers}
                   onChange={(e) => setFutureOffers(e.target.checked)}
-                  className="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-1 rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <span className="font-bold text-[#0A1629]">Future product offers</span>
+                  <span className="font-bold text-ink">Future product offers</span>
                 </div>
               </label>
-              <span className="text-xs text-slate-500 italic">Optional marketing messages, separate choice.</span>
+              <span className="text-xs text-muted italic">Optional marketing messages, separate choice.</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-line">
             <button
               onClick={() => handleConsentSubmit(false)}
               disabled={loading}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-line hover:bg-line/30 text-slate-700 font-bold text-xs transition"
             >
               Continue on site without phone sharing
             </button>
             <button
               onClick={() => handleConsentSubmit(true)}
               disabled={loading || selectedSuppliers.length === 0}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition disabled:opacity-50"
             >
               {loading ? 'Submitting...' : 'Send RFQ with selected contact options'}
             </button>
@@ -194,7 +194,7 @@ export default function BuyerContactPreferencesModal({
             ) : (
               <div>
                 <p className="font-bold text-emerald-800">✓ Express Backend Recorded Consent Record #{submissionResult.consentRecord?.id || 'OK'}:</p>
-                <pre className="mt-2 text-[11px] overflow-x-auto text-emerald-900 bg-white p-3 rounded-lg border border-emerald-200">
+                <pre className="mt-2 text-[11px] overflow-x-auto text-emerald-900 bg-card p-3 rounded-lg border border-emerald-200">
                   {JSON.stringify(submissionResult, null, 2)}
                 </pre>
               </div>
@@ -203,7 +203,7 @@ export default function BuyerContactPreferencesModal({
         )}
 
         {/* Requirements Bullet List from Spec */}
-        <div className="text-xs text-slate-700 space-y-2.5 leading-relaxed bg-slate-50 p-5 rounded-xl border border-slate-200">
+        <div className="text-xs text-slate-700 space-y-2.5 leading-relaxed bg-card p-5 rounded-xl border border-line">
           <p className="flex items-start gap-2">
             <span className="text-emerald-700 font-bold">•</span>
             <span>Show the exact product/RFQ and selected seller names before the buyer submits. Explain what contact information each seller will receive and for what purpose.</span>

@@ -40,17 +40,17 @@ export default function BuyRequirementFormMockup() {
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-md space-y-6">
+    <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider">LIVE INTERACTIVE MODULE</span>
-        <h2 className="text-xl font-black text-[#0A1629] mt-0.5">
+        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE MODULE</span>
+        <h2 className="text-xl font-black text-ink mt-0.5">
           Feature example: what the screen can show
         </h2>
       </div>
 
       {/* Screen Mockup Container */}
-      <div className="border border-slate-300 rounded-2xl overflow-hidden bg-slate-50 shadow-xs">
+      <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
@@ -71,7 +71,7 @@ export default function BuyRequirementFormMockup() {
                 value={product}
                 onChange={(e) => setProduct(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#00A896]"
+                className="w-full px-4 py-2.5 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#00A896]"
               />
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function BuyRequirementFormMockup() {
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#00A896]"
+                className="w-full px-4 py-2.5 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#00A896]"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function BuyRequirementFormMockup() {
                 type="text"
                 value={specification}
                 onChange={(e) => setSpecification(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#00A896]"
+                className="w-full px-4 py-2.5 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#00A896]"
               />
             </div>
           </div>
@@ -108,7 +108,7 @@ export default function BuyRequirementFormMockup() {
                 type="text"
                 value={delivery}
                 onChange={(e) => setDelivery(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#00A896]"
+                className="w-full px-4 py-2.5 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#00A896]"
               />
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function BuyRequirementFormMockup() {
                 type="text"
                 value={attachmentName}
                 onChange={(e) => setAttachmentName(e.target.value)}
-                className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-[#0A1629] focus:outline-none focus:border-[#00A896]"
+                className="flex-1 px-4 py-2.5 bg-card border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-[#00A896]"
               />
               <label className="px-3 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl cursor-pointer transition-colors whitespace-nowrap">
                 [Upload]
@@ -147,7 +147,7 @@ export default function BuyRequirementFormMockup() {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-3 bg-[#00A896] hover:bg-[#008073] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-2"
+              className="px-6 py-3 bg-[#00A896] hover:bg-[#008073] text-white font-extrabold text-xs rounded-xl shadow transition-all flex items-center gap-2"
             >
               <span>{submitting ? 'Broadcasting...' : 'Send to suppliers'}</span>
             </button>

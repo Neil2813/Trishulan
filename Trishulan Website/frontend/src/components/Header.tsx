@@ -86,7 +86,7 @@ export default function Header() {
 
   return (
     <>
-      <header suppressHydrationWarning className="bg-white border-b border-line sticky top-0 z-[100]">
+      <header suppressHydrationWarning className="bg-card/80 backdrop-blur-xl border-b border-line sticky top-0 z-[100] transition-colors">
         <div className="w-full px-4 lg:px-8 max-w-[1600px] mx-auto flex items-center justify-between h-[66px]">
           
           {/* Logo */}
@@ -95,7 +95,7 @@ export default function Header() {
               <div className="relative w-[45px] h-[45px]">
                 <Image src="/TrishulanLogo.jpeg" alt="Trishulan Logo" fill sizes="45px" className="object-contain" />
               </div>
-              <div className="font-alata font-extrabold text-[22px] md:text-[24px] text-[#0A1629] tracking-[.02em]">
+              <div className="font-alata font-extrabold text-[22px] md:text-[24px] text-ink tracking-[.02em]">
                 Trishulan
               </div>
             </Link>
@@ -105,7 +105,7 @@ export default function Header() {
               <button
                 suppressHydrationWarning
                 onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-                className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-[13px] font-bold text-[#0A1629] transition-all"
+                className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-line/50 hover:bg-line text-[13px] font-bold text-ink transition-all"
               >
                 <span>Categories</span>
                 <span className="text-xs">{isMegaMenuOpen ? '▲' : '▼'}</span>
@@ -116,7 +116,7 @@ export default function Header() {
             <button
               suppressHydrationWarning
               onClick={() => setIsServicePointsOpen(true)}
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#EA580C] text-[12px] font-bold border border-orange-200 transition-all"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent text-[12px] font-bold border border-accent/20 transition-all"
               title="View physical Trishulan Service Point Locations"
             >
               <MapPin className="w-3.5 h-3.5" />
@@ -126,7 +126,7 @@ export default function Header() {
             {/* Customer Tasks & Contact Preferences Workspace Link */}
             <Link
               href="/customer-workspace"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-800 text-[12px] font-bold border border-cyan-200 transition-all"
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-line/30 hover:bg-line/50 text-ink text-[12px] font-bold border border-line transition-all"
               title="Customer Tasks Dashboard & Buyer Contact Preferences"
             >
               <span>📋</span>
@@ -137,7 +137,7 @@ export default function Header() {
           {/* Search Bar */}
           {!isLandingPage && (
             <div className="flex-1 max-w-[560px] mx-[16px] relative hidden md:block">
-              <div className="flex border-[1.5px] border-line rounded-[9px] overflow-hidden transition focus-within:border-ink">
+              <div className="flex border-[1.5px] border-line bg-bg rounded-[9px] overflow-hidden transition focus-within:border-ink">
                 <input
                   suppressHydrationWarning
                   id="hdSearch"
@@ -153,17 +153,17 @@ export default function Header() {
                   suppressHydrationWarning
                   type="button"
                   onClick={() => openTools('barcode')}
-                  className="px-3 text-[12px] font-bold text-gray-700 hover:text-[#EA580C] bg-gray-100 border-l border-gray-200 flex items-center gap-1.5 transition-colors"
+                  className="px-3 text-[12px] font-bold text-body hover:text-ink bg-line/50 border-l border-line flex items-center gap-1.5 transition-colors"
                   title="Search via Barcode scanner, Image dropzone or Voice"
                 >
-                  <span className="w-2 h-2 rounded-full bg-[#EA580C]"></span>
+                  <span className="w-2 h-2 rounded-full bg-accent"></span>
                   <span>Tools</span>
                 </button>
 
                 <button
                   suppressHydrationWarning
                   onClick={() => handleSearch(searchQuery)}
-                  className="bg-ink text-white px-[18px] text-[12.5px] font-semibold hover:bg-opacity-90"
+                  className="bg-ink text-bg px-[18px] text-[12.5px] font-semibold hover:bg-opacity-90"
                   aria-label="Search"
                 >
                   Search
@@ -172,10 +172,10 @@ export default function Header() {
 
               {/* Search Auto-complete Dropdown */}
               {searchQuery.trim() && (
-                <div className="absolute top-[48px] left-0 right-0 bg-white rounded-xl border border-gray-200 shadow-2xl p-4 z-50 animate-[fadeIn_0.15s_ease]">
-                  <div className="text-[11px] font-bold text-gray-400 uppercase mb-2">Instant Search Results</div>
+                <div className="absolute top-[48px] left-0 right-0 bg-card rounded-2xl border border-line shadow-2xl p-4 z-50 animate-[fadeIn_0.15s_ease]">
+                  <div className="text-[11px] font-bold text-muted uppercase mb-2">Instant Search Results</div>
                   {isSearching ? (
-                    <div className="text-xs text-gray-500 py-2">Searching live listings...</div>
+                    <div className="text-xs text-muted py-2">Searching live listings...</div>
                   ) : searchResults.length > 0 ? (
                     <div className="space-y-2">
                       {searchResults.map((item) => (
@@ -183,18 +183,18 @@ export default function Header() {
                           key={item.id} 
                           href={`/listings/${item.id}`}
                           onClick={() => setSearchQuery('')}
-                          className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="flex items-center justify-between p-2 rounded-lg hover:bg-line/50 transition-colors"
                         >
                           <div>
-                            <div className="text-[13.5px] font-bold text-[#0A1629]">{item.title}</div>
-                            <div className="text-[11px] text-[#64748B]">{item.category} • {item.location}</div>
+                            <div className="text-[13.5px] font-bold text-ink">{item.title}</div>
+                            <div className="text-[11px] text-muted">{item.category} • {item.location}</div>
                           </div>
-                          <span className="text-xs font-bold text-[#EA580C]">₹{item.price.toLocaleString('en-IN')} / {item.unit}</span>
+                          <span className="text-xs font-bold text-accent">₹{item.price.toLocaleString('en-IN')} / {item.unit}</span>
                         </Link>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-xs text-gray-500 py-2">No matching listings found.</div>
+                    <div className="text-xs text-muted py-2">No matching listings found.</div>
                   )}
                 </div>
               )}
@@ -208,7 +208,7 @@ export default function Header() {
             <button
               suppressHydrationWarning
               onClick={() => openTools('barcode')}
-              className="relative w-[36px] h-[36px] rounded-[9px] bg-bg border border-line flex items-center justify-center text-ink transition hover:bg-navy-bg hover:border-line-2 md:hidden"
+              className="relative w-[36px] h-[36px] rounded-[9px] bg-transparent border border-line flex items-center justify-center text-ink transition hover:bg-line md:hidden"
               title="Search Tools"
             >
               <Search className="w-4 h-4 text-ink" />
@@ -219,12 +219,12 @@ export default function Header() {
               <button
                 suppressHydrationWarning
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="relative w-[36px] h-[36px] rounded-[9px] bg-bg border border-line flex items-center justify-center text-ink transition hover:bg-navy-bg hover:border-line-2"
+                className="relative w-[36px] h-[36px] rounded-[9px] bg-transparent border border-line flex items-center justify-center text-ink transition hover:bg-line"
                 title="Notifications"
               >
                 <Bell className="w-4 h-4 text-ink" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] rounded-full bg-[#EA580C] text-white font-bold text-[10px] flex items-center justify-center px-1 animate-pulse">
+                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] rounded-full bg-accent text-bg font-bold text-[10px] flex items-center justify-center px-1 animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -232,13 +232,13 @@ export default function Header() {
 
               {/* Notifications Dropdown Panel */}
               {isNotificationsOpen && (
-                <div className="absolute right-0 top-[46px] w-[320px] sm:w-[360px] bg-white rounded-2xl border border-gray-200 shadow-2xl z-50 p-4 animate-[fadeIn_0.15s_ease]">
-                  <div className="flex items-center justify-between pb-3 border-b border-gray-200 mb-2">
-                    <h4 className="font-extrabold text-[14px] text-[#0A1629]">Notifications</h4>
+                <div className="absolute right-0 top-[46px] w-[320px] sm:w-[360px] bg-card rounded-2xl border border-line shadow-2xl z-50 p-4 animate-[fadeIn_0.15s_ease]">
+                  <div className="flex items-center justify-between pb-3 border-b border-line mb-2">
+                    <h4 className="font-extrabold text-[14px] text-ink">Notifications</h4>
                     <button
                       suppressHydrationWarning
                       onClick={() => setNotifications(notifications.map(n => ({ ...n, unread: false })))}
-                      className="text-[11px] font-bold text-[#EA580C] hover:underline"
+                      className="text-[11px] font-bold text-accent hover:underline"
                     >
                       Mark all as read
                     </button>
@@ -250,24 +250,24 @@ export default function Header() {
                         key={item.id}
                         className={`p-3 rounded-xl border text-xs transition-colors ${
                           item.unread
-                            ? 'bg-amber-50/70 border-amber-200 text-[#0A1629]'
-                            : 'bg-gray-50 border-gray-200 text-gray-600'
+                            ? 'bg-accent/10 border-accent/20 text-ink'
+                            : 'bg-bg border-line text-body'
                         }`}
                       >
                         <div className="flex items-center justify-between font-bold mb-1">
                           <span className="text-[12px]">{item.title}</span>
-                          <span className="text-[10px] text-gray-400 font-normal">{item.time}</span>
+                          <span className="text-[10px] text-muted font-normal">{item.time}</span>
                         </div>
                         <p className="text-[11px] leading-snug">{item.text}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-3 pt-2 border-t border-gray-200 text-center">
+                  <div className="mt-3 pt-2 border-t border-line text-center">
                     <Link
                       href="/dashboard"
                       onClick={() => setIsNotificationsOpen(false)}
-                      className="text-[11px] font-bold text-[#0A1629] hover:underline"
+                      className="text-[11px] font-bold text-ink hover:underline"
                     >
                       View All Alerts in Dashboard →
                     </Link>
@@ -279,22 +279,22 @@ export default function Header() {
             {/* Authentication Buttons */}
             {user ? (
               <div className="flex items-center gap-2">
-                <Link className="btn btn-primary btn-sm bg-gray-200 text-ink border-none hover:bg-gray-300 font-bold" href="/dashboard">
+                <Link className="btn btn-sm btn-ghost font-bold" href="/dashboard">
                   Dashboard
                 </Link>
-                <Link className="btn btn-primary btn-sm bg-amber-100 text-amber-900 border-none hover:bg-amber-200 font-bold" href="/profile">
+                <Link className="btn btn-sm btn-ghost font-bold" href="/profile">
                   Profile
                 </Link>
-                <button suppressHydrationWarning onClick={handleLogout} className="btn btn-primary btn-sm bg-red-100 text-red-700 border-none hover:bg-red-200 font-bold">
+                <button suppressHydrationWarning onClick={handleLogout} className="btn btn-sm bg-down-bg text-down hover:bg-down/20 font-bold">
                   Logout
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <button suppressHydrationWarning onClick={() => setIsAuthOpen(true)} className="btn btn-primary btn-sm">
+                <button suppressHydrationWarning onClick={() => setIsAuthOpen(true)} className="btn btn-ghost btn-sm">
                   LogIn
                 </button>
-                <Link href="/register" className="btn btn-primary btn-sm bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold">
+                <Link href="/register" className="btn btn-primary btn-sm">
                   Register
                 </Link>
               </div>

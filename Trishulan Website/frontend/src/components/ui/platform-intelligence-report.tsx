@@ -184,39 +184,39 @@ export default function PlatformIntelligenceReport({
       {/* Modal / Drill-down drawer when user clicks a platform */}
       {selectedPlatform && (
         <div className="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 relative animate-[fadeIn_0.15s_ease]">
+          <div className="bg-card rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-line relative animate-[fadeIn_0.15s_ease]">
             <button
               onClick={() => setSelectedPlatform(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-base w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"
+              className="absolute top-4 right-4 text-muted/70 hover:text-gray-700 font-bold text-base w-8 h-8 rounded-full bg-line/30 flex items-center justify-center"
             >
               ✕
             </button>
 
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EA580C]/10 text-[#EA580C]">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-accent/10 text-accent">
                 {selectedPlatform.badge}
               </span>
-              <span className="text-xs text-gray-400 font-mono">B2B Competitive Benchmark</span>
+              <span className="text-xs text-muted/70 font-mono">B2B Competitive Benchmark</span>
             </div>
 
-            <h3 className="text-xl font-black text-[#0A1629]">
+            <h3 className="text-xl font-black text-ink">
               {selectedPlatform.code} Overview
             </h3>
-            <p className="text-xs font-bold text-gray-600 mt-0.5">
+            <p className="text-xs font-bold text-muted mt-0.5">
               Focus: {selectedPlatform.focus}
             </p>
 
-            <p className="text-xs text-gray-600 leading-relaxed mt-3">
+            <p className="text-xs text-muted leading-relaxed mt-3">
               {selectedPlatform.description}
             </p>
 
             <div className="mt-4 space-y-2">
-              <span className="text-xs font-bold text-[#0A1629] block uppercase tracking-wider">
+              <span className="text-xs font-bold text-ink block uppercase tracking-wider">
                 Core Capabilities Matrix:
               </span>
               <div className="grid grid-cols-2 gap-1.5 text-xs">
                 {selectedPlatform.features.map((feat, idx) => (
-                  <div key={idx} className="p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-1.5">
+                  <div key={idx} className="p-2 bg-card border border-line rounded-lg flex items-center gap-1.5">
                     <span className="text-green-600 font-bold">✓</span>
                     <span className="text-gray-700 font-medium text-[11px]">{feat}</span>
                   </div>
@@ -225,7 +225,7 @@ export default function PlatformIntelligenceReport({
             </div>
 
             <div className="mt-4 p-3 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl">
-              <span className="text-[10px] font-extrabold text-[#EA580C] uppercase tracking-wider block">
+              <span className="text-[10px] font-extrabold text-accent uppercase tracking-wider block">
                 Trishulan Platform Edge vs {selectedPlatform.code}:
               </span>
               <p className="text-xs text-gray-700 font-medium mt-1 leading-snug">
@@ -237,7 +237,7 @@ export default function PlatformIntelligenceReport({
               {selectedPlatform.id === 'platform-a' ? (
                 <Link
                   href="/platform-a"
-                  className="px-4 py-2 bg-[#EA580C] hover:bg-[#c2410a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                  className="px-4 py-2 bg-accent hover:bg-[#c2410a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
                 >
                   Open Live Platform A Module →
                 </Link>
@@ -265,7 +265,7 @@ export default function PlatformIntelligenceReport({
               ) : selectedPlatform.id === 'platform-e' ? (
                 <Link
                   href="/platform-e"
-                  className="px-4 py-2 bg-[#EA580C] hover:bg-[#c2410a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                  className="px-4 py-2 bg-accent hover:bg-[#c2410a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
                 >
                   Open Live Platform E Module →
                 </Link>

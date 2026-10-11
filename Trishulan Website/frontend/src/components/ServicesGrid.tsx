@@ -57,16 +57,16 @@ const serviceModules = [
 
 export default function ServicesGrid() {
   return (
-    <section className="py-16 md:py-24 bg-[#FCFBF8] border-y border-gray-200/80 px-6">
+    <section className="py-16 md:py-24 bg-bg border-y border-line/80 px-6">
       <div className="max-w-[1400px] mx-auto">
 
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <span className="text-[12px] font-bold text-[#EA580C] uppercase tracking-[.1em]">
+            <span className="text-[12px] font-bold text-accent uppercase tracking-[.1em]">
               MODULAR SERVICES MATRIX
             </span>
-            <h2 className="text-[32px] md:text-[42px] font-black text-[#0A1629] tracking-tight leading-tight mt-1">
+            <h2 className="text-[32px] md:text-[42px] font-black text-ink tracking-tight leading-tight mt-1">
               End-to-End Operational Support
             </h2>
           </div>
@@ -82,10 +82,10 @@ export default function ServicesGrid() {
               {/* Category Header */}
               <div className="flex items-center gap-3 mb-4">
                 <span className={`w-3 h-3 rounded-full ${module.badgeBg}`}></span>
-                <h3 className="text-[13px] font-bold tracking-[.1em] text-[#0A1629] uppercase">
+                <h3 className="text-[13px] font-bold tracking-[.1em] text-ink uppercase">
                   {module.category}
                 </h3>
-                <div className="flex-1 border-t border-gray-200"></div>
+                <div className="flex-1 border-t border-line"></div>
               </div>
 
               {/* Items Cards */}
@@ -98,13 +98,13 @@ export default function ServicesGrid() {
                   >
                     <Link
                       href={item.link}
-                      className={`block p-6 rounded-[20px] border ${module.color} hover:shadow-md transition-all h-full flex flex-col justify-between group bg-white`}
+                      className={`block p-6 rounded-[20px] border ${module.color} hover:shadow transition-all h-full flex flex-col justify-between group bg-card`}
                     >
                       <div>
                         <div className="mb-3">
-                          <item.icon className="w-7 h-7 text-[#0A1629] group-hover:text-[#EA580C] transition-colors" />
+                          <item.icon className="w-7 h-7 text-ink group-hover:text-accent transition-colors" />
                         </div>
-                        <h4 className="text-[18px] font-bold text-[#0A1629] mb-2 group-hover:text-[#EA580C] transition-colors">
+                        <h4 className="text-[18px] font-bold text-ink mb-2 group-hover:text-accent transition-colors">
                           {item.title}
                         </h4>
                         <p className="text-[13px] text-[#64748B] leading-relaxed mb-4">
@@ -112,7 +112,7 @@ export default function ServicesGrid() {
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 text-[13px] font-bold text-[#0A1629] group-hover:text-[#EA580C] transition-colors">
+                      <div className="flex items-center gap-2 text-[13px] font-bold text-ink group-hover:text-accent transition-colors">
                         <span>Access Portal</span>
                         <span>→</span>
                       </div>

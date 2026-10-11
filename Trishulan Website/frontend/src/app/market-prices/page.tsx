@@ -37,32 +37,32 @@ export default function MarketPricesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FCFBF8] py-8 px-4 sm:px-6">
+    <div className="min-h-screen bg-transparent py-8 px-4 sm:px-6">
       <div className="max-w-[1600px] mx-auto space-y-6">
         
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-orange-50/90 via-white to-amber-50/80 text-[#0A1629] rounded-[24px] p-6 md:p-8 border-2 border-orange-200 shadow-lg relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-96 h-96 bg-[#EA580C]/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="bg-card text-ink rounded-[24px] p-6 md:p-8 border border-line shadow-lg relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-accent/15 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-[.16em]">PAGE 4 REFERENCE SPECIFICATION</span>
-              <h1 className="text-[28px] md:text-[36px] font-black text-[#0A1629] mt-1">Market Price Today</h1>
+              <span className="text-[11px] font-bold text-accent uppercase tracking-[.16em]">PAGE 4 REFERENCE SPECIFICATION</span>
+              <h1 className="text-[28px] md:text-[36px] font-black text-ink mt-1">Market Price Today</h1>
               <p className="text-[13.5px] text-[#64748B] font-medium mt-1 max-w-xl">
                 Get real-time and average market prices of any product across Indian states and global countries. Search, compare, and make better business decisions.
               </p>
             </div>
 
             {/* Material Search Input */}
-            <div className="flex items-center gap-2 bg-white rounded-xl p-1.5 border border-gray-300 shadow-sm max-w-md w-full">
+            <div className="flex items-center gap-2 bg-card rounded-xl p-1.5 border border-gray-300 shadow-sm max-w-md w-full">
               <input
                 type="text"
                 value={searchMaterial}
                 onChange={(e) => setSearchMaterial(e.target.value)}
                 placeholder="Search anything... (e.g. Steel, Copper, Chemicals)"
-                className="flex-1 px-3 py-2 text-xs font-semibold text-[#0A1629] border-none outline-none"
+                className="flex-1 px-3 py-2 text-xs font-semibold text-ink border-none outline-none"
               />
-              <button className="px-5 py-2.5 rounded-lg bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold text-xs shadow-sm">
+              <button className="px-5 py-2.5 rounded-lg bg-accent hover:bg-[#c2410a] text-white font-bold text-xs shadow-sm">
                 Search
               </button>
             </div>
@@ -70,15 +70,15 @@ export default function MarketPricesPage() {
 
           {/* Category Chips bar */}
           <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-1">
-            <span className="text-xs text-gray-500 font-bold shrink-0">Popular Categories:</span>
+            <span className="text-xs text-muted font-bold shrink-0">Popular Categories:</span>
             {categories.map((cat, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[#EA580C] text-white shadow-md'
-                    : 'bg-white text-[#0A1629] border border-gray-300 hover:bg-gray-100'
+                    ? 'bg-accent text-white shadow'
+                    : 'bg-card text-ink border border-gray-300 hover:bg-line/30'
                 }`}
               >
                 {cat}
@@ -89,10 +89,10 @@ export default function MarketPricesPage() {
 
         {/* Global vs Indian Average Price Band */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-md flex items-center justify-between">
+          <div className="bg-card p-6 rounded-[24px] border border-line shadow flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold text-gray-400 uppercase block">Global Average Price</span>
-              <div className="text-[32px] font-black text-[#0A1629] mt-1">$ 628 <span className="text-xs text-gray-500 font-normal">/ MT</span></div>
+              <span className="text-xs font-bold text-muted/70 uppercase block">Global Average Price</span>
+              <div className="text-[32px] font-black text-ink mt-1">$ 628 <span className="text-xs text-muted font-normal">/ MT</span></div>
               <span className="text-xs font-bold text-green-600 block mt-0.5">▲ +2.4% vs last week</span>
             </div>
             <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center">
@@ -100,13 +100,13 @@ export default function MarketPricesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-md flex items-center justify-between">
+          <div className="bg-card p-6 rounded-[24px] border border-line shadow flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold text-gray-400 uppercase block">Indian Average Price</span>
-              <div className="text-[32px] font-black text-[#EA580C] mt-1">₹ 46,850 <span className="text-xs text-gray-500 font-normal">/ MT</span></div>
+              <span className="text-xs font-bold text-muted/70 uppercase block">Indian Average Price</span>
+              <div className="text-[32px] font-black text-accent mt-1">₹ 46,850 <span className="text-xs text-muted font-normal">/ MT</span></div>
               <span className="text-xs font-bold text-green-600 block mt-0.5">▲ +1.8% vs last week</span>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-orange-100 text-[#EA580C] flex items-center justify-center">
+            <div className="w-14 h-14 rounded-2xl bg-orange-100 text-accent flex items-center justify-center">
               <Building className="w-7 h-7" />
             </div>
           </div>
@@ -119,19 +119,19 @@ export default function MarketPricesPage() {
           <div className="lg:col-span-2 space-y-8">
             
             {/* India - State Wise Prices Table */}
-            <div className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+            <div className="bg-card p-6 rounded-[24px] border border-line shadow-xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-line">
                 <div>
-                  <h3 className="font-extrabold text-[18px] text-[#0A1629]">India - State Wise Prices ({selectedCategory})</h3>
-                  <p className="text-xs text-gray-500">Average spot rates across major industrial state hubs</p>
+                  <h3 className="font-extrabold text-[18px] text-ink">India - State Wise Prices ({selectedCategory})</h3>
+                  <p className="text-xs text-muted">Average spot rates across major industrial state hubs</p>
                 </div>
-                <span className="text-xs font-bold text-[#EA580C]">Showing 10 States</span>
+                <span className="text-xs font-bold text-accent">Showing 10 States</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px]">
+                    <tr className="border-b border-line text-muted/70 font-bold uppercase text-[10px]">
                       <th className="py-2.5">State</th>
                       <th className="py-2.5 text-right">Avg. Price (₹/MT)</th>
                       <th className="py-2.5 text-right">Lowest Price</th>
@@ -141,11 +141,11 @@ export default function MarketPricesPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {statePrices.map((st, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="py-3 font-bold text-[#0A1629]">{st.state}</td>
-                        <td className="py-3 text-right font-black text-[#EA580C]">₹{st.avgPrice.toLocaleString('en-IN')}</td>
-                        <td className="py-3 text-right text-gray-600">₹{st.lowest.toLocaleString('en-IN')}</td>
-                        <td className="py-3 text-right text-gray-600">₹{st.highest.toLocaleString('en-IN')}</td>
+                      <tr key={idx} className="hover:bg-card">
+                        <td className="py-3 font-bold text-ink">{st.state}</td>
+                        <td className="py-3 text-right font-black text-accent">₹{st.avgPrice.toLocaleString('en-IN')}</td>
+                        <td className="py-3 text-right text-muted">₹{st.lowest.toLocaleString('en-IN')}</td>
+                        <td className="py-3 text-right text-muted">₹{st.highest.toLocaleString('en-IN')}</td>
                         <td className="py-3 text-right font-bold text-green-600">{st.trend} ▲</td>
                       </tr>
                     ))}
@@ -155,11 +155,11 @@ export default function MarketPricesPage() {
             </div>
 
             {/* International - Country Wise Prices Table */}
-            <div className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+            <div className="bg-card p-6 rounded-[24px] border border-line shadow-xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-line">
                 <div>
-                  <h3 className="font-extrabold text-[18px] text-[#0A1629]">International - Country Wise Prices</h3>
-                  <p className="text-xs text-gray-500">Global trade benchmark spot rates in USD & INR equivalent</p>
+                  <h3 className="font-extrabold text-[18px] text-ink">International - Country Wise Prices</h3>
+                  <p className="text-xs text-muted">Global trade benchmark spot rates in USD & INR equivalent</p>
                 </div>
                 <span className="text-xs font-bold text-blue-600">Showing 8 Countries</span>
               </div>
@@ -167,7 +167,7 @@ export default function MarketPricesPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase text-[10px]">
+                    <tr className="border-b border-line text-muted/70 font-bold uppercase text-[10px]">
                       <th className="py-2.5">Country</th>
                       <th className="py-2.5 text-right">Avg Price (USD/MT)</th>
                       <th className="py-2.5 text-right">Local Price (INR/MT)</th>
@@ -177,12 +177,12 @@ export default function MarketPricesPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {countryPrices.map((cp, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="py-3 font-bold text-[#0A1629]">{cp.country}</td>
+                      <tr key={idx} className="hover:bg-card">
+                        <td className="py-3 font-bold text-ink">{cp.country}</td>
                         <td className="py-3 text-right font-bold text-blue-700">${cp.priceUSD}</td>
-                        <td className="py-3 text-right font-extrabold text-[#0A1629]">₹{cp.priceINR.toLocaleString('en-IN')}</td>
+                        <td className="py-3 text-right font-extrabold text-ink">₹{cp.priceINR.toLocaleString('en-IN')}</td>
                         <td className="py-3 text-right font-bold text-green-600">{cp.change} ▲</td>
-                        <td className="py-3 text-right text-gray-400 text-[10px]">{cp.lastUpdated}</td>
+                        <td className="py-3 text-right text-muted/70 text-[10px]">{cp.lastUpdated}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -196,84 +196,84 @@ export default function MarketPricesPage() {
           <div className="space-y-6">
             
             {/* Price Range & Market Insights Box */}
-            <div className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-xl space-y-4">
-              <h3 className="font-black text-sm text-[#0A1629] uppercase tracking-wider">Price Range & Market Insights</h3>
+            <div className="bg-card p-6 rounded-[24px] border border-line shadow-xl space-y-4">
+              <h3 className="font-black text-sm text-ink uppercase tracking-wider">Price Range & Market Insights</h3>
 
-              <div className="p-4 bg-gray-50 rounded-xl space-y-2 text-xs">
+              <div className="p-4 bg-card rounded-xl space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-500 font-bold">Lowest Recorded:</span>
+                  <span className="text-muted font-bold">Lowest Recorded:</span>
                   <span className="font-bold text-green-700">₹41,600 / MT</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-500 font-bold">Highest Recorded:</span>
+                  <span className="text-muted font-bold">Highest Recorded:</span>
                   <span className="font-bold text-red-700">₹52,600 / MT</span>
                 </div>
 
-                <div className="flex justify-between border-t border-gray-200 pt-2 font-extrabold text-sm">
-                  <span className="text-[#0A1629]">National Average:</span>
-                  <span className="text-[#EA580C]">₹46,850 / MT</span>
+                <div className="flex justify-between border-t border-line pt-2 font-extrabold text-sm">
+                  <span className="text-ink">National Average:</span>
+                  <span className="text-accent">₹46,850 / MT</span>
                 </div>
               </div>
 
               <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between p-2.5 bg-white border border-gray-200 rounded-xl">
-                  <span className="text-gray-600 font-semibold">Demand Outlook</span>
+                <div className="flex items-center justify-between p-2.5 bg-card border border-line rounded-xl">
+                  <span className="text-muted font-semibold">Demand Outlook</span>
                   <span className="font-bold text-green-600">Stable (+2.5%)</span>
                 </div>
 
-                <div className="flex items-center justify-between p-2.5 bg-white border border-gray-200 rounded-xl">
-                  <span className="text-gray-600 font-semibold">Supply Index</span>
+                <div className="flex items-center justify-between p-2.5 bg-card border border-line rounded-xl">
+                  <span className="text-muted font-semibold">Supply Index</span>
                   <span className="font-bold text-amber-600">Moderate</span>
                 </div>
 
-                <div className="flex items-center justify-between p-2.5 bg-white border border-gray-200 rounded-xl">
-                  <span className="text-gray-600 font-semibold">3-Month Forecast</span>
+                <div className="flex items-center justify-between p-2.5 bg-card border border-line rounded-xl">
+                  <span className="text-muted font-semibold">3-Month Forecast</span>
                   <span className="font-bold text-blue-600">Bullish Trend</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Actions Panel (Page 4 Reference Spec) */}
-            <div className="bg-white text-[#0A1629] p-6 rounded-[24px] border border-gray-200 shadow-lg space-y-3">
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-[#EA580C]">Quick Actions</h3>
+            <div className="bg-card text-ink p-6 rounded-[24px] border border-line shadow-lg space-y-3">
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-accent">Quick Actions</h3>
 
               <button
                 onClick={() => alert('Price Alert set! You will receive SMS & Email notifications on market movements.')}
-                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-200 text-left px-4 flex items-center justify-between transition-colors"
+                className="w-full py-3 bg-card hover:bg-line/30 text-ink font-bold text-xs rounded-xl border border-line text-left px-4 flex items-center justify-between transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-[#EA580C]" />
+                  <Bell className="w-4 h-4 text-accent" />
                   <span>Set Price Alert</span>
                 </span>
-                <span className="text-gray-400">→</span>
+                <span className="text-muted/70">→</span>
               </button>
 
               <Link
                 href="/market-analyzer"
-                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-200 text-left px-4 flex items-center justify-between transition-colors block"
+                className="w-full py-3 bg-card hover:bg-line/30 text-ink font-bold text-xs rounded-xl border border-line text-left px-4 flex items-center justify-between transition-colors block"
               >
                 <span className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-blue-600" />
                   <span>Market Analyzer</span>
                 </span>
-                <span className="text-gray-400">→</span>
+                <span className="text-muted/70">→</span>
               </Link>
 
               <Link
                 href="/dashboard"
-                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-[#0A1629] font-bold text-xs rounded-xl border border-gray-200 text-left px-4 flex items-center justify-between transition-colors block"
+                className="w-full py-3 bg-card hover:bg-line/30 text-ink font-bold text-xs rounded-xl border border-line text-left px-4 flex items-center justify-between transition-colors block"
               >
                 <span className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-emerald-600" />
                   <span>Find Suppliers</span>
                 </span>
-                <span className="text-gray-400">→</span>
+                <span className="text-muted/70">→</span>
               </Link>
 
               <Link
                 href="/rfq"
-                className="w-full py-3 bg-[#EA580C] hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl text-center block shadow-md transition-colors"
+                className="w-full py-3 bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl text-center block shadow transition-colors"
               >
                 Request Quote +
               </Link>

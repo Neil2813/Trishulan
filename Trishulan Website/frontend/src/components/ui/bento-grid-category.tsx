@@ -22,12 +22,12 @@ function CategoryCard({
       transition={{ duration: 0.3 }}
     >
       <div className="relative z-10 w-full sm:w-[70%] md:w-[60%] lg:w-[65%]">
-        <h3 className="font-bold text-[18px] md:text-[22px] text-[#0A1629] leading-tight mb-2">{title}</h3>
+        <h3 className="font-bold text-[18px] md:text-[22px] text-ink leading-tight mb-2">{title}</h3>
         <p className="text-[#64748B] text-[12px] md:text-[14px] leading-snug">{description}</p>
       </div>
       
       <div className="relative z-10 mt-6">
-        <span className="text-[#64748B] text-[12px] md:text-[13px] font-medium flex items-center gap-2 group-hover:text-[#0A1629] transition-colors">
+        <span className="text-[#64748B] text-[12px] md:text-[13px] font-medium flex items-center gap-2 group-hover:text-ink transition-colors">
           {listings} 
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </span>
@@ -50,7 +50,7 @@ function CategoryCard({
 
 function CategoryBentoGrid() {
   return (
-    <section className="bg-white px-6 py-12 md:py-20">
+    <section className="bg-card px-6 py-12 md:py-20">
       <motion.div 
         className="max-w-[1400px] w-full mx-auto"
         initial={{ opacity: 0 }}
@@ -66,7 +66,7 @@ function CategoryBentoGrid() {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h2 className="text-[32px] md:text-[40px] font-black text-[#0A1629] tracking-tight">Browse by category</h2>
+            <h2 className="text-[32px] md:text-[40px] font-black text-ink tracking-tight">Browse by category</h2>
             <p className="text-[#64748B] mt-1 text-[14px] md:text-[16px]">Everything a factory buys, in one place.</p>
           </div>
         </motion.div>

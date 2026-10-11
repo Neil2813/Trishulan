@@ -98,7 +98,7 @@ const SellerCard = ({
       transition={{ duration: 0.3 }}
       className={cn(
         'relative w-[450px] cursor-pointer overflow-hidden rounded-2xl border border-line p-6',
-        'bg-white transition-all',
+        'bg-card transition-all',
         'flex flex-col gap-5 justify-between'
       )}
     >

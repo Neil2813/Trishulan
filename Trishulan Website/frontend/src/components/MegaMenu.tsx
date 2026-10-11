@@ -54,16 +54,16 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-[66px] left-0 w-full bg-white border-b border-gray-200 shadow-xl z-50 animate-[fadeIn_0.15s_ease]">
+    <div className="absolute top-[66px] left-0 w-full bg-card border-b border-line shadow-xl z-50 animate-[fadeIn_0.15s_ease]">
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
           <div>
-            <span className="text-[11px] font-bold tracking-[.1em] text-[#EA580C] uppercase">INDUSTRIAL SECTORS</span>
-            <h3 className="text-[20px] font-extrabold text-[#0A1629]">Browse Product & Service Matrix</h3>
+            <span className="text-[11px] font-bold tracking-[.1em] text-accent uppercase">INDUSTRIAL SECTORS</span>
+            <h3 className="text-[20px] font-extrabold text-ink">Browse Product & Service Matrix</h3>
           </div>
           <button 
             onClick={onClose}
-            className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 bg-gray-100 px-3 py-1.5 rounded-lg"
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-gray-900 bg-line/30 px-3 py-1.5 rounded-lg"
           >
             <span>Close Menu</span>
             <X className="w-3.5 h-3.5" />
@@ -72,10 +72,10 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {categories.map((cat, idx) => (
-            <div key={idx} className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 hover:border-gray-200 transition-all">
+            <div key={idx} className="bg-card/50 p-5 rounded-2xl border border-gray-100 hover:border-line transition-all">
               <div className="flex items-center gap-3 mb-4">
-                <cat.icon className="w-5 h-5 text-[#EA580C]" />
-                <h4 className="font-bold text-[16px] text-[#0A1629]">{cat.title}</h4>
+                <cat.icon className="w-5 h-5 text-accent" />
+                <h4 className="font-bold text-[16px] text-ink">{cat.title}</h4>
               </div>
               <ul className="space-y-2.5">
                 {cat.links.map((link, lIdx) => (
@@ -83,7 +83,7 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
                     <Link 
                       href={link.href} 
                       onClick={onClose}
-                      className="text-[13.5px] text-[#475569] hover:text-[#EA580C] hover:translate-x-1 inline-block transition-all font-medium"
+                      className="text-[13.5px] text-[#475569] hover:text-accent hover:translate-x-1 inline-block transition-all font-medium"
                     >
                       {link.label}
                     </Link>
@@ -97,10 +97,10 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
         <div className="mt-8 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between text-xs text-[#64748B] gap-4">
           <span>Need custom sourcing or bulk procurement?</span>
           <div className="flex gap-4">
-            <Link href="/rfq" onClick={onClose} className="font-bold text-[#EA580C] hover:underline">
+            <Link href="/rfq" onClick={onClose} className="font-bold text-accent hover:underline">
               Post an RFQ →
             </Link>
-            <Link href="/sell" onClick={onClose} className="font-bold text-[#0A1629] hover:underline">
+            <Link href="/sell" onClick={onClose} className="font-bold text-ink hover:underline">
               Become a Verified Seller →
             </Link>
           </div>

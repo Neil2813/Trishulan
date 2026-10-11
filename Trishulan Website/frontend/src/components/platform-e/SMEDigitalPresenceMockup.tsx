@@ -114,17 +114,17 @@ export default function SMEDigitalPresenceMockup() {
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-md space-y-6">
+    <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider">LIVE INTERACTIVE WORKBENCH</span>
-        <h2 className="text-xl font-black text-[#0A1629] mt-0.5">
+        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE WORKBENCH</span>
+        <h2 className="text-xl font-black text-ink mt-0.5">
           Feature example: what the screen can show
         </h2>
       </div>
 
       {/* Screen Mockup Container */}
-      <div className="border border-slate-300 rounded-2xl overflow-hidden bg-slate-50 shadow-xs">
+      <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
@@ -137,26 +137,26 @@ export default function SMEDigitalPresenceMockup() {
         <div className="p-5 md:p-6 space-y-4">
           
           {/* Search Inputs Bar */}
-          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
-            <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
-              <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Search:</span>
+          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3 bg-card p-2.5 rounded-xl border border-line shadow-2xs">
+            <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-card rounded-lg border border-line">
+              <span className="text-xs font-bold text-muted whitespace-nowrap">Search:</span>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="e.g. stainless steel valves, components..."
-                className="w-full bg-transparent text-xs font-semibold text-[#0A1629] focus:outline-none"
+                className="w-full bg-transparent text-xs font-semibold text-ink focus:outline-none"
               />
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200 sm:w-48">
-              <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Location:</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-card rounded-lg border border-line sm:w-48">
+              <span className="text-xs font-bold text-muted whitespace-nowrap">Location:</span>
               <input
                 type="text"
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
                 placeholder="e.g. India, Pune..."
-                className="w-full bg-transparent text-xs font-semibold text-[#0A1629] focus:outline-none"
+                className="w-full bg-transparent text-xs font-semibold text-ink focus:outline-none"
               />
             </div>
 
@@ -171,41 +171,41 @@ export default function SMEDigitalPresenceMockup() {
           {/* SME Catalogue Result Cards */}
           <div className="space-y-3 pt-1">
             {loading ? (
-              <div className="p-8 text-center text-xs font-bold text-slate-400 animate-pulse">
+              <div className="p-8 text-center text-xs font-bold text-muted/70 animate-pulse">
                 Fetching SME storefront catalogues from Express backend...
               </div>
             ) : suppliers.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200">
+              <div className="p-8 text-center text-xs text-muted bg-card rounded-xl border border-line">
                 No matching SME component makers found for &quot;{searchTerm}&quot;.
               </div>
             ) : (
               suppliers.map((s, idx) => (
-                <div key={s.id || idx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-slate-400 transition-colors">
+                <div key={s.id || idx} className="bg-card p-4 rounded-xl border border-line shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-slate-400 transition-colors">
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center font-black text-slate-600 text-xs shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-line/30 border border-line flex items-center justify-center font-black text-muted text-xs shrink-0">
                       {idx + 1}
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-extrabold text-sm text-[#0A1629]">{s.name}</h4>
+                        <h4 className="font-extrabold text-sm text-ink">{s.name}</h4>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                           s.badge === 'VERIFIED' ? 'bg-green-100 text-green-800' :
-                          s.badge === 'DOCS_LISTED' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                          s.badge === 'DOCS_LISTED' ? 'bg-blue-100 text-blue-800' : 'bg-line/30 text-slate-700'
                         }`}>
                           {s.badge === 'VERIFIED' ? '✓ Verified profile' : s.badge === 'DOCS_LISTED' ? 'Business docs listed' : 'Manufacturer / distributor'}
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-600 font-medium">
-                        {s.productTitle} • {s.productGroupsCount} product groups • <span className="font-bold text-[#0A1629]">MOQ {s.moq}</span> • {s.location}
+                      <p className="text-xs text-muted font-medium">
+                        {s.productTitle} • {s.productGroupsCount} product groups • <span className="font-bold text-ink">MOQ {s.moq}</span> • {s.location}
                       </p>
 
                       {s.materials && (
-                        <div className="flex flex-wrap gap-2 text-[10.5px] text-slate-500 pt-0.5">
-                          <span className="bg-slate-100 px-2 py-0.5 rounded font-mono">Specs: {s.dimensions}</span>
-                          <span className="bg-slate-100 px-2 py-0.5 rounded font-mono">Material: {s.materials}</span>
-                          <span className="bg-slate-100 px-2 py-0.5 rounded font-mono">Tol: {s.tolerances}</span>
+                        <div className="flex flex-wrap gap-2 text-[10.5px] text-muted pt-0.5">
+                          <span className="bg-line/30 px-2 py-0.5 rounded font-mono">Specs: {s.dimensions}</span>
+                          <span className="bg-line/30 px-2 py-0.5 rounded font-mono">Material: {s.materials}</span>
+                          <span className="bg-line/30 px-2 py-0.5 rounded font-mono">Tol: {s.tolerances}</span>
                         </div>
                       )}
                     </div>
@@ -235,19 +235,19 @@ export default function SMEDigitalPresenceMockup() {
       {/* Structured RFQ Modal */}
       {selectedSupplier && (
         <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 relative animate-[fadeIn_0.15s_ease]">
+          <div className="bg-card rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-line relative animate-[fadeIn_0.15s_ease]">
             <button
               onClick={() => setSelectedSupplier(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-sm w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center"
+              className="absolute top-4 right-4 text-muted/70 hover:text-gray-700 font-bold text-sm w-7 h-7 rounded-full bg-line/30 flex items-center justify-center"
             >
               ✕
             </button>
 
-            <span className="text-[10px] font-extrabold text-[#EA580C] uppercase tracking-wider block">STRUCTURED BUYER RFQ</span>
-            <h3 className="text-lg font-black text-[#0A1629] mt-0.5">
+            <span className="text-[10px] font-extrabold text-accent uppercase tracking-wider block">STRUCTURED BUYER RFQ</span>
+            <h3 className="text-lg font-black text-ink mt-0.5">
               Submit Structured RFQ to {selectedSupplier.name}
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted mt-1">
               Item: <span className="font-bold text-slate-800">{selectedSupplier.productTitle}</span>
             </p>
 
@@ -265,7 +265,7 @@ export default function SMEDigitalPresenceMockup() {
                       value={rfqQuantity}
                       onChange={(e) => setRfqQuantity(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
+                      className="w-full px-3 py-2 border border-line rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
                     />
                   </div>
 
@@ -275,7 +275,7 @@ export default function SMEDigitalPresenceMockup() {
                       type="text"
                       value={rfqMaterials}
                       onChange={(e) => setRfqMaterials(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
+                      className="w-full px-3 py-2 border border-line rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
                     />
                   </div>
                 </div>
@@ -287,7 +287,7 @@ export default function SMEDigitalPresenceMockup() {
                       type="text"
                       value={rfqTolerances}
                       onChange={(e) => setRfqTolerances(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
+                      className="w-full px-3 py-2 border border-line rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
                     />
                   </div>
 
@@ -297,7 +297,7 @@ export default function SMEDigitalPresenceMockup() {
                       type="text"
                       value={rfqCerts}
                       onChange={(e) => setRfqCerts(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
+                      className="w-full px-3 py-2 border border-line rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
                     />
                   </div>
                 </div>
@@ -309,7 +309,7 @@ export default function SMEDigitalPresenceMockup() {
                     value={rfqNotes}
                     onChange={(e) => setRfqNotes(e.target.value)}
                     required
-                    className="w-full p-3 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
+                    className="w-full p-3 border border-line rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
                   ></textarea>
                 </div>
 
@@ -317,7 +317,7 @@ export default function SMEDigitalPresenceMockup() {
                   <button
                     type="button"
                     onClick={() => setSelectedSupplier(null)}
-                    className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl"
+                    className="px-4 py-2 bg-line/30 text-slate-700 font-bold text-xs rounded-xl"
                   >
                     Cancel
                   </button>

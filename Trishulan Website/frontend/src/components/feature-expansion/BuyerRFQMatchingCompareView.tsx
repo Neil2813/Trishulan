@@ -28,11 +28,11 @@ export default function BuyerRFQMatchingCompareView() {
   const comparisonRows = data?.comparisonRows || [];
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 p-6 md:p-8 shadow-md space-y-6">
+    <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-[#EA580C] uppercase tracking-wider">FEATURE EXPANSION MODULE 2</span>
-        <h2 className="text-xl md:text-2xl font-black text-[#0A1629] mt-0.5">
+        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">FEATURE EXPANSION MODULE 2</span>
+        <h2 className="text-xl md:text-2xl font-black text-ink mt-0.5">
           Buyer RFQ matching and side-by-side compare view
         </h2>
         <p className="text-xs md:text-sm text-[#475569] font-medium mt-1 leading-relaxed max-w-4xl">
@@ -41,7 +41,7 @@ export default function BuyerRFQMatchingCompareView() {
       </div>
 
       {/* Screen Mockup Container */}
-      <div className="border border-slate-300 rounded-2xl overflow-hidden bg-slate-50 shadow-xs">
+      <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
@@ -59,7 +59,7 @@ export default function BuyerRFQMatchingCompareView() {
           </div>
 
           {/* Side-by-Side Comparison Table */}
-          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div className="overflow-x-auto bg-card border border-line rounded-xl shadow-2xs">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-[#1D4ED8] text-white font-extrabold uppercase text-[11px]">
@@ -74,27 +74,27 @@ export default function BuyerRFQMatchingCompareView() {
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-xs font-bold text-slate-400 animate-pulse">
+                    <td colSpan={6} className="p-8 text-center text-xs font-bold text-muted/70 animate-pulse">
                       Fetching live supplier quotes from Express backend...
                     </td>
                   </tr>
                 ) : (
                   comparisonRows.map((r: any) => (
-                    <tr key={r.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-3.5 font-bold text-[#0A1629]">{r.supplierName}</td>
+                    <tr key={r.id} className="hover:bg-card transition-colors">
+                      <td className="p-3.5 font-bold text-ink">{r.supplierName}</td>
                       <td className="p-3.5 text-blue-700 font-semibold">{r.matchReason}</td>
                       <td className="p-3.5 font-mono">{r.moqEta}</td>
                       <td className="p-3.5">
                         <span className={`px-2.5 py-1 rounded font-extrabold text-[10px] ${
                           r.quoteStatus === 'Quote received' ? 'bg-green-100 text-green-800' :
-                          r.quoteStatus === 'Clarification' ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-700'
+                          r.quoteStatus === 'Clarification' ? 'bg-amber-100 text-amber-900' : 'bg-line/30 text-slate-700'
                         }`}>
                           {r.quoteStatus}
                         </span>
                       </td>
                       <td className="p-3.5">
-                        <span className="font-bold text-[#0A1629] block">{r.unitPrice}</span>
-                        <span className="text-[10px] text-slate-400">{r.incoterms} • {r.freight}</span>
+                        <span className="font-bold text-ink block">{r.unitPrice}</span>
+                        <span className="text-[10px] text-muted/70">{r.incoterms} • {r.freight}</span>
                       </td>
                       <td className="p-3.5">
                         <button
@@ -114,7 +114,7 @@ export default function BuyerRFQMatchingCompareView() {
             </table>
           </div>
 
-          <p className="text-[11px] text-slate-500 font-medium italic">
+          <p className="text-[11px] text-muted font-medium italic">
             Buyer can compare price, payment, freight, certifications and response completeness on one RFQ thread.
           </p>
 
@@ -131,16 +131,16 @@ export default function BuyerRFQMatchingCompareView() {
       {/* Clarification Drawer / Modal */}
       {selectedSupplier && (
         <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 relative animate-[fadeIn_0.15s_ease]">
+          <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-line relative animate-[fadeIn_0.15s_ease]">
             <button
               onClick={() => setSelectedSupplier(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-sm w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center"
+              className="absolute top-4 right-4 text-muted/70 hover:text-gray-700 font-bold text-sm w-7 h-7 rounded-full bg-line/30 flex items-center justify-center"
             >
               ✕
             </button>
 
-            <span className="text-[10px] font-extrabold text-[#EA580C] uppercase tracking-wider block">SHARED RFQ WORKSPACE</span>
-            <h3 className="text-lg font-black text-[#0A1629] mt-0.5">
+            <span className="text-[10px] font-extrabold text-accent uppercase tracking-wider block">SHARED RFQ WORKSPACE</span>
+            <h3 className="text-lg font-black text-ink mt-0.5">
               RFQ Thread: {selectedSupplier}
             </h3>
 
@@ -156,7 +156,7 @@ export default function BuyerRFQMatchingCompareView() {
                     rows={3}
                     value={clarificationText}
                     onChange={(e) => setClarificationText(e.target.value)}
-                    className="w-full p-3 border border-slate-300 rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
+                    className="w-full p-3 border border-line rounded-xl text-xs focus:outline-none focus:border-[#1D4ED8]"
                   ></textarea>
                 </div>
 

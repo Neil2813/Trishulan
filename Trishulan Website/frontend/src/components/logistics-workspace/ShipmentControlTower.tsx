@@ -44,10 +44,10 @@ export default function ShipmentControlTower() {
   }, []);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-6xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-xs font-bold tracking-widest text-[#0A1629] uppercase flex items-center gap-2">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
+        <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>SHIPMENT CONTROL TOWER / SAMPLE WORKSPACE</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
@@ -65,18 +65,18 @@ export default function ShipmentControlTower() {
 
         {/* 3 Stat Cards Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-xl flex justify-between items-center">
-            <span className="text-xs font-bold text-slate-500 uppercase">ACTIVE SHIPMENTS</span>
-            <span className="text-2xl font-extrabold text-[#0A1629]">{data?.activeShipments ?? 18}</span>
+          <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
+            <span className="text-xs font-bold text-muted uppercase">ACTIVE SHIPMENTS</span>
+            <span className="text-2xl font-extrabold text-ink">{data?.activeShipments ?? 18}</span>
           </div>
 
-          <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-xl flex justify-between items-center">
-            <span className="text-xs font-bold text-slate-500 uppercase">ON TIME</span>
+          <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
+            <span className="text-xs font-bold text-muted uppercase">ON TIME</span>
             <span className="text-2xl font-extrabold text-emerald-600">{data?.onTime || '92%'}</span>
           </div>
 
-          <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-xl flex justify-between items-center">
-            <span className="text-xs font-bold text-slate-500 uppercase">NEEDS ACTION</span>
+          <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
+            <span className="text-xs font-bold text-muted uppercase">NEEDS ACTION</span>
             <span className="text-2xl font-extrabold text-amber-600">{data?.needsAction ?? 2}</span>
           </div>
         </div>
@@ -84,14 +84,14 @@ export default function ShipmentControlTower() {
         {/* Main Shipment Card & Shared Folder Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Active Shipment Progress (2 cols) */}
-          <div className="md:col-span-2 bg-slate-50/80 border border-slate-200 rounded-xl p-5 space-y-4 flex flex-col justify-between">
+          <div className="md:col-span-2 bg-card/80 border border-line rounded-xl p-5 space-y-4 flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-extrabold text-[#0A1629] mb-4">
+              <h3 className="text-sm font-extrabold text-ink mb-4">
                 Shipment {data?.currentShipment?.id || 'TRC-2048'} | {data?.currentShipment?.route || 'Pune to Chennai | Road'}
               </h3>
 
               {/* Progress Milestones Stepper */}
-              <div className="flex flex-wrap items-center gap-2 text-xs py-3 border-y border-slate-200">
+              <div className="flex flex-wrap items-center gap-2 text-xs py-3 border-y border-line">
                 {(data?.currentShipment?.milestones || [
                   { name: 'Booked', done: true },
                   { name: 'Picked up', done: true },
@@ -100,14 +100,14 @@ export default function ShipmentControlTower() {
                   { name: 'Delivered / POD', done: false },
                 ]).map((m, idx) => (
                   <React.Fragment key={m.name}>
-                    {idx > 0 && <span className="text-slate-400">→</span>}
+                    {idx > 0 && <span className="text-muted/70">→</span>}
                     <span
                       className={`px-2.5 py-1 rounded text-[11px] font-bold ${
                         m.current
-                          ? 'bg-[#EA580C] text-white shadow animate-pulse'
+                          ? 'bg-accent text-white shadow animate-pulse'
                           : m.done
                           ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : 'bg-white text-slate-400 border border-slate-200'
+                          : 'bg-card text-muted/70 border border-line'
                       }`}
                     >
                       {m.name}
@@ -117,19 +117,19 @@ export default function ShipmentControlTower() {
               </div>
             </div>
 
-            <div className="text-xs text-slate-600 space-y-1">
+            <div className="text-xs text-muted space-y-1">
               <p>
-                Last event: <span className="text-[#0A1629] font-bold">{data?.currentShipment?.lastEvent || '10:42 | Checkpoint scanned: Estimated arrival tomorrow 16:00'}</span>
+                Last event: <span className="text-ink font-bold">{data?.currentShipment?.lastEvent || '10:42 | Checkpoint scanned: Estimated arrival tomorrow 16:00'}</span>
               </p>
-              <p className="text-[11px] text-slate-500 italic">
+              <p className="text-[11px] text-muted italic">
                 Map locations and ETA depend on carrier date; manual update option available.
               </p>
             </div>
           </div>
 
           {/* Shared Shipment Folder (1 col) */}
-          <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold text-[#0A1629] uppercase">
+          <div className="bg-card/80 border border-line rounded-xl p-5 space-y-3">
+            <h3 className="text-xs font-bold text-ink uppercase">
               Shared shipment folder
             </h3>
             <div className="space-y-2 text-xs">
@@ -139,7 +139,7 @@ export default function ShipmentControlTower() {
                 { name: 'Transport document', status: 'issued' },
                 { name: 'Proof of delivery', status: 'pending' },
               ]).map((f, idx) => (
-                <div key={idx} className="p-2.5 bg-white rounded-lg border border-slate-200 flex justify-between items-center shadow-sm">
+                <div key={idx} className="p-2.5 bg-card rounded-lg border border-line flex justify-between items-center shadow-sm">
                   <span className="text-slate-800 font-medium">{f.name}</span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded capitalize ${
                     f.status === 'pending' ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
@@ -163,8 +163,8 @@ export default function ShipmentControlTower() {
         </div>
 
         {/* Shipment Lifecycle Stepper */}
-        <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-xl space-y-3">
-          <span className="text-xs font-bold text-[#0A1629] uppercase block">Shipment Lifecycle</span>
+        <div className="bg-card/80 border border-line p-4 rounded-xl space-y-3">
+          <span className="text-xs font-bold text-ink uppercase block">Shipment Lifecycle</span>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {(data?.shipmentLifecycle || [
               { step: 1, label: 'Request rates' },
@@ -175,9 +175,9 @@ export default function ShipmentControlTower() {
               { step: 6, label: 'Reconcile freight' },
             ]).map((sl, idx) => (
               <React.Fragment key={sl.step}>
-                {idx > 0 && <span className="text-slate-400">→</span>}
-                <div className="px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm flex items-center gap-1.5 text-slate-800 font-medium">
-                  <span className="w-4 h-4 rounded-full bg-[#EA580C] text-white font-bold flex items-center justify-center text-[10px]">
+                {idx > 0 && <span className="text-muted/70">→</span>}
+                <div className="px-3 py-1.5 rounded-full bg-card border border-line shadow-sm flex items-center gap-1.5 text-slate-800 font-medium">
+                  <span className="w-4 h-4 rounded-full bg-accent text-white font-bold flex items-center justify-center text-[10px]">
                     {sl.step}
                   </span>
                   <span>{sl.label}</span>

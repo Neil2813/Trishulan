@@ -37,10 +37,10 @@ export default function PackagingRequirementsSupport() {
   }, []);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md text-[#0A1629] max-w-6xl w-full mx-auto my-6 font-sans">
+    <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex justify-between items-center">
-        <h2 className="text-xs font-bold tracking-widest text-[#0A1629] uppercase flex items-center gap-2">
+      <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
+        <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>PACKAGING REQUIREMENTS / ILLUSTRATIVE SCREEN</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
@@ -58,18 +58,18 @@ export default function PackagingRequirementsSupport() {
 
         {/* Section 5 Documentation */}
         <div className="space-y-2">
-          <h3 className="text-sm font-bold text-[#0A1629]">5. Packing and packaging support</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <h3 className="text-sm font-bold text-ink">5. Packing and packaging support</h3>
+          <p className="text-xs text-muted leading-relaxed">
             Help businesses specify product packaging, find packaging suppliers and request packaging quotations. The platform can capture product fragility, dimensions, quantity, export route, stacking, moisture and regulatory needs.
           </p>
         </div>
 
         {/* Packaging Requirements Table */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-card border border-line rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-bold">
+                <tr className="bg-card border-b border-line text-muted text-[10px] uppercase font-bold">
                   <th className="p-3.5">Option</th>
                   <th className="p-3.5">Suitable use</th>
                   <th className="p-3.5">MOQ / timing</th>
@@ -86,14 +86,14 @@ export default function PackagingRequirementsSupport() {
                       { option: 'Pack checklist', suitableUse: 'Photo evidence', moqTiming: 'Per shipment', buyerAction: 'Upload photos', actionType: 'UPLOAD' },
                     ]
                 ).map((row: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-slate-50 transition">
-                    <td className="p-3.5 font-bold text-[#0A1629]">{row.packagingType || row.option}</td>
+                  <tr key={idx} className="hover:bg-card transition">
+                    <td className="p-3.5 font-bold text-ink">{row.packagingType || row.option}</td>
                     <td className="p-3.5 text-slate-700">{row.suitableFor || row.suitableUse}</td>
                     <td className="p-3.5 font-mono text-slate-700">{row.unitPrice || row.moqTiming}</td>
                     <td className="p-3.5">
                       <button
                         onClick={() => alert(`Buyer Action: Request Quote for ${row.packagingType || row.option}`)}
-                        className="text-[#EA580C] hover:underline font-bold text-xs"
+                        className="text-accent hover:underline font-bold text-xs"
                       >
                         {row.buyerAction || 'Request Quote'}
                       </button>
@@ -103,7 +103,7 @@ export default function PackagingRequirementsSupport() {
               </tbody>
             </table>
           </div>
-          <div className="bg-slate-50 px-4 py-2 text-[11px] text-slate-500 border-t border-slate-200 italic">
+          <div className="bg-card px-4 py-2 text-[11px] text-muted border-t border-line italic">
             Illustrative packing data; packaging supplier terms, weight limits and certifications apply.
           </div>
         </div>

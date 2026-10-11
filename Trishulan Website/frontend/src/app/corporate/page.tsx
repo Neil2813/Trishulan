@@ -14,13 +14,13 @@ export default function CorporatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFBF8] py-12 px-6">
-      <div className="max-w-[800px] mx-auto bg-white rounded-[24px] border border-gray-200 shadow-xl p-8 md:p-10">
+    <div className="min-h-screen bg-transparent py-12 px-6">
+      <div className="max-w-[800px] mx-auto bg-card rounded-[24px] border border-line shadow-xl p-8 md:p-10">
         
         <div className="text-center mb-8">
           <span className="text-[12px] font-bold text-purple-600 uppercase tracking-wider">CORPORATE ADMINISTRATION SERVICES</span>
-          <h1 className="text-[32px] font-black text-[#0A1629] mt-1">Trademark & Firm Registration</h1>
-          <p className="text-xs text-gray-500 mt-1">
+          <h1 className="text-[32px] font-black text-ink mt-1">Trademark & Firm Registration</h1>
+          <p className="text-xs text-muted mt-1">
             Unbundled pay-per-use administrative and legal gateways for industrial firms, LLPs & Private Limited companies.
           </p>
         </div>
@@ -37,11 +37,11 @@ export default function CorporatePage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Corporate Service Needed</label>
+                <label className="block text-xs font-bold text-ink mb-1">Corporate Service Needed</label>
                 <select
                   value={serviceType}
                   onChange={(e) => setServiceType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-bold bg-white"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-bold bg-card"
                 >
                   <option value="TRADEMARK">Trademark Registration (Govt e-Filing)</option>
                   <option value="FIRM_REGISTRATION">Business Registration (Firm / LLP / Pvt Ltd)</option>
@@ -49,11 +49,11 @@ export default function CorporatePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0A1629] mb-1">Entity Structure</label>
+                <label className="block text-xs font-bold text-ink mb-1">Entity Structure</label>
                 <select
                   value={entityType}
                   onChange={(e) => setEntityType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-bold bg-white"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs font-bold bg-card"
                 >
                   <option value="MSME">MSME / Small Enterprise (₹4,500 Govt Fee)</option>
                   <option value="PvtLtd">Standard Pvt Ltd / LLP (₹9,000 Govt Fee)</option>
@@ -63,7 +63,7 @@ export default function CorporatePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#0A1629] mb-1">Company / Brand Name</label>
+              <label className="block text-xs font-bold text-ink mb-1">Company / Brand Name</label>
               <input
                 type="text"
                 required
