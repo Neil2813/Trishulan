@@ -67,6 +67,9 @@ const transportQuotes = [
 ];
 
 const defaultShipmentControlTower = {
+  activeShipmentsCount: 18,
+  onTime: '94.2%',
+  needsAction: 2,
   activeShipments: [
     {
       id: 'shp-8801',
@@ -95,6 +98,35 @@ const defaultShipmentControlTower = {
       podStatus: 'Verified & Signed POD Available',
     },
   ],
+  currentShipment: {
+    id: 'TRISH-FTL-2026-99',
+    route: 'Mumbai MIDC to Pune Chakan | Road',
+    milestones: [
+      { name: 'Booked', done: true },
+      { name: 'Picked up', done: true },
+      { name: 'In transit', done: true, current: true },
+      { name: 'At destination', done: false },
+      { name: 'Delivered / POD', done: false },
+    ],
+    lastEvent: '10:42 | Checkpoint scanned: Estimated arrival today 18:00',
+    sharedFolder: [
+      { name: 'Rate confirmation', status: 'saved' },
+      { name: 'Packing list', status: 'uploaded' },
+      { name: 'Transport document (LR)', status: 'issued' },
+      { name: 'Proof of delivery (POD)', status: 'pending' },
+    ],
+    exceptionAlert: 'Checkpoint alert: Toll plaza congestion +45 mins',
+    exceptionSubtext: 'Notify buyer + seller | Carrier assigned telemetry active',
+  },
+  shipmentLifecycle: [
+    { step: 1, label: 'Request rates' },
+    { step: 2, label: 'Compare / approve' },
+    { step: 3, label: 'Book carrier' },
+    { step: 4, label: 'Track milestones' },
+    { step: 5, label: 'Upload POD' },
+    { step: 6, label: 'Reconcile freight' },
+  ],
+  exampleText: 'Real-time telemetry and milestone tracking with automated e-way bill reconciliation, digital LR generation, and GPS route geofencing.',
 };
 
 const packagingRequirements = [
@@ -192,20 +224,46 @@ router.get('/shipment-tower', async (req: AuthenticatedRequest, res) => {
         orderBy: { createdAt: 'desc' },
       });
       if (bookings.length > 0) {
+        const mapped = bookings.map((b) => ({
+          id: b.id,
+          trackingNo: b.shipmentRef || b.id.slice(0, 8).toUpperCase(),
+          origin: b.origin,
+          destination: b.destination,
+          carrier: b.carrierName || 'Trishulan Logistics Partner',
+          status: b.status,
+          statusStep: b.status === 'DELIVERED' ? 5 : b.status === 'IN_TRANSIT' ? 3 : 1,
+          totalSteps: 5,
+          eta: b.transitDays ? `${b.transitDays} Days` : 'In Transit',
+          sharedFolderUrl: b.lrDocUrl || `/documents/${b.id}`,
+          podStatus: b.epodUrl ? 'Verified & Signed POD Available' : 'E-POD Pending Signature',
+        }));
+        const first = mapped[0];
         return res.json({
-          activeShipments: bookings.map((b) => ({
-            id: b.id,
-            trackingNo: b.shipmentRef || b.id.slice(0, 8).toUpperCase(),
-            origin: b.origin,
-            destination: b.destination,
-            carrier: b.carrierName || 'Trishulan Logistics Partner',
-            status: b.status,
-            statusStep: b.status === 'DELIVERED' ? 5 : b.status === 'IN_TRANSIT' ? 3 : 1,
-            totalSteps: 5,
-            eta: b.transitDays ? `${b.transitDays} Days` : 'In Transit',
-            sharedFolderUrl: b.lrDocUrl || `/documents/${b.id}`,
-            podStatus: b.epodUrl ? 'Verified & Signed POD Available' : 'E-POD Pending Signature',
-          })),
+          activeShipmentsCount: mapped.length,
+          activeShipments: mapped,
+          onTime: '96.5%',
+          needsAction: mapped.filter((s) => s.status === 'PENDING').length,
+          currentShipment: {
+            id: first.trackingNo,
+            route: `${first.origin} to ${first.destination} | ${first.carrier}`,
+            milestones: [
+              { name: 'Booked', done: true },
+              { name: 'Picked up', done: first.statusStep >= 2 },
+              { name: 'In transit', done: first.statusStep >= 3, current: first.statusStep === 3 },
+              { name: 'At destination', done: first.statusStep >= 4, current: first.statusStep === 4 },
+              { name: 'Delivered / POD', done: first.statusStep >= 5, current: first.statusStep >= 5 },
+            ],
+            lastEvent: `Current status: ${first.status} | ETA: ${first.eta}`,
+            sharedFolder: [
+              { name: 'Rate confirmation', status: 'saved' },
+              { name: 'Transport document (LR)', status: 'issued' },
+              { name: 'Proof of delivery', status: first.statusStep === 5 ? 'verified' : 'pending' },
+            ],
+            exceptionAlert: 'Live telemetry active | All checkpoints on schedule',
+            exceptionSubtext: 'GPS updates received from driver terminal',
+          },
+          shipmentLifecycle: defaultShipmentControlTower.shipmentLifecycle,
+          exampleText: defaultShipmentControlTower.exampleText,
         });
       }
     }

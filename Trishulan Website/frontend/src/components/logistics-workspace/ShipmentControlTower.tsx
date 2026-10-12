@@ -3,11 +3,26 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 
+interface ActiveShipmentItem {
+  id: string;
+  trackingNo: string;
+  origin: string;
+  destination: string;
+  carrier: string;
+  status: string;
+  statusStep: number;
+  totalSteps: number;
+  eta: string;
+  sharedFolderUrl?: string;
+  podStatus?: string;
+}
+
 interface ShipmentTowerData {
-  activeShipments: number;
-  onTime: string;
-  needsAction: number;
-  currentShipment: {
+  activeShipmentsCount?: number;
+  activeShipments?: number | ActiveShipmentItem[];
+  onTime?: string;
+  needsAction?: number;
+  currentShipment?: {
     id: string;
     route: string;
     milestones: Array<{ name: string; done: boolean; current?: boolean }>;
@@ -16,14 +31,15 @@ interface ShipmentTowerData {
     exceptionAlert: string;
     exceptionSubtext: string;
   };
-  shipmentLifecycle: Array<{ step: number; label: string }>;
-  exampleText: string;
+  shipmentLifecycle?: Array<{ step: number; label: string }>;
+  exampleText?: string;
 }
 
 export default function ShipmentControlTower() {
   const [data, setData] = useState<ShipmentTowerData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedShipmentIdx, setSelectedShipmentIdx] = useState<number>(0);
 
   const fetchShipmentTower = async () => {
     try {
@@ -43,6 +59,15 @@ export default function ShipmentControlTower() {
   useEffect(() => {
     fetchShipmentTower();
   }, []);
+
+  const shipmentsList: ActiveShipmentItem[] = Array.isArray(data?.activeShipments) ? data.activeShipments : [];
+  const activeCount: number = typeof data?.activeShipmentsCount === 'number'
+    ? data.activeShipmentsCount
+    : Array.isArray(data?.activeShipments)
+    ? data.activeShipments.length
+    : (typeof data?.activeShipments === 'number' ? data.activeShipments : 18);
+
+  const activeShipment = shipmentsList[selectedShipmentIdx] || null;
 
   return (
     <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
@@ -69,7 +94,7 @@ export default function ShipmentControlTower() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
             <span className="text-xs font-bold text-muted uppercase">ACTIVE SHIPMENTS</span>
-            <span className="text-2xl font-extrabold text-ink">{data?.activeShipments ?? 18}</span>
+            <span className="text-2xl font-extrabold text-ink">{activeCount}</span>
           </div>
 
           <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
@@ -79,18 +104,46 @@ export default function ShipmentControlTower() {
 
           <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
             <span className="text-xs font-bold text-muted uppercase">NEEDS ACTION</span>
-            <span className="text-2xl font-extrabold text-amber-600">{data?.needsAction ?? 2}</span>
+            <span className="text-2xl font-extrabold text-amber-600">{typeof data?.needsAction === 'number' ? data.needsAction : 2}</span>
           </div>
         </div>
+
+        {/* Active Shipments Switcher Tabs (if list available) */}
+        {shipmentsList.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <span className="text-[11px] font-bold text-muted uppercase tracking-wider shrink-0 mr-1">Select Consignment:</span>
+            {shipmentsList.map((shp, idx) => (
+              <button
+                key={shp.id}
+                type="button"
+                onClick={() => setSelectedShipmentIdx(idx)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer whitespace-nowrap ${
+                  selectedShipmentIdx === idx
+                    ? 'bg-ink text-white border-ink shadow-xs'
+                    : 'bg-card text-ink border-line hover:border-ink/40'
+                }`}
+              >
+                {shp.trackingNo} ({shp.carrier})
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Main Shipment Card & Shared Folder Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Active Shipment Progress (2 cols) */}
           <div className="md:col-span-2 bg-card/80 border border-line rounded-xl p-5 space-y-4 flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-extrabold text-ink mb-4">
-                Shipment {data?.currentShipment?.id || 'TRC-2048'} | {data?.currentShipment?.route || 'Pune to Chennai | Road'}
-              </h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-extrabold text-ink">
+                  Shipment {activeShipment?.trackingNo || data?.currentShipment?.id || 'TRC-2048'} | {activeShipment ? `${activeShipment.origin} to ${activeShipment.destination} (${activeShipment.carrier})` : (data?.currentShipment?.route || 'Pune to Chennai | Road')}
+                </h3>
+                {activeShipment?.status && (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
+                    {activeShipment.status}
+                  </span>
+                )}
+              </div>
 
               {/* Progress Milestones Stepper */}
               <div className="flex flex-wrap items-center gap-2 text-xs py-3 border-y border-line">
