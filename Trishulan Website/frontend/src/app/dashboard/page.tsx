@@ -252,18 +252,11 @@ export default function DashboardPage() {
 
         {activeTab === 'AI_BOT' && (
           <div className="max-w-6xl mx-auto space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-[24px] font-black text-ink">Industrial AI Copilot &amp; Knowledge Assistant</h2>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 uppercase">
-                    Interactive
-                  </span>
-                </div>
-                <p className="text-xs text-muted font-medium mt-0.5">
-                  Real-time intelligence for Indian mandi benchmark prices, BIS/ISO compliance, KYC onboarding, and manufacturer matching.
-                </p>
-              </div>
+            <div>
+              <h2 className="text-[20px] font-bold text-ink">Trishulan Knowledge Base &amp; Assistant</h2>
+              <p className="text-xs text-muted mt-0.5">
+                Reference mandi benchmark prices, KYC compliance guidelines, RFQs, and platform operations.
+              </p>
             </div>
             <AIAssistantBot embedded={true} />
           </div>
