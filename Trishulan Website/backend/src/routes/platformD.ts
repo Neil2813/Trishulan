@@ -15,7 +15,7 @@ router.get('/intelligence', async (req, res) => {
     if (!query) return res.status(400).json({ error: 'query parameter is required' });
 
     const intelligence = await fetchTradeIntelligence(query, destination || 'Global');
-    return res.json({ success: true, intelligence });
+    return res.json({ success: true, intelligence, ...intelligence });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch intelligence analysis' });
   }

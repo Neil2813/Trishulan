@@ -41,7 +41,7 @@ router.post('/rfqs', async (req: AuthenticatedRequest, res) => {
           specification ? `Specification: ${specification}` : null,
           delivery ? `Delivery Target: ${delivery}` : null,
           attachmentName ? `Attachment: ${attachmentName}` : null,
-        ].filter(Boolean).join('. ') || null,
+        ].filter(Boolean).join('. ') || '',
         status: 'OPEN',
         documentUrl: attachmentName ? `/documents/${attachmentName}` : null,
       },

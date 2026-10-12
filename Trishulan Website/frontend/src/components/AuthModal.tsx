@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { firebaseAuth, googleProvider, signInWithPopup } from '@/lib/firebase';
-import { UserRole } from '@/types';
-import { ShoppingCart, Building2 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -12,7 +11,6 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
-  const [role, setRole] = useState<UserRole>('BUYER');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -32,7 +30,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           authProvider: 'FIREBASE',
           email: user.email,
           name: user.displayName || user.email?.split('@')[0],
-          role,
         }),
       });
 
@@ -78,43 +75,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           </div>
         )}
 
-        {/* Role Selector */}
-        <div className="mb-6">
-          <label className="block text-[12px] font-bold text-ink mb-2">
-            I am signing in as a…
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setRole('BUYER')}
-              className={`py-2.5 rounded-xl text-[13px] font-bold border transition-all ${
-                role === 'BUYER'
-                  ? 'bg-accent text-white border-[#EA580C] shadow'
-                  : 'bg-card text-muted border-line hover:border-gray-300'
-              }`}
-            >
-              <span className="inline-flex items-center gap-1.5"><ShoppingCart className="w-4 h-4" /> Buyer</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('SELLER')}
-              className={`py-2.5 rounded-xl text-[13px] font-bold border transition-all ${
-                role === 'SELLER'
-                  ? 'bg-[#0A1629] text-white border-[#0A1629] shadow'
-                  : 'bg-card text-muted border-line hover:border-gray-300'
-              }`}
-            >
-              <span className="inline-flex items-center gap-1.5"><Building2 className="w-4 h-4" /> Seller</span>
-            </button>
-          </div>
-        </div>
-
         {/* Google OAuth Button */}
         <button
           type="button"
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full py-3.5 px-4 rounded-xl border border-gray-300 bg-card hover:bg-card text-ink font-bold text-[14px] flex items-center justify-center gap-3 transition-all shadow-sm disabled:opacity-60"
+          className="w-full py-3.5 px-4 rounded-xl border border-gray-300 bg-card hover:bg-card text-ink font-bold text-[14px] flex items-center justify-center gap-3 transition-all shadow-sm disabled:opacity-60 cursor-pointer"
         >
           <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -124,6 +90,18 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           </svg>
           {loading ? 'Signing in…' : 'Continue with Google'}
         </button>
+
+        {/* Register Prompt */}
+        <div className="mt-6 text-center text-[13px] text-muted">
+          Don&apos;t have an account?{' '}
+          <Link
+            href="/register"
+            onClick={onClose}
+            className="text-accent font-bold hover:underline"
+          >
+            Register here
+          </Link>
+        </div>
 
       </div>
     </div>

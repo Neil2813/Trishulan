@@ -15,6 +15,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const isLandingPage = pathname === "/";
+  const isRegisterPage = pathname === "/register" || pathname?.startsWith("/register");
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -102,8 +103,8 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Internal Utility & Secondary Links (Hidden on Landing Page for a clean hero experience) */}
-            {!isLandingPage && (
+            {/* Internal Utility & Secondary Links (Hidden on Landing Page & Register Page for clean focused experience) */}
+            {!isLandingPage && !isRegisterPage && (
               <>
                 {/* Mega Menu Toggle */}
                 <button

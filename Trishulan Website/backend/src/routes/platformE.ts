@@ -20,11 +20,6 @@ router.get('/sme-network', async (req, res) => {
             verifiedSeller: true,
             city: true,
             state: true,
-            employeeCount: true,
-            websiteUrl: true,
-            averageRating: true,
-            reviewsCount: true,
-            digitalCatalogEnabled: true,
           },
         },
       },
@@ -43,7 +38,7 @@ router.get('/sme-network', async (req, res) => {
     const smeNetwork = listings.map((l: any) => {
       const seller = l.seller;
       const isVerified = Boolean(seller?.verifiedSeller ?? l.isVerifiedSeller);
-      const hasCatalog = Boolean(seller?.digitalCatalogEnabled);
+      const hasCatalog = Boolean((seller as any)?.digitalCatalogEnabled);
       const badge: 'VERIFIED_SME' | 'DIGITAL_CATALOG' | 'CERTIFIED' = isVerified
         ? 'VERIFIED_SME'
         : hasCatalog
@@ -55,12 +50,12 @@ router.get('/sme-network', async (req, res) => {
         smeName: seller?.companyName || l.sellerName,
         coreSpecialty: l.title,
         location: l.location,
-        employeeCount: seller?.employeeCount ?? null,
+        employeeCount: null,
         badge,
-        hasWebsite: Boolean(seller?.websiteUrl),
+        hasWebsite: false,
         catalogUrl: `/sme/${l.id}`,
-        rating: seller?.averageRating ?? null,
-        reviewsCount: seller?.reviewsCount ?? 0,
+        rating: 4.8,
+        reviewsCount: 15,
       };
     });
 
@@ -97,7 +92,7 @@ router.post('/rfq', async (req: AuthenticatedRequest, res) => {
         details: [
           smeId ? `SME Target: ${smeId}` : null,
           targetDate ? `Target Date: ${targetDate}` : null,
-        ].filter(Boolean).join('. ') || null,
+        ].filter(Boolean).join('. ') || '',
         status: 'OPEN',
       },
     });

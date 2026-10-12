@@ -13,7 +13,7 @@ router.get('/trade-leads', async (req, res) => {
     let listings = await prisma.listing.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
-        seller: { select: { verifiedSeller: true, exportReady: true, moq: true } },
+        seller: { select: { verifiedSeller: true } },
       },
     });
 
@@ -30,7 +30,7 @@ router.get('/trade-leads', async (req, res) => {
 
     const tradeLeads = listings.map((l: any) => {
       const isVerified = Boolean(l.seller?.verifiedSeller ?? l.isVerifiedSeller);
-      const isExportReady = Boolean(l.seller?.exportReady ?? l.exportReady);
+      const isExportReady = Boolean((l as any).exportReady);
       const badge: 'VERIFIED' | 'EXPORT_READY' | 'ACTIVE_LEAD' = isVerified
         ? 'VERIFIED'
         : isExportReady

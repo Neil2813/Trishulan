@@ -48,7 +48,7 @@ router.post('/', async (req: AuthenticatedRequest, res) => {
       data: {
         rfqId,
         sellerId: req.user.id,
-        sellerName: req.user.name || req.user.companyName,
+        sellerName: req.user.name || req.user.companyName || 'Seller',
         unitPrice: Number(unitPrice),
         currency,
         moq: String(moq),

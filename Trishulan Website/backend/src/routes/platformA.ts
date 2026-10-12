@@ -15,7 +15,7 @@ router.get('/suppliers', async (req, res) => {
       orderBy: { createdAt: 'desc' },
       include: {
         seller: {
-          select: { id: true, companyName: true, verifiedSeller: true, city: true, state: true, responseTimeSla: true, moq: true, hasCertificates: true },
+          select: { id: true, companyName: true, verifiedSeller: true, city: true, state: true },
         },
       },
     });
@@ -39,9 +39,7 @@ router.get('/suppliers', async (req, res) => {
       const isVerified = Boolean(l.seller?.verifiedSeller ?? l.isVerifiedSeller);
       const badge: 'VERIFIED' | 'DOCS_LISTED' | 'MANUFACTURER' = isVerified
         ? 'VERIFIED'
-        : l.seller?.hasCertificates
-          ? 'DOCS_LISTED'
-          : 'MANUFACTURER';
+        : 'MANUFACTURER';
 
       return {
         id: l.id,
@@ -54,10 +52,10 @@ router.get('/suppliers', async (req, res) => {
         location: l.location,
         badge,
         productGroupsCount: l.productGroupsCount ?? null,
-        moq: l.seller?.moq ?? l.moq ?? null,
+        moq: (l as any).moq ?? null,
         details: l.description,
-        responseTime: l.seller?.responseTimeSla ?? null,
-        hasCertificates: l.seller?.hasCertificates ?? false,
+        responseTime: null,
+        hasCertificates: false,
       };
     });
 
