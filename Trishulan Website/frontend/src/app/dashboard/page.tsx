@@ -75,22 +75,22 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
               onClick={() => setShowIdModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 font-bold text-[13px] transition-all flex items-center gap-2 shadow-sm"
+              className="px-4 py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-900 font-bold text-[13px] transition-all flex items-center gap-2 shadow-2xs"
             >
-              <IdCard className="w-4 h-4" />
+              <IdCard className="w-4 h-4 text-orange-600" />
               <span>View B2B Digital ID</span>
             </button>
 
             <Link
               href="/market-analyzer"
-              className="px-4 py-2.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/40 border border-blue-500/40 text-blue-300 font-bold text-[13px] transition-all"
+              className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-bold text-[13px] transition-all shadow-2xs"
             >
               Industrial Analyzer →
             </Link>
 
             <Link
               href="/rfq"
-              className="px-5 py-2.5 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-extrabold text-[13px] shadow-lg transition-all"
+              className="px-5 py-2.5 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-extrabold text-[13px] shadow-sm transition-all"
             >
               Post Requirement +
             </Link>
@@ -158,92 +158,93 @@ export default function DashboardPage() {
 
         {/* Dynamic Tab Views */}
         {activeTab === 'OVERVIEW' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="space-y-6">
             
-            {/* Main Stats Column */}
-            <div className="lg:col-span-2 space-y-6">
+            {/* Top 3 Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-orange-50/50 via-card to-card p-6 rounded-[22px] border border-orange-200/80 shadow-2xs">
+                <div className="text-[11px] font-bold text-orange-700 uppercase tracking-wide">Active Requirement RFQs</div>
+                <div className="text-[32px] font-black text-ink mt-1">{rfqs.length}</div>
+                <div className="text-[12px] text-orange-600 font-bold mt-1">Ready for Quotes</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-sky-50/50 via-card to-card p-6 rounded-[22px] border border-sky-200/80 shadow-2xs">
+                <div className="text-[11px] font-bold text-sky-700 uppercase tracking-wide">Catalog Listings</div>
+                <div className="text-[32px] font-black text-ink mt-1">{listings.length}</div>
+                <div className="text-[12px] text-blue-600 font-bold mt-1">Live in Directory</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-emerald-50/40 via-card to-card p-6 rounded-[22px] border border-emerald-200/80 shadow-2xs">
+                <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">KYC Verification</div>
+                <div className="text-[20px] font-black text-emerald-600 mt-2">100% VERIFIED</div>
+                <Link href="/profile" className="text-[12px] font-bold text-accent hover:underline mt-1 block">
+                  View Verified Badges →
+                </Link>
+              </div>
+            </div>
+
+            {/* Quick Links Dual Banners (Light Orange & Light Blue Themes) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
-                  <div className="text-[11px] font-bold text-muted/70 uppercase">Active Requirement RFQs</div>
-                  <div className="text-[32px] font-black text-ink mt-1">{rfqs.length}</div>
-                  <div className="text-[12px] text-green-600 font-bold mt-1">Ready for Quotes</div>
+              {/* Light Orange Theme Banner: Spot Market Prices */}
+              <div className="p-6 md:p-7 rounded-[22px] bg-gradient-to-br from-orange-50 via-amber-50/60 to-white border border-orange-200/90 shadow-sm flex flex-col justify-between gap-5 transition-all hover:shadow-md">
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-extrabold text-orange-600 uppercase tracking-wider block">SPOT MARKET PRICES</span>
+                  <h3 className="text-[19px] font-black text-ink">Live Commodity Price Intelligence</h3>
+                  <p className="text-xs text-muted font-medium leading-relaxed">
+                    Check state-wise &amp; international benchmark prices for steel, copper, polymer, and machinery with live FX updates.
+                  </p>
                 </div>
-
-                <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
-                  <div className="text-[11px] font-bold text-muted/70 uppercase">Catalog Listings</div>
-                  <div className="text-[32px] font-black text-ink mt-1">{listings.length}</div>
-                  <div className="text-[12px] text-blue-600 font-bold mt-1">Live in Directory</div>
-                </div>
-
-                <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
-                  <div className="text-[11px] font-bold text-muted/70 uppercase">KYC Verification</div>
-                  <div className="text-[20px] font-black text-green-600 mt-2">100% VERIFIED</div>
-                  <Link href="/profile" className="text-[12px] font-bold text-accent hover:underline mt-1 block">
-                    View Verified Badges →
+                <div>
+                  <Link
+                    href="/market-prices"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-sm transition-colors"
+                  >
+                    View Market Prices →
                   </Link>
                 </div>
               </div>
 
-              {/* Quick Links Banner */}
-              <div className="p-6 rounded-[20px] bg-gradient-to-r from-slate-900 to-slate-800 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Light Blue Theme Banner: Customer Tasks & Consent */}
+              <div className="p-6 md:p-7 rounded-[22px] bg-gradient-to-br from-sky-50 via-blue-50/60 to-white border border-blue-200/90 shadow-sm flex flex-col justify-between gap-5 transition-all hover:shadow-md">
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider block">CUSTOMER WORKSPACE SPEC</span>
+                  <h3 className="text-[19px] font-black text-ink">Customer Home, Buyer/Seller Tasks &amp; Consent</h3>
+                  <p className="text-xs text-muted font-medium leading-relaxed">
+                    Manage buyer phone and WhatsApp consent preferences, lead inbox privacy rules, and access the centralized support desk.
+                  </p>
+                </div>
                 <div>
-                  <span className="text-[10px] font-bold text-accent uppercase tracking-wider block">SPOT MARKET PRICES</span>
-                  <h3 className="text-[18px] font-extrabold mt-0.5">Live Commodity Price Intelligence</h3>
-                  <p className="text-xs text-slate-300 mt-1">Check state-wise & international steel, polymer, and machinery prices.</p>
-                </div>
-                <Link
-                  href="/market-prices"
-                  className="px-6 py-3 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs shadow shrink-0"
-                >
-                  View Market Prices →
-                </Link>
-              </div>
-
-              {/* Customer Tasks & Buyer Contact Preferences Banner */}
-              <div className="p-6 rounded-[20px] bg-gradient-to-r from-cyan-950 via-slate-900 to-slate-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-cyan-800/60 shadow-lg">
-                <div>
-                  <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block">NEW REFERENCE SPEC</span>
-                  <h3 className="text-[18px] font-extrabold mt-0.5">Customer Home, Buyer/Seller Tasks & Consent</h3>
-                  <p className="text-xs text-cyan-200 mt-1">Manage buyer phone/WhatsApp consent routing, lead inbox rules, and support desk.</p>
-                </div>
-                <Link
-                  href="/customer-workspace"
-                  className="px-6 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow shrink-0"
-                >
-                  Customer Workspace →
-                </Link>
-              </div>
-
-              {/* Recent RFQs List */}
-              <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-extrabold text-[18px] text-ink">Recent Requirement Queries</h3>
-                  <Link href="/rfq" className="text-xs font-bold text-accent hover:underline">Post New RFQ →</Link>
-                </div>
-                <div className="space-y-3">
-                  {rfqs.map(rfq => (
-                    <div key={rfq.id} className="p-4 rounded-xl bg-card border border-line flex items-center justify-between">
-                      <div>
-                        <div className="font-bold text-[14px] text-ink">{rfq.title}</div>
-                        <div className="text-xs text-muted">{rfq.buyerName} • {rfq.category} • Quantity: {rfq.quantity}</div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold">
-                        Target: ₹{rfq.targetPrice.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  ))}
+                  <Link
+                    href="/customer-workspace"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-colors"
+                  >
+                    Customer Workspace →
+                  </Link>
                 </div>
               </div>
 
             </div>
 
-            {/* AI Assistant Column */}
-            <div className="space-y-6">
-              <div className="text-xs font-black text-accent uppercase tracking-wider">
-                AI INDUSTRIAL BOT ASSISTANT (PAGE 3 SPEC)
+            {/* Recent RFQs List */}
+            <div className="bg-card p-6 md:p-7 rounded-[22px] border border-line shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-extrabold text-[18px] text-ink">Recent Requirement Queries</h3>
+                <Link href="/rfq" className="text-xs font-bold text-accent hover:underline">Post New RFQ →</Link>
               </div>
-              <AIAssistantBot embedded={true} />
+              <div className="space-y-3">
+                {rfqs.map(rfq => (
+                  <div key={rfq.id} className="p-4 rounded-xl bg-card border border-line hover:border-orange-200 transition-colors flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-[14px] text-ink">{rfq.title}</div>
+                      <div className="text-xs text-muted">{rfq.buyerName} • {rfq.category} • Quantity: {rfq.quantity}</div>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-900 border border-orange-200 text-xs font-extrabold">
+                      Target: ₹{rfq.targetPrice.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>
@@ -291,7 +292,7 @@ export default function DashboardPage() {
           <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-[20px] font-black text-ink">Product & Machinery Catalog</h2>
-              <Link href="/sell" className="px-4 py-2 bg-[#0A1629] text-white text-xs font-bold rounded-xl">List Product +</Link>
+              <Link href="/sell" className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors">List Product +</Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {listings.map(item => (
