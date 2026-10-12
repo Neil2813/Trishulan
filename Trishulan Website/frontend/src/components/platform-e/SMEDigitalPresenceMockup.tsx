@@ -117,8 +117,7 @@ export default function SMEDigitalPresenceMockup() {
     <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE WORKBENCH</span>
-        <h2 className="text-xl font-black text-ink mt-0.5">
+        <h2 className="text-xl font-black text-ink">
           Browse SME supplier catalogues and submit structured RFQs
         </h2>
       </div>
@@ -126,12 +125,9 @@ export default function SMEDigitalPresenceMockup() {
       {/* Screen Mockup Container */}
       <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
-        {/* Dark Banner Header */}
+        {/* Header Bar */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
           <span>SUPPLIER SEARCH / INDUSTRIAL COMPONENTS</span>
-          <span className="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-mono">
-            Express DB Connected
-          </span>
         </div>
 
         <div className="p-5 md:p-6 space-y-4">
@@ -172,7 +168,7 @@ export default function SMEDigitalPresenceMockup() {
           <div className="space-y-3 pt-1">
             {loading ? (
               <div className="p-8 text-center text-xs font-bold text-muted/70 animate-pulse">
-                Fetching SME storefront catalogues from Express backend...
+                Loading verified SME supplier catalogues...
               </div>
             ) : suppliers.length === 0 ? (
               <div className="p-8 text-center text-xs text-muted bg-card rounded-xl border border-line">
@@ -253,7 +249,7 @@ export default function SMEDigitalPresenceMockup() {
 
             {rfqSuccess ? (
               <div className="my-6 p-4 bg-green-50 border border-green-200 text-green-900 rounded-xl text-center text-xs font-bold">
-                ✓ Structured RFQ successfully submitted to Express backend server!
+                ✓ Structured RFQ successfully submitted!
               </div>
             ) : (
               <form onSubmit={handleStructuredRfqSubmit} className="mt-4 space-y-3">

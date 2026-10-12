@@ -194,10 +194,8 @@ export default function BuyerContactPreferencesModal({
               <p className="flex items-center gap-1.5"><AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /><span>{submissionResult.error}</span></p>
             ) : (
               <div>
-                <p className="font-bold text-emerald-800">✓ Express Backend Recorded Consent Record #{submissionResult.consentRecord?.id || 'OK'}:</p>
-                <pre className="mt-2 text-[11px] overflow-x-auto text-emerald-900 bg-card p-3 rounded-lg border border-emerald-200">
-                  {JSON.stringify(submissionResult, null, 2)}
-                </pre>
+                <p className="font-bold text-emerald-800">✓ Contact Preferences Saved Successfully</p>
+                <p className="text-xs text-emerald-700 mt-1">Your contact visibility and WhatsApp routing settings have been updated.</p>
               </div>
             )}
           </div>

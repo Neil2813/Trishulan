@@ -54,7 +54,7 @@ export default function PlatformBActivityDashboard() {
           Activity dashboard
         </h2>
         <p className="text-xs text-[#64748B] font-medium mt-1">
-          Activity counts shown; available metrics vary by subscription plan. Connected live to Express backend metrics.
+          Activity counts shown; available metrics vary by subscription plan.
         </p>
       </div>
 

@@ -19,9 +19,6 @@ export default function CustomerWorkspacePage() {
               <span className="bg-cyan-100 text-cyan-800 border border-cyan-300 px-3 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider">
                 Platform Customer Portal & CRM
               </span>
-              <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-0.5 rounded-full text-xs font-mono font-medium">
-                Express Backend Connected
-              </span>
             </div>
             <h1 className="text-3xl font-extrabold text-ink tracking-tight">
               Customer Home, Buyer & Seller Tasks & Contact Preferences

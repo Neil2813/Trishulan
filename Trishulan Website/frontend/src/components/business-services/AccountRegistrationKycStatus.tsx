@@ -80,7 +80,7 @@ export default function AccountRegistrationKycStatus() {
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>ACCOUNT REGISTRATION / KYC STATUS</span>
-          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
+          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Loading...)</span>}
         </h2>
         <button
           onClick={fetchKycStatus}

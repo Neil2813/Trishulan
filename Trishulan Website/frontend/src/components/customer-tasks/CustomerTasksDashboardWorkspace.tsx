@@ -68,14 +68,14 @@ export default function CustomerTasksDashboardWorkspace({
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>CUSTOMER HOME / BUYER AND SELLER TASKS</span>
-          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
+          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Loading...)</span>}
         </h2>
         <button
           onClick={fetchWorkspaceData}
           className="text-xs font-bold bg-card hover:bg-line/30 border border-line px-3 py-1 rounded-lg text-slate-800 shadow-sm transition flex items-center gap-1.5"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>Refresh Backend State</span>
+          <span>Refresh Workspace</span>
         </button>
       </div>
 

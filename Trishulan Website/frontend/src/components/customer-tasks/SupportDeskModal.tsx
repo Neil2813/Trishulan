@@ -167,7 +167,7 @@ export default function SupportDeskModal({ onClose }: SupportDeskModalProps) {
                 <p className="flex items-center gap-1.5"><AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /><span>{submittedTicket.error}</span></p>
               ) : (
                 <div>
-                  <p className="font-bold text-emerald-800">✓ Express Backend Created Support Ticket #{submittedTicket.ticket?.caseNumber || 'CS-101'}:</p>
+                  <p className="font-bold text-emerald-800">✓ Support Ticket Created #{submittedTicket.ticket?.caseNumber || 'CS-101'}:</p>
                   <p className="mt-1 text-slate-700">Status: {submittedTicket.ticket?.status || 'OPEN'} | Priority: {submittedTicket.ticket?.priority || 'MEDIUM'}</p>
                 </div>
               )}

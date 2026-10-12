@@ -48,8 +48,7 @@ export default function TradeIntelligenceSampleAnalysis() {
     <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
       
       <div>
-        <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE WORKSPACE</span>
-        <h2 className="text-xl font-black text-ink mt-0.5">
+        <h2 className="text-xl font-black text-ink">
           Trade intelligence analysis and supplier benchmarking
         </h2>
       </div>
@@ -57,12 +56,9 @@ export default function TradeIntelligenceSampleAnalysis() {
       {/* Screen Mockup Container */}
       <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
-        {/* Dark Banner Header */}
+        {/* Header Bar */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
           <span>TRADE INTELLIGENCE / SAMPLE ANALYSIS</span>
-          <span className="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-mono">
-            Express API Connected
-          </span>
         </div>
 
         <div className="p-6 space-y-6">

@@ -56,7 +56,7 @@ export default function TransportShipmentSupport() {
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
           <span>4. TRANSPORT AND SHIPMENT SUPPORT</span>
-          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
+          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Loading...)</span>}
         </h2>
         <span className="text-[11px] bg-slate-200/80 px-2.5 py-0.5 rounded text-slate-700 font-mono font-medium">
           Multimodal Logistics

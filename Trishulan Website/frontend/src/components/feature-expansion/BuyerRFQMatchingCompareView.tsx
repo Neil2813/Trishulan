@@ -46,9 +46,6 @@ export default function BuyerRFQMatchingCompareView() {
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
           <span>BUYER RFQ MATCHING / COMPARE VIEW</span>
-          <span className="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-mono">
-            Express DB Connected
-          </span>
         </div>
 
         <div className="p-6 space-y-5">
@@ -75,7 +72,7 @@ export default function BuyerRFQMatchingCompareView() {
                 {loading ? (
                   <tr>
                     <td colSpan={6} className="p-8 text-center text-xs font-bold text-muted/70 animate-pulse">
-                      Fetching live supplier quotes from Express backend...
+                      Loading live supplier quotes...
                     </td>
                   </tr>
                 ) : (
@@ -146,7 +143,7 @@ export default function BuyerRFQMatchingCompareView() {
 
             {clarificationSent ? (
               <div className="my-6 p-4 bg-green-50 border border-green-200 text-green-900 rounded-xl text-center text-xs font-bold">
-                ✓ Clarification question sent directly to supplier on Express RFQ thread!
+                ✓ Clarification question sent directly to supplier!
               </div>
             ) : (
               <div className="mt-4 space-y-3">

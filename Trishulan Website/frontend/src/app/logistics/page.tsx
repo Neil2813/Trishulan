@@ -15,9 +15,6 @@ export default function LogisticsPage() {
             <span className="bg-sky-100 text-sky-800 border border-sky-300 px-3 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider">
               Logistics & Control Tower Portal
             </span>
-            <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-0.5 rounded-full text-xs font-mono font-medium">
-              Express Backend Connected
-            </span>
           </div>
           <h1 className="text-3xl font-extrabold text-ink tracking-tight">
             Expanded Transport Management, Control Tower & Packaging Support

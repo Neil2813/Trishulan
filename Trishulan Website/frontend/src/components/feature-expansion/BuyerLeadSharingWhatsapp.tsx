@@ -70,9 +70,6 @@ export default function BuyerLeadSharingWhatsapp() {
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
           <span>PRIVACY-FIRST LEAD CAPTURE & WHATSAPP CONSENT</span>
-          <span className="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-mono">
-            Express DB Connected
-          </span>
         </div>
 
         <form onSubmit={handleLeadSubmit} className="p-6 space-y-4">

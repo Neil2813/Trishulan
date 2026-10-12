@@ -92,8 +92,7 @@ export default function TradeLeadPortalMockup() {
       
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE MODULE</span>
-          <h2 className="text-xl font-black text-ink mt-0.5">
+          <h2 className="text-xl font-black text-ink">
             Post buy requirements and receive supplier quotations
           </h2>
         </div>
@@ -109,12 +108,9 @@ export default function TradeLeadPortalMockup() {
       {/* Screen Mockup Container */}
       <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
-        {/* Dark Banner Header */}
+        {/* Header Bar */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
           <span>SUPPLIER SEARCH / INDUSTRIAL COMPONENTS</span>
-          <span className="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-mono">
-            Express DB Connected
-          </span>
         </div>
 
         <div className="p-5 md:p-6 space-y-4">
@@ -155,7 +151,7 @@ export default function TradeLeadPortalMockup() {
           <div className="space-y-3 pt-1">
             {loading ? (
               <div className="p-8 text-center text-xs font-bold text-muted/70 animate-pulse">
-                Fetching trade leads & suppliers from Express backend...
+                Loading verified trade leads & suppliers...
               </div>
             ) : tradeLeads.length === 0 ? (
               <div className="p-8 text-center text-xs text-muted bg-card rounded-xl border border-line">
@@ -234,7 +230,7 @@ export default function TradeLeadPortalMockup() {
 
             {reqSuccess ? (
               <div className="my-6 p-4 bg-green-50 border border-green-200 text-green-900 rounded-xl text-center text-xs font-bold">
-                ✓ Buy requirement successfully posted to Express backend server!
+                ✓ Buy requirement successfully posted!
               </div>
             ) : (
               <form onSubmit={handlePostRequirementSubmit} className="mt-4 space-y-3">
