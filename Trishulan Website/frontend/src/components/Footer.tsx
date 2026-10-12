@@ -70,13 +70,13 @@ export default function Footer() {
           <h6 className="text-[12px] text-ink tracking-[.1em] uppercase font-bold mb-[8px]">Trade data</h6>
           <div className="w-[32px] h-[2px] bg-accent mb-[16px]"></div>
           <ul>
-            <li className="mb-[12px]"><Link href="/feature-expansion" className="text-[13px] hover:text-accent transition-colors">All trade tools</Link></li>
+            <li className="mb-[12px]"><Link href="/market-analyzer" className="text-[13px] hover:text-accent transition-colors">All trade tools</Link></li>
             {/* Fixed: /shipments → /logistics */}
             <li className="mb-[12px]"><Link href="/logistics" className="text-[13px] hover:text-accent transition-colors">Shipment records</Link></li>
             {/* Fixed: /benchmark → /market-analyzer */}
             <li className="mb-[12px]"><Link href="/market-analyzer" className="text-[13px] hover:text-accent transition-colors">Price benchmark</Link></li>
-            {/* Fixed: /landed → /feature-expansion */}
-            <li className="mb-[12px]"><Link href="/feature-expansion" className="text-[13px] hover:text-accent transition-colors">Landed cost</Link></li>
+            {/* Landed cost → /market-prices */}
+            <li className="mb-[12px]"><Link href="/market-prices" className="text-[13px] hover:text-accent transition-colors">Landed cost</Link></li>
             {/* New: Health Insurance */}
             <li className="mb-[12px]"><Link href="/insurance" className="text-[13px] hover:text-accent transition-colors">Health Insurance</Link></li>
             {/* New: Help & Support */}

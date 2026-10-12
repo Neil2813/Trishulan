@@ -34,7 +34,6 @@ const pageSections = [
     pages: [
       { name: 'Industrial Analyzer', desc: 'Factory setup feasibility & ROI', href: '/market-analyzer' },
       { name: 'Mandi Market Prices', desc: 'Live spot prices & mandi tickers', href: '/market-prices' },
-      { name: 'Feature Roadmap', desc: 'Upcoming platform capabilities', href: '/feature-expansion' },
       { name: 'Subscription Pricing', desc: 'Enterprise & tier plans', href: '/pricing' },
     ]
   },

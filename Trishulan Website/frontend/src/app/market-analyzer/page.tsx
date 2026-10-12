@@ -112,10 +112,10 @@ export default function MarketAnalyzerPage() {
           </div>
 
           <Link
-            href="/feature-expansion"
+            href="/rfq"
             className="px-6 py-3 bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all shrink-0 whitespace-nowrap"
           >
-            Launch AI Discovery & RFQ Workbench →
+            Launch RFQ Workbench →
           </Link>
         </div>
 
