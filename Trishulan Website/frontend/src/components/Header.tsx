@@ -3,13 +3,28 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { firebaseAuth } from '@/lib/firebase';
 import AuthModal from './AuthModal';
 import MegaMenu from './MegaMenu';
 import SearchToolsModal from './SearchToolsModal';
 import ServicePointsModal from './ServicePointsModal';
 import { User } from '@/types';
-import { MapPin, Search, Bell, ClipboardList, Shield, FileText, QrCode, X } from 'lucide-react';
+import {
+  MapPin,
+  Search,
+  Bell,
+  ClipboardList,
+  Shield,
+  FileText,
+  QrCode,
+  X,
+  User as UserIcon,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+} from 'lucide-react';
 
 export default function Header() {
   const router = useRouter();
@@ -19,6 +34,8 @@ export default function Header() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [isSearchToolsOpen, setIsSearchToolsOpen] = useState(false);
   const [searchToolsTab, setSearchToolsTab] = useState<'barcode' | 'image' | 'voice' | 'hsn'>('barcode');
@@ -42,20 +59,61 @@ export default function Header() {
       const data = await res.json();
       if (data.user) {
         setUser(data.user);
+        try {
+          localStorage.setItem('trishulan_user', JSON.stringify(data.user));
+        } catch (_) {}
       } else {
         setUser(null);
+        try {
+          localStorage.removeItem('trishulan_user');
+        } catch (_) {}
       }
     } catch (err) {
-      setUser(null);
+      // Keep cached state if offline
     }
   };
 
   useEffect(() => {
+    // 1. Instant hydration from localStorage
+    try {
+      const cached = localStorage.getItem('trishulan_user');
+      if (cached) {
+        setUser(JSON.parse(cached));
+      }
+    } catch (_) {}
+
+    // 2. Fetch active session from backend
     fetchSession();
+
+    // 3. Keep in sync with Firebase auth
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (fbUser) => {
+      if (fbUser) {
+        fetchSession();
+      }
+    });
+
+    // 4. Click outside listener for profile menu
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      unsubscribe();
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      await firebaseAuth.signOut();
+    } catch (_) {}
+    try {
+      localStorage.removeItem('trishulan_user');
+    } catch (_) {}
     setUser(null);
     window.location.reload();
   };
@@ -357,18 +415,67 @@ export default function Header() {
               </div>
             )}
 
-            {/* Authentication Buttons */}
+            {/* Authentication Buttons: If signed in show Profile, otherwise show LogIn & Register */}
             {user ? (
-              <div className="flex items-center gap-2">
-                <Link className="btn btn-sm btn-ghost font-bold" href="/dashboard">
-                  Dashboard
-                </Link>
-                <Link className="btn btn-sm btn-ghost font-bold" href="/profile">
-                  Profile
-                </Link>
-                <button suppressHydrationWarning onClick={handleLogout} className="btn btn-sm bg-down-bg text-down hover:bg-down/20 font-bold">
-                  Logout
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  suppressHydrationWarning
+                  type="button"
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-line bg-card hover:border-ink/40 transition-all text-ink font-bold text-[13px] shadow-2xs cursor-pointer"
+                  title="View Profile & Account"
+                >
+                  <div className="w-7 h-7 rounded-full bg-accent/15 text-accent font-black text-[12px] flex items-center justify-center border border-accent/20">
+                    {user.name ? user.name[0].toUpperCase() : <UserIcon className="w-3.5 h-3.5" />}
+                  </div>
+                  <span className="max-w-[120px] truncate text-[13px] font-bold">
+                    {user.companyName || user.name || 'Profile'}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-muted transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
+
+                {/* Profile Dropdown Menu */}
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 top-[44px] w-[220px] bg-card rounded-2xl border border-line shadow-2xl p-2 z-50 animate-[fadeIn_0.15s_ease]">
+                    <div className="px-3 py-2.5 border-b border-line mb-1">
+                      <div className="font-extrabold text-[13px] text-ink truncate">{user.name || 'Account'}</div>
+                      <div className="text-[11px] text-muted truncate">{user.email}</div>
+                      {user.role && (
+                        <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 uppercase">
+                          {user.role}
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-ink hover:bg-line/50 transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4 text-accent" />
+                      <span>Profile &amp; Digital ID</span>
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-ink hover:bg-line/50 transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-muted" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <div className="my-1 border-t border-line" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-2">

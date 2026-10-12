@@ -35,6 +35,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
+      try {
+        localStorage.setItem('trishulan_user', JSON.stringify(data.user));
+      } catch (_) {}
       onSuccess(data.user);
       onClose();
     } catch (err: any) {

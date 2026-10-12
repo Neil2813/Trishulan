@@ -96,7 +96,11 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
 
-      setRegisteredUser(data.user || { name, email, role, companyName, gstNumber });
+      const userObj = data.user || { name, email, role, companyName, gstNumber };
+      try {
+        localStorage.setItem('trishulan_user', JSON.stringify(userObj));
+      } catch (_) {}
+      setRegisteredUser(userObj);
       setStep(3);
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration.');
