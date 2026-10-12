@@ -24,6 +24,7 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
+  LayoutGrid,
 } from 'lucide-react';
 
 export default function Header() {
@@ -164,13 +165,15 @@ export default function Header() {
             {/* Internal Utility & Secondary Links (Hidden on Landing Page & Register Page for clean focused experience) */}
             {!isLandingPage && !isRegisterPage && (
               <>
-                {/* Mega Menu Toggle */}
+                {/* All Pages Mega Menu Toggle */}
                 <button
                   suppressHydrationWarning
                   onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
                   className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-line/50 hover:bg-line text-[13px] font-bold text-ink transition-all"
+                  title="Browse all platform pages and modules"
                 >
-                  <span>Categories</span>
+                  <LayoutGrid className="w-3.5 h-3.5 text-accent" />
+                  <span>Pages</span>
                   <span className="text-xs">{isMegaMenuOpen ? '▲' : '▼'}</span>
                 </button>
 

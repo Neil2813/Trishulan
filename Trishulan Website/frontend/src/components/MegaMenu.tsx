@@ -1,71 +1,71 @@
 import React from 'react';
 import Link from 'next/link';
-import { Boxes, Cog, Wrench, Truck, X, Heart, FileText, LifeBuoy } from 'lucide-react';
+import {
+  Layers,
+  TrendingUp,
+  Truck,
+  Briefcase,
+  LayoutDashboard,
+  X,
+  ArrowRight,
+  Compass,
+} from 'lucide-react';
 
 interface MegaMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const categories = [
+const pageSections = [
   {
-    title: 'Raw Materials & Metals',
-    icon: Boxes,
-    links: [
-      { label: 'Steel & Rebars', href: '/platform-a?cat=RAW_MATERIALS&sub=steel' },
-      { label: 'Polymers & Plastics', href: '/platform-a?cat=RAW_MATERIALS&sub=polymers' },
-      { label: 'Industrial Chemicals', href: '/platform-a?cat=RAW_MATERIALS&sub=chemicals' },
-      { label: 'Aluminum & Non-Ferrous', href: '/platform-a?cat=RAW_MATERIALS&sub=aluminum' },
+    title: 'Trade & Platforms',
+    icon: Layers,
+    pages: [
+      { name: 'Platform A', desc: 'Supplier discovery directory', href: '/platform-a' },
+      { name: 'Platform B', desc: 'Wholesale RFQ & sourcing', href: '/platform-b' },
+      { name: 'Platform C', desc: 'Export & trade lead portal', href: '/platform-c' },
+      { name: 'Platform D', desc: 'Customs & trade intelligence', href: '/platform-d' },
+      { name: 'Platform E', desc: 'SME digital presence & catalog', href: '/platform-e' },
     ]
   },
   {
-    title: 'Machinery & Equipment',
-    icon: Cog,
-    links: [
-      { label: 'CNC Milling & Lathes', href: '/platform-a?cat=MACHINERY&sub=cnc' },
-      { label: 'Hydraulic Presses', href: '/platform-a?cat=MACHINERY&sub=hydraulic' },
-      { label: 'Packaging Machinery', href: '/platform-a?cat=MACHINERY&sub=packaging' },
-      { label: 'Generators & Power Systems', href: '/platform-a?cat=MACHINERY&sub=power' },
+    title: 'Market Intelligence',
+    icon: TrendingUp,
+    pages: [
+      { name: 'Industrial Analyzer', desc: 'Factory setup feasibility & ROI', href: '/market-analyzer' },
+      { name: 'Mandi Market Prices', desc: 'Live spot prices & mandi tickers', href: '/market-prices' },
+      { name: 'Feature Roadmap', desc: 'Upcoming platform capabilities', href: '/feature-expansion' },
+      { name: 'Subscription Pricing', desc: 'Enterprise & tier plans', href: '/pricing' },
     ]
   },
   {
-    title: 'Spares & Components',
-    icon: Wrench,
-    links: [
-      { label: 'Hydraulic Cylinders & Valves', href: '/platform-a?cat=SPARES&sub=cylinders' },
-      { label: 'Bearings & Bushings', href: '/platform-a?cat=SPARES&sub=bearings' },
-      { label: 'Industrial Fasteners', href: '/platform-a?cat=SPARES&sub=fasteners' },
-      { label: 'Pneumatic Systems', href: '/platform-a?cat=SPARES&sub=pneumatics' },
-    ]
-  },
-  {
-    title: 'Operational Support',
+    title: 'Procurement & Logistics',
     icon: Truck,
-    links: [
-      { label: 'Transport & Freight', href: '/logistics?type=TRANSPORT' },
-      { label: 'Professional Packing', href: '/logistics?type=PACKING' },
-      { label: 'Shipment Control Tower', href: '/logistics' },
-      { label: 'Skilled Workforce', href: '/logistics?type=WORKFORCE' },
+    pages: [
+      { name: 'Logistics & Fleet', desc: 'Freight, packing & dispatch', href: '/logistics' },
+      { name: 'Post an RFQ', desc: 'Broadcast buyer requirements', href: '/rfq' },
+      { name: 'Become a Seller', desc: 'Manufacturer storefront registration', href: '/sell' },
+      { name: 'Customer Workspace', desc: 'Buyer tasks & preferences', href: '/customer-workspace' },
     ]
   },
   {
-    title: 'Business Services',
-    icon: FileText,
-    links: [
-      { label: 'Billing & Invoicing', href: '/operations' },
-      { label: 'Inventory Management', href: '/operations?tab=inventory' },
-      { label: 'KYC & Registration', href: '/kyc' },
-      { label: 'Corporate Services', href: '/corporate' },
+    title: 'Operations & Compliance',
+    icon: Briefcase,
+    pages: [
+      { name: 'Business Operations', desc: 'Invoicing, billing & inventory', href: '/operations' },
+      { name: 'KYC & Verification', desc: 'GSTIN, PAN & business verification', href: '/kyc' },
+      { name: 'Health Insurance', desc: 'Industrial workforce medical access', href: '/insurance' },
+      { name: 'Corporate Services', desc: 'Compliance, tax & advisory', href: '/corporate' },
     ]
   },
   {
-    title: 'Benefits & Support',
-    icon: Heart,
-    links: [
-      { label: 'Health Insurance Access', href: '/insurance' },
-      { label: 'Market Price Analyzer', href: '/market-prices' },
-      { label: 'Industrial Analyzer', href: '/market-analyzer' },
-      { label: 'Help & Support', href: '/help' },
+    title: 'Account & Support',
+    icon: LayoutDashboard,
+    pages: [
+      { name: 'Live Dashboard', desc: 'Operational overview & analytics', href: '/dashboard' },
+      { name: 'Company Profile', desc: 'Account settings & security', href: '/profile' },
+      { name: 'Register Account', desc: 'Create buyer or seller profile', href: '/register' },
+      { name: 'Help & Support', desc: 'Documentation & support desk', href: '/help' },
     ]
   },
 ];
@@ -74,63 +74,94 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-[66px] left-0 w-full bg-card border-b border-line shadow-xl z-50 animate-[fadeIn_0.15s_ease]">
-      <div className="max-w-[1600px] mx-auto px-6 py-8">
-        <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
-          <div>
-            <span className="text-[11px] font-bold tracking-[.1em] text-accent uppercase">INDUSTRIAL SECTORS</span>
-            <h3 className="text-[20px] font-extrabold text-ink">Browse Product & Service Matrix</h3>
+    <div className="absolute top-[66px] left-0 w-full bg-card border-b border-line shadow-2xl z-50 animate-[fadeIn_0.15s_ease]">
+      <div className="max-w-[1600px] mx-auto px-6 py-7">
+        
+        {/* Header Bar */}
+        <div className="flex items-center justify-between pb-4 mb-6 border-b border-line">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center border border-accent/20">
+              <Compass className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[10.5px] font-bold tracking-[.14em] text-accent uppercase">
+                PLATFORM SITEMAP
+              </span>
+              <h3 className="text-[19px] font-extrabold text-ink leading-tight">
+                All Platform Pages &amp; Modules
+              </h3>
+            </div>
           </div>
+
           <button 
+            type="button"
             onClick={onClose}
-            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-gray-900 bg-line/30 px-3 py-1.5 rounded-lg"
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink bg-line/40 hover:bg-line/70 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <span>Close Menu</span>
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
-          {categories.map((cat, idx) => (
-            <div key={idx} className="bg-card/50 p-4 rounded-2xl border border-gray-100 hover:border-line transition-all">
-              <div className="flex items-center gap-2.5 mb-3">
-                <cat.icon className="w-4 h-4 text-accent" />
-                <h4 className="font-bold text-[14px] text-ink">{cat.title}</h4>
+        {/* 5 Column Grid of All Pages */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {pageSections.map((section, sIdx) => (
+            <div 
+              key={sIdx} 
+              className="bg-card p-4 rounded-xl border border-line flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center gap-2 pb-3 mb-3 border-b border-line">
+                  <section.icon className="w-4 h-4 text-accent" />
+                  <h4 className="font-bold text-[13.5px] text-ink">{section.title}</h4>
+                </div>
+
+                <ul className="space-y-1.5">
+                  {section.pages.map((page, pIdx) => (
+                    <li key={pIdx}>
+                      <Link 
+                        href={page.href} 
+                        onClick={onClose}
+                        className="group block p-2 rounded-lg hover:bg-line/40 border border-transparent hover:border-line transition-all"
+                      >
+                        <div className="text-[12.5px] font-bold text-ink group-hover:text-accent transition-colors flex items-center justify-between">
+                          <span>{page.name}</span>
+                          <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-accent" />
+                        </div>
+                        <div className="text-[10.5px] text-muted font-medium leading-snug mt-0.5">
+                          {page.desc}
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-2">
-                {cat.links.map((link, lIdx) => (
-                  <li key={lIdx}>
-                    <Link 
-                      href={link.href} 
-                      onClick={onClose}
-                      className="text-[12.5px] text-[#475569] hover:text-accent hover:translate-x-1 inline-block transition-all font-medium"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between text-xs text-[#64748B] gap-4">
-          <span>Need custom sourcing or bulk procurement?</span>
-          <div className="flex gap-4 flex-wrap">
-            <Link href="/rfq" onClick={onClose} className="font-bold text-accent hover:underline">
+        {/* Quick Footer Links */}
+        <div className="mt-6 pt-4 border-t border-line flex flex-col md:flex-row items-center justify-between text-xs text-muted gap-3">
+          <span className="font-medium">Direct access to all public, operational, and trade modules.</span>
+          <div className="flex gap-4 flex-wrap font-bold text-ink">
+            <Link href="/dashboard" onClick={onClose} className="hover:text-accent transition-colors">
+              Live Dashboard →
+            </Link>
+            <Link href="/rfq" onClick={onClose} className="hover:text-accent transition-colors">
               Post an RFQ →
             </Link>
-            <Link href="/sell" onClick={onClose} className="font-bold text-ink hover:underline">
-              Become a Verified Seller →
+            <Link href="/sell" onClick={onClose} className="hover:text-accent transition-colors">
+              Become a Seller →
             </Link>
-            <Link href="/insurance" onClick={onClose} className="font-bold text-ink hover:underline">
-              Health Insurance →
+            <Link href="/kyc" onClick={onClose} className="hover:text-accent transition-colors">
+              KYC Verification →
             </Link>
-            <Link href="/operations" onClick={onClose} className="font-bold text-ink hover:underline">
-              Business Operations →
+            <Link href="/help" onClick={onClose} className="hover:text-accent transition-colors">
+              Help Center →
             </Link>
           </div>
         </div>
+
       </div>
     </div>
   );
