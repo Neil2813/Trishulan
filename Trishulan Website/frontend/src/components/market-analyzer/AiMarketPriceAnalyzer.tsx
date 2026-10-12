@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Flag } from 'lucide-react';
+import { safeJsonFetch } from '@/lib/utils';
 
 interface MarketRow {
   market: string;
@@ -53,9 +54,8 @@ export default function AiMarketPriceAnalyzer() {
       setLoading(true);
       setError(null);
       const url = `/api/market/ai-price-analyzer?product=${encodeURIComponent(p)}&grade=${encodeURIComponent(g)}&thickness=${encodeURIComponent(t)}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      const { ok, data: json, error: fetchErr } = await safeJsonFetch(url);
+      if (!ok || !json) throw new Error(fetchErr || 'Failed to load price benchmark');
       setData(json);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch AI price benchmark data');
@@ -77,7 +77,7 @@ export default function AiMarketPriceAnalyzer() {
     e.preventDefault();
     setSubmittingReport(true);
     try {
-      const res = await fetch('/api/market/report-listing', {
+      const { ok, data: resData, error: reportErr } = await safeJsonFetch('/api/market/report-listing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -86,8 +86,11 @@ export default function AiMarketPriceAnalyzer() {
           userComments: reportComments,
         }),
       });
-      const resData = await res.json();
-      setReportResult(resData);
+      if (ok && resData) {
+        setReportResult(resData);
+      } else {
+        setReportResult({ error: reportErr || 'Failed to submit report' });
+      }
     } catch (err: any) {
       setReportResult({ error: err.message || 'Failed to submit report' });
     } finally {

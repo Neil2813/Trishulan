@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { safeJsonFetch } from '@/lib/utils';
 
 export default function BuyerLeadSharingWhatsapp() {
   const [buyerName, setBuyerName] = useState('Industrial Procurement Manager');
@@ -28,7 +29,7 @@ export default function BuyerLeadSharingWhatsapp() {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/discovery/lead-share', {
+      const { ok, data } = await safeJsonFetch('/api/discovery/lead-share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,13 +40,12 @@ export default function BuyerLeadSharingWhatsapp() {
           message: inquiryText
         })
       });
-      const data = await res.json();
-      if (data.success) {
+      if (ok && data && data.success) {
         setSuccessMessage(data.message);
         setTimeout(() => setSuccessMessage(''), 4000);
       }
     } catch (err) {
-      console.error('Failed to share lead:', err);
+      console.warn('Failed to share lead:', err);
     } finally {
       setSubmitting(false);
     }

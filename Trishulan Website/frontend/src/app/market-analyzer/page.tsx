@@ -6,6 +6,8 @@ import PlatformIntelligenceReport from '@/components/ui/platform-intelligence-re
 import IndustrialAnalyzerProductIntelligence from '@/components/market-analyzer/IndustrialAnalyzerProductIntelligence';
 import AiMarketPriceAnalyzer from '@/components/market-analyzer/AiMarketPriceAnalyzer';
 
+import { safeJsonFetch } from '@/lib/utils';
+
 export default function MarketAnalyzerPage() {
   const [selectedIndustry, setSelectedIndustry] = useState('Steel Manufacturing Industry');
   const [data, setData] = useState<any>(null);
@@ -14,11 +16,12 @@ export default function MarketAnalyzerPage() {
   useEffect(() => {
     async function loadAnalyzer() {
       try {
-        const res = await fetch('/api/market');
-        const json = await res.json();
-        setData(json);
+        const { ok, data: resData } = await safeJsonFetch('/api/market');
+        if (ok && resData) {
+          setData(resData);
+        }
       } catch (err) {
-        console.error(err);
+        console.warn('Failed to load market analyzer data:', err);
       } finally {
         setLoading(false);
       }

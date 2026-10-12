@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
+import { safeJsonFetch } from '@/lib/utils';
 
 interface PackagingOption {
   option: string;
@@ -21,9 +22,8 @@ export default function PackagingRequirementsSupport() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/business-services/packaging-requirements');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      const { ok, data: json, error: fetchErr } = await safeJsonFetch('/api/business-services/packaging-requirements');
+      if (!ok || !json) throw new Error(fetchErr || 'Failed to load packaging requirements');
       setOptions(json.requirements || json.options || []);
       setDisclaimer(json.disclaimer || '');
     } catch (err: any) {

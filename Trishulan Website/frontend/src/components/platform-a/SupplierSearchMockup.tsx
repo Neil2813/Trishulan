@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { safeJsonFetch } from '@/lib/utils';
 
 export interface SupplierItem {
   id: string;
@@ -33,13 +34,12 @@ export default function SupplierSearchMockup() {
   const fetchSuppliers = async (queryVal: string, locVal: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/platform-a/suppliers?query=${encodeURIComponent(queryVal)}&location=${encodeURIComponent(locVal)}`);
-      const data = await res.json();
-      if (data.suppliers) {
+      const { ok, data } = await safeJsonFetch(`/api/platform-a/suppliers?query=${encodeURIComponent(queryVal)}&location=${encodeURIComponent(locVal)}`);
+      if (ok && data && data.suppliers) {
         setSuppliers(data.suppliers);
       }
     } catch (err) {
-      console.error('Failed to fetch suppliers from backend:', err);
+      console.warn('Failed to fetch suppliers from backend:', err);
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function SupplierSearchMockup() {
 
     setInquirySending(true);
     try {
-      const res = await fetch('/api/platform-a/inquiry', {
+      const { ok, data } = await safeJsonFetch('/api/platform-a/inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -70,8 +70,7 @@ export default function SupplierSearchMockup() {
           text: inquiryText
         })
       });
-      const data = await res.json();
-      if (data.success) {
+      if (ok && data && data.success) {
         setInquirySentSuccess(true);
         setTimeout(() => {
           setInquirySentSuccess(false);
@@ -80,7 +79,7 @@ export default function SupplierSearchMockup() {
         }, 1800);
       }
     } catch (err) {
-      console.error('Failed to post inquiry:', err);
+      console.warn('Failed to post inquiry:', err);
     } finally {
       setInquirySending(false);
     }

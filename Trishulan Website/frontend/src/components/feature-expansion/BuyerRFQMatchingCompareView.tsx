@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { safeJsonFetch } from '@/lib/utils';
 
 export default function BuyerRFQMatchingCompareView() {
   const [data, setData] = useState<any>(null);
@@ -12,11 +13,14 @@ export default function BuyerRFQMatchingCompareView() {
   useEffect(() => {
     async function loadMatch() {
       try {
-        const res = await fetch('/api/discovery/match');
-        const json = await res.json();
-        setData(json);
+        const { ok, data: resData, error } = await safeJsonFetch('/api/discovery/match');
+        if (ok && resData) {
+          setData(resData);
+        } else if (error) {
+          console.warn('RFQ matching fallback to default preview:', error);
+        }
       } catch (err) {
-        console.error('Failed to fetch RFQ matching compare view:', err);
+        console.warn('Failed to fetch RFQ matching compare view:', err);
       } finally {
         setLoading(false);
       }

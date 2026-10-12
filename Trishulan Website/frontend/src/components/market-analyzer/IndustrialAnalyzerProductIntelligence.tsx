@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
+import { safeJsonFetch } from '@/lib/utils';
 
 interface IndustrialAnalyzerData {
   query: string;
@@ -26,9 +27,8 @@ export default function IndustrialAnalyzerProductIntelligence() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/market/analyzer?query=${encodeURIComponent(q)}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      const { ok, data: json, error: fetchErr } = await safeJsonFetch(`/api/market/analyzer?query=${encodeURIComponent(q)}`);
+      if (!ok || !json) throw new Error(fetchErr || 'Failed to load analyzer metrics');
       setData(json);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch industrial analyzer data');

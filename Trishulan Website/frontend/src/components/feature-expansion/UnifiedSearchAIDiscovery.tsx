@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { safeJsonFetch } from '@/lib/utils';
 
 export default function UnifiedSearchAIDiscovery() {
   const [activeTab, setActiveTab] = useState<'Product name' | 'HSN code' | 'Industry' | 'Seller company' | 'Barcode' | 'AI search'>('AI search');
@@ -12,20 +13,21 @@ export default function UnifiedSearchAIDiscovery() {
   const executeSearch = async (mode: string, q: string) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/discovery/search', {
+      const { ok, data } = await safeJsonFetch('/api/discovery/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode, query: q })
       });
-      const data = await res.json();
-      if (data.parsedResult) {
-        setParsedData(data.parsedResult.parsed);
-      } else {
-        setParsedData(null);
+      if (ok && data) {
+        if (data.parsedResult) {
+          setParsedData(data.parsedResult.parsed);
+        } else {
+          setParsedData(null);
+        }
+        setSearchResults(data.results || []);
       }
-      setSearchResults(data.results || []);
     } catch (err) {
-      console.error('Failed to execute search:', err);
+      console.warn('Failed to execute search:', err);
     } finally {
       setLoading(false);
     }
