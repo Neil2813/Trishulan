@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import PlatformBOverview from '@/components/platform-b/PlatformBOverview';
 import BuyRequirementFormMockup from '@/components/platform-b/BuyRequirementFormMockup';
 import PlatformBActivityDashboard from '@/components/platform-b/PlatformBActivityDashboard';
 
@@ -20,7 +19,7 @@ export default function PlatformBPage() {
               </span>
               <span className="text-muted/70">•</span>
               <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-                PLATFORM B GUIDE
+                PLATFORM INTERACTION
               </span>
             </div>
 
@@ -48,13 +47,10 @@ export default function PlatformBPage() {
           </div>
         </div>
 
-        {/* Section 1: Overview */}
-        <PlatformBOverview />
-
-        {/* Section 2: Buy Requirement Form */}
+        {/* Section 1: Buy Requirement Form */}
         <BuyRequirementFormMockup />
 
-        {/* Section 3: Activity Dashboard */}
+        {/* Section 2: Activity Dashboard */}
         <PlatformBActivityDashboard />
 
       </div>

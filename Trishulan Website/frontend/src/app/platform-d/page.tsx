@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import PlatformDOverview from '@/components/platform-d/PlatformDOverview';
 import TradeIntelligenceSampleAnalysis from '@/components/platform-d/TradeIntelligenceSampleAnalysis';
 import PlatformDActivityDashboard from '@/components/platform-d/PlatformDActivityDashboard';
 
@@ -20,7 +19,7 @@ export default function PlatformDPage() {
               </span>
               <span className="text-muted/70">•</span>
               <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-                PLATFORM D GUIDE
+                PLATFORM INTERACTION
               </span>
             </div>
 
@@ -48,13 +47,10 @@ export default function PlatformDPage() {
           </div>
         </div>
 
-        {/* Section 1: Overview */}
-        <PlatformDOverview />
-
-        {/* Section 2: Trade Intelligence Sample Analysis */}
+        {/* Section 1: Trade Intelligence Sample Analysis */}
         <TradeIntelligenceSampleAnalysis />
 
-        {/* Section 3: Activity Dashboard */}
+        {/* Section 2: Activity Dashboard */}
         <PlatformDActivityDashboard />
 
       </div>

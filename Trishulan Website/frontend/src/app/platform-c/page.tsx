@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import PlatformCOverview from '@/components/platform-c/PlatformCOverview';
 import TradeLeadPortalMockup from '@/components/platform-c/TradeLeadPortalMockup';
 import PlatformCActivityDashboard from '@/components/platform-c/PlatformCActivityDashboard';
 
@@ -20,7 +19,7 @@ export default function PlatformCPage() {
               </span>
               <span className="text-muted/70">•</span>
               <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-                PLATFORM C GUIDE
+                PLATFORM INTERACTION
               </span>
             </div>
 
@@ -48,13 +47,10 @@ export default function PlatformCPage() {
           </div>
         </div>
 
-        {/* Section 1: Overview */}
-        <PlatformCOverview />
-
-        {/* Section 2: Trade Lead Portal */}
+        {/* Section 1: Trade Lead Portal */}
         <TradeLeadPortalMockup />
 
-        {/* Section 3: Activity Dashboard */}
+        {/* Section 2: Activity Dashboard */}
         <PlatformCActivityDashboard />
 
       </div>

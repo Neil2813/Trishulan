@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import PlatformAOverview from '@/components/platform-a/PlatformAOverview';
 import SupplierSearchMockup from '@/components/platform-a/SupplierSearchMockup';
 import ActivityDashboard from '@/components/platform-a/ActivityDashboard';
 
@@ -20,7 +19,7 @@ export default function PlatformAPage() {
               </span>
               <span className="text-muted/70">•</span>
               <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-                PLATFORM FEATURES GUIDE
+                PLATFORM INTERACTION
               </span>
             </div>
 
@@ -48,13 +47,10 @@ export default function PlatformAPage() {
           </div>
         </div>
 
-        {/* Section 1: Overview, Features & User Journey */}
-        <PlatformAOverview />
-
-        {/* Section 2: Interactive Supplier Search Screen Mockup */}
+        {/* Section 1: Interactive Supplier Search Screen Mockup */}
         <SupplierSearchMockup />
 
-        {/* Section 3: Activity Dashboard */}
+        {/* Section 2: Activity Dashboard */}
         <ActivityDashboard />
 
       </div>

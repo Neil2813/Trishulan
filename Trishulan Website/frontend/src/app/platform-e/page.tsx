@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import PlatformEOverview from '@/components/platform-e/PlatformEOverview';
 import SMEDigitalPresenceMockup from '@/components/platform-e/SMEDigitalPresenceMockup';
 import PlatformEActivityDashboard from '@/components/platform-e/PlatformEActivityDashboard';
 
@@ -20,7 +19,7 @@ export default function PlatformEPage() {
               </span>
               <span className="text-muted/70">•</span>
               <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-                PLATFORM E GUIDE
+                PLATFORM INTERACTION
               </span>
             </div>
 
@@ -48,13 +47,10 @@ export default function PlatformEPage() {
           </div>
         </div>
 
-        {/* Section 1: Overview */}
-        <PlatformEOverview />
-
-        {/* Section 2: SME Digital Presence Mockup */}
+        {/* Section 1: SME Digital Presence Mockup */}
         <SMEDigitalPresenceMockup />
 
-        {/* Section 3: Activity Dashboard */}
+        {/* Section 2: Activity Dashboard */}
         <PlatformEActivityDashboard />
 
       </div>
