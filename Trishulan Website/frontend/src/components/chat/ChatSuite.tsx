@@ -8,6 +8,7 @@ import {
   ChatPartner,
   User,
 } from '@/types';
+import { Lock, Search, MessageSquare, Paperclip, MapPin, Tag, Send } from 'lucide-react';
 import {
   DecryptedBody,
   decryptMessage,
@@ -300,7 +301,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 <span className="text-[10px] bg-amber-400 text-slate-900 px-2 py-0.5 rounded-full font-black">{totalUnread}</span>
               )}
             </h3>
-            <p className="text-[10.5px] text-teal-100 flex items-center gap-1 mt-0.5">🔒 End-to-end encrypted</p>
+            <p className="text-[10.5px] text-teal-100 flex items-center gap-1 mt-0.5"><Lock className="w-3 h-3" /> End-to-end encrypted</p>
           </div>
           <button
             id="chat-new-conversation"
@@ -314,7 +315,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
 
         <div className="p-3 border-b border-line bg-card space-y-2">
           <div className="flex items-center gap-2 bg-line/30 px-3 py-1.5 rounded-full border border-line focus-within:border-teal-600 transition-colors">
-            <span className="text-muted/70 text-xs">🔍</span>
+            <Search className="w-3.5 h-3.5 text-muted/70" />
             <input
               id="chat-search"
               type="text"
@@ -346,7 +347,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
           )}
           {identity && visibleConversations.length === 0 && (
             <div className="p-8 text-center space-y-3">
-              <div className="text-3xl">💬</div>
+              <div className="flex justify-center"><MessageSquare className="w-10 h-10 text-muted" /></div>
               <p className="text-xs text-muted">
                 {conversations.length === 0
                   ? `No conversations yet. Start one with a ${me?.role === 'SELLER' ? 'buyer' : 'seller'}.`
@@ -382,7 +383,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                   </div>
                   <p className={`text-[11px] truncate mt-0.5 ${c.unread ? 'text-gray-800 font-semibold' : 'text-muted'}`}>
                     {mine && 'You: '}
-                    {preview === undefined ? '…' : preview === null ? '🔒 Encrypted message' : preview.text || '📎 Attachment'}
+                    {preview === undefined ? '…' : preview === null ? 'Encrypted message' : preview.text || 'Attachment'}
                   </p>
                 </div>
                 {c.unread > 0 && (
@@ -402,7 +403,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
           <div className="flex-1 flex items-center justify-center p-8 text-center text-sm text-red-600">{setupError}</div>
         ) : !activePartnerId ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center text-3xl">🔒</div>
+            <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center text-teal-700"><Lock className="w-7 h-7" /></div>
             <h4 className="font-extrabold text-ink">Private buyer–seller messaging</h4>
             <p className="text-xs text-muted max-w-xs">
               Messages are encrypted in your browser before they are sent. Only you and the person you are chatting with can read them — not even Trishulan.
@@ -418,7 +419,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                   <div className="flex items-center gap-2 text-[11px] text-teal-100 mt-0.5 flex-wrap">
                     {activePartner && <span className="uppercase font-bold tracking-wide text-[9.5px] px-1.5 py-0.5 bg-teal-900/60 rounded">{activePartner.role}</span>}
                     {(activePartner?.city || activePartner?.state) && (
-                      <span>📍 {[activePartner.city, activePartner.state].filter(Boolean).join(', ')}</span>
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {[activePartner.city, activePartner.state].filter(Boolean).join(', ')}</span>
                     )}
                     {activePartner?.verifiedSeller && (
                       <span className="px-1.5 py-0.5 bg-amber-400 text-slate-900 rounded font-bold text-[9.5px]">✓ Verified Seller</span>
@@ -429,10 +430,11 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               <button
                 id="chat-verify-encryption"
                 onClick={() => setShowVerify((v) => !v)}
-                className="shrink-0 px-3 py-1.5 rounded-full bg-card/15 hover:bg-card/25 text-[11px] font-bold transition-colors"
+                className="shrink-0 px-3 py-1.5 rounded-full bg-card/15 hover:bg-card/25 text-[11px] font-bold transition-colors flex items-center gap-1"
                 title="Verify encryption keys"
               >
-                🔒 Encrypted
+                <Lock className="w-3 h-3" />
+                <span>Encrypted</span>
               </button>
             </header>
 
@@ -452,13 +454,14 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
             )}
 
             <div ref={scrollRef} className="flex-1 p-5 overflow-y-auto flex flex-col gap-3">
-              <div className="self-center text-[10.5px] text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
-                🔒 Messages are end-to-end encrypted
+              <div className="self-center text-[10.5px] text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold flex items-center gap-1">
+                <Lock className="w-3 h-3" />
+                <span>Messages are end-to-end encrypted</span>
               </div>
 
               {messages.length === 0 && (
                 <div className="flex-1 flex items-center justify-center text-xs text-muted/70">
-                  Say hello to {displayName(activePartner)} 👋
+                  Say hello to {displayName(activePartner)}
                 </div>
               )}
 
@@ -473,7 +476,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                         <div className="text-[9.5px] font-bold text-teal-700 uppercase tracking-wide">{listing.category.replace('_', ' ')}</div>
                         <div className="font-extrabold text-[13px] text-ink mt-0.5">{listing.title}</div>
                         <div className="text-[12px] font-black text-accent mt-1">₹{listing.price.toLocaleString('en-IN')} / {listing.unit}</div>
-                        <div className="text-[10.5px] text-muted">📍 {listing.location}</div>
+                        <div className="text-[10.5px] text-muted flex items-center gap-1"><MapPin className="w-3 h-3" /> {listing.location}</div>
                       </div>
                     )}
                     <div
@@ -484,7 +487,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                       {body === undefined ? (
                         <span className="opacity-60">Decrypting…</span>
                       ) : body === null ? (
-                        <span className="italic opacity-70">🔒 This message was encrypted for a different device and can&apos;t be read here.</span>
+                        <span className="italic opacity-70">This message was encrypted for a different device and can&apos;t be read here.</span>
                       ) : (
                         <>
                           {body.text}
@@ -493,9 +496,10 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                               href={body.attachmentUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`block mt-1 text-[12px] underline ${mine ? 'text-teal-100' : 'text-teal-700'}`}
+                              className={`inline-flex items-center gap-1 mt-1 text-[12px] underline ${mine ? 'text-teal-100' : 'text-teal-700'}`}
                             >
-                              📎 {body.attachmentUrl}
+                              <Paperclip className="w-3 h-3" />
+                              <span>{body.attachmentUrl}</span>
                             </a>
                           )}
                         </>
@@ -514,13 +518,15 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               <div className="mx-3 mb-1 flex flex-wrap gap-2 text-[11px]">
                 {attachment && (
                   <span className="px-2 py-1 rounded-full bg-line/30 border flex items-center gap-1 max-w-full">
-                    📎 <span className="truncate max-w-[220px]">{attachment}</span>
+                    <Paperclip className="w-3 h-3" />
+                    <span className="truncate max-w-[220px]">{attachment}</span>
                     <button onClick={() => setAttachment('')} className="font-bold text-muted hover:text-gray-800">✕</button>
                   </span>
                 )}
                 {pendingListingId && (
                   <span className="px-2 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 flex items-center gap-1">
-                    🏷️ Listing attached
+                    <Tag className="w-3 h-3" />
+                    <span>Listing attached</span>
                     <button onClick={() => setPendingListingId(undefined)} className="font-bold hover:text-teal-950">✕</button>
                   </span>
                 )}
@@ -545,19 +551,19 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                   const url = prompt('Paste a document / spec sheet URL (it will be encrypted):');
                   if (url && /^https?:\/\//i.test(url.trim())) setAttachment(url.trim());
                 }}
-                className="w-10 h-10 rounded-full border border-gray-300 hover:bg-line/30 flex items-center justify-center text-muted text-base transition-colors"
+                className="w-10 h-10 rounded-full border border-gray-300 hover:bg-line/30 flex items-center justify-center text-muted transition-colors"
                 title="Attach document link"
               >
-                📎
+                <Paperclip className="w-4 h-4" />
               </button>
               <button
                 id="chat-send"
                 type="submit"
                 disabled={sending || !activePartner?.chatPublicKey || (!text.trim() && !attachment)}
-                className="w-10 h-10 rounded-full bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold flex items-center justify-center text-base shadow transition-all hover:scale-105"
+                className="w-10 h-10 rounded-full bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold flex items-center justify-center shadow transition-all hover:scale-105"
                 title="Send"
               >
-                {sending ? '…' : '➤'}
+                {sending ? '…' : <Send className="w-4 h-4" />}
               </button>
             </form>
           </>

@@ -58,7 +58,7 @@ export default function UnifiedSearchAIDiscovery() {
         
         {/* Dark Banner Header */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
-          <span>UNIFIED INDUSTRIAL SEARCH / ILLUSTRATIVE</span>
+          <span>UNIFIED INDUSTRIAL SEARCH</span>
           <span className="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-mono">
             Express AI Connected
           </span>

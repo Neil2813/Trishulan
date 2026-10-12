@@ -50,7 +50,7 @@ export default function TradeIntelligenceSampleAnalysis() {
       <div>
         <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE WORKSPACE</span>
         <h2 className="text-xl font-black text-ink mt-0.5">
-          Feature example: what the screen can show
+          Trade intelligence analysis and supplier benchmarking
         </h2>
       </div>
 
@@ -146,7 +146,7 @@ export default function TradeIntelligenceSampleAnalysis() {
             {/* Sample Indicators */}
             <div className="bg-card border border-line p-5 rounded-2xl space-y-3 shadow-2xs">
               <h4 className="text-xs font-black text-ink uppercase tracking-wider border-b border-slate-100 pb-2">
-                Sample indicators
+                Key indicators
               </h4>
 
               <div className="space-y-2.5 text-xs">

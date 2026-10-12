@@ -6,6 +6,7 @@ import AIAssistantBot from '@/components/AIAssistantBot';
 import DigitalIDCard from '@/components/DigitalIDCard';
 import { User, RFQ, Listing } from '@/types';
 import Link from 'next/link';
+import { IdCard, Bot } from 'lucide-react';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -76,7 +77,7 @@ export default function DashboardPage() {
               onClick={() => setShowIdModal(true)}
               className="px-4 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 font-bold text-[13px] transition-all flex items-center gap-2 shadow-sm"
             >
-              <span>🪪</span>
+              <IdCard className="w-4 h-4" />
               <span>View B2B Digital ID</span>
             </button>
 
@@ -117,7 +118,7 @@ export default function DashboardPage() {
                 : 'border-transparent text-muted hover:text-gray-900'
             }`}
           >
-            <span>🤖</span>
+            <Bot className="w-4 h-4" />
             <span>AI Industrial Bot</span>
           </button>
 

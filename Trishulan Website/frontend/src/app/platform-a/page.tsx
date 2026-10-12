@@ -54,7 +54,7 @@ export default function PlatformAPage() {
         {/* Section 2: Interactive Supplier Search Screen Mockup */}
         <SupplierSearchMockup />
 
-        {/* Section 3: Illustrative Activity Dashboard */}
+        {/* Section 3: Activity Dashboard */}
         <ActivityDashboard />
 
       </div>

@@ -22,8 +22,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type DocType =
@@ -65,8 +64,8 @@ interface InventoryItem {
   createdAt: string;
 }
 
-// ─── Static demo data ─────────────────────────────────────────────────────────
-const DEMO_DOCS: DocItem[] = [
+// ─── Sample data ────────────────────────────────────────────────────────────
+const SAMPLE_DOCS: DocItem[] = [
   {
     id: "d1", docNumber: "INV-0001", docType: "TAX_INVOICE",
     partyName: "Bharat Steel Works Pvt. Ltd.", partyGstin: "27AABCS1234F1ZX",
@@ -93,7 +92,7 @@ const DEMO_DOCS: DocItem[] = [
   },
 ];
 
-const DEMO_INVENTORY: InventoryItem[] = [
+const SAMPLE_INVENTORY: InventoryItem[] = [
   {
     id: "i1", skuCode: "MS-HR-001", itemName: "MS Hot Rolled Coil 2mm", category: "Raw Materials",
     hsnCode: "7208", unit: "MT", costPrice: 52000, salePrice: 58000,
@@ -164,7 +163,7 @@ function fmtDate(s?: string) {
 // ─── Tab Components ───────────────────────────────────────────────────────────
 
 function DocumentsTab() {
-  const [docs, setDocs] = useState<DocItem[]>(DEMO_DOCS);
+  const [docs, setDocs] = useState<DocItem[]>(SAMPLE_DOCS);
   const [filterType, setFilterType] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -191,7 +190,7 @@ function DocumentsTab() {
     };
     setDocs((prev) => [newDoc, ...prev]);
     setConvertingId(null);
-    alert(`✅ Converted to ${DOC_LABELS[nextType]} — ${newDoc.docNumber}`);
+    alert(`Converted to ${DOC_LABELS[nextType]} — ${newDoc.docNumber}`);
   };
 
   return (
@@ -315,7 +314,7 @@ function DocumentsTab() {
 }
 
 function InventoryTab() {
-  const [items, setItems] = useState<InventoryItem[]>(DEMO_INVENTORY);
+  const [items, setItems] = useState<InventoryItem[]>(SAMPLE_INVENTORY);
   const [searchTerm, setSearchTerm] = useState("");
   const [adjustingId, setAdjustingId] = useState<string | null>(null);
   const [adjustQty, setAdjustQty] = useState("");
@@ -371,7 +370,7 @@ function InventoryTab() {
           <div className="flex flex-wrap gap-2">
             {lowStockItems.map((i) => (
               <span key={i.id} className="text-[11px] bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-medium">
-                ⚠ {i.skuCode} — {i.currentStock} {i.unit} (min: {i.reorderPoint})
+                {i.skuCode} — {i.currentStock} {i.unit} (min: {i.reorderPoint})
               </span>
             ))}
           </div>
@@ -422,7 +421,7 @@ function InventoryTab() {
                     <span className={`font-bold ${isLow ? "text-amber-600" : "text-ink"}`}>
                       {item.currentStock} {item.unit}
                     </span>
-                    {isLow && <div className="text-[10px] text-amber-500 font-semibold">⚠ Low stock</div>}
+                    {isLow && <div className="text-[10px] text-amber-500 font-semibold">Low stock</div>}
                   </td>
                   <td className="px-4 py-3 text-muted">{item.reorderPoint} {item.unit}</td>
                   <td className="px-4 py-3 font-semibold text-ink">
@@ -610,7 +609,7 @@ function SummaryTab() {
             </div>
             <div className="text-[13px] text-muted mb-4">Total inventory at cost (FIFO)</div>
             <div className="text-[12px] text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg">
-              ⚠ 2 items below reorder point — review inventory tab
+              2 items below reorder point — review inventory tab
             </div>
           </div>
         </div>
@@ -632,7 +631,6 @@ export default function OperationsPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-[#0A1629] via-[#0f2044] to-[#1a3366] text-white pt-24 pb-16 px-6 relative overflow-hidden">
@@ -640,7 +638,7 @@ export default function OperationsPage() {
         <div className="max-w-[1280px] mx-auto relative z-10">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-[11px] font-bold tracking-[.14em] uppercase bg-[#EA580C]/20 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30">
-              Business Operations — Guide pp. 28–29
+              Business Operations & Invoicing
             </span>
           </div>
           <h1 className="text-[38px] md:text-[52px] font-black leading-tight tracking-tight mb-4">
@@ -720,7 +718,6 @@ export default function OperationsPage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 }

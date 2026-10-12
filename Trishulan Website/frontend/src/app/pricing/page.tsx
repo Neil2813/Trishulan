@@ -30,36 +30,36 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-card py-8">
+    <div className="min-h-screen bg-bg py-8">
       {message && (
-        <div className="max-w-xl mx-auto my-4 p-4 bg-amber-50 border border-amber-300 text-amber-900 text-center font-bold text-sm rounded-xl">
+        <div className="max-w-xl mx-auto my-4 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-center font-bold text-sm rounded-xl">
           {message}
         </div>
       )}
       <PricingSection />
 
       {/* Tier Selector Buttons for Direct Upgrade Test */}
-      <div className="max-w-xl mx-auto p-6 bg-card rounded-2xl border border-line text-center mt-8 mb-12">
+      <div className="max-w-xl mx-auto p-6 bg-card rounded-2xl border border-line text-center mt-8 mb-12 shadow-sm">
         <h4 className="font-bold text-sm text-ink mb-3">Quick Plan Upgrade Simulator</h4>
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => handleSelectTier('BASIC')}
             disabled={loading}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-ink text-xs font-bold rounded-lg"
+            className="px-4 py-2 bg-line/40 hover:bg-line text-ink border border-line text-xs font-bold rounded-lg transition-colors"
           >
             Switch to Basic (Free)
           </button>
           <button
             onClick={() => handleSelectTier('GROWTH')}
             disabled={loading}
-            className="px-4 py-2 bg-accent hover:bg-[#c2410a] text-white text-xs font-bold rounded-lg"
+            className="px-4 py-2 bg-accent hover:bg-[#c2410a] text-white text-xs font-bold rounded-lg shadow-sm transition-colors"
           >
             Upgrade to Growth (₹1,999/mo)
           </button>
           <button
             onClick={() => handleSelectTier('ENTERPRISE')}
             disabled={loading}
-            className="px-4 py-2 bg-[#0A1629] hover:bg-[#1E293B] text-white text-xs font-bold rounded-lg"
+            className="px-4 py-2 bg-ink hover:opacity-90 text-bg text-xs font-bold rounded-lg shadow-sm transition-opacity"
           >
             Upgrade to Enterprise (₹8,999/mo)
           </button>

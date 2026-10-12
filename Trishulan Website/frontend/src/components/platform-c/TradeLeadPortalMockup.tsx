@@ -94,7 +94,7 @@ export default function TradeLeadPortalMockup() {
         <div>
           <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE MODULE</span>
           <h2 className="text-xl font-black text-ink mt-0.5">
-            Feature example: what the screen can show
+            Post buy requirements and receive supplier quotations
           </h2>
         </div>
 
@@ -147,7 +147,7 @@ export default function TradeLeadPortalMockup() {
               type="submit"
               className="px-5 py-2.5 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs rounded-lg transition-colors shrink-0"
             >
-              [Search]
+              Search
             </button>
           </form>
 

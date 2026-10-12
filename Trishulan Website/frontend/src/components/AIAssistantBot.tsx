@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { Bot } from 'lucide-react';
 
 interface AIAssistantBotProps {
   embedded?: boolean;
@@ -76,7 +77,7 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-accent hover:bg-[#c2410a] text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-line animate-bounce"
       >
-        <span className="text-xl">🤖</span>
+        <Bot className="w-5 h-5 text-white" />
         <span>Ask Trishulan AI Bot</span>
       </button>
     );
@@ -91,12 +92,11 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
       <div className="bg-gradient-to-r from-orange-50 via-white to-amber-50 text-ink border-b border-line p-4 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center font-bold text-xl shadow">
-            🤖
+            <Bot className="w-6 h-6 text-white" />
           </div>
           <div>
             <h4 className="font-extrabold text-[15px] text-ink">Trishulan AI Assistant</h4>
             <div className="flex items-center gap-1.5 text-[10px] text-green-700 font-bold">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span>Online • Solves Doubts & Industrial Queries</span>
             </div>
           </div>
@@ -147,7 +147,6 @@ export default function AIAssistantBot({ embedded = false }: AIAssistantBotProps
 
         {isTyping && (
           <div className="flex items-center gap-2 text-xs text-muted/70 p-2">
-            <span className="w-2 h-2 rounded-full bg-accent animate-ping"></span>
             <span>Trishulan AI is resolving query...</span>
           </div>
         )}

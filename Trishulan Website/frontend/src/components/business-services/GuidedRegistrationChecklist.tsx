@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface ChecklistItem {
   id: string;
@@ -69,7 +70,7 @@ export default function GuidedRegistrationChecklist() {
       {/* Header Banner */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
-          <span>BUSINESS REGISTRATION / ILLUSTRATIVE SCREEN</span>
+          <span>BUSINESS REGISTRATION GUIDANCE</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
         <span className="text-[11px] bg-slate-200/80 px-2.5 py-0.5 rounded text-slate-700 font-mono font-medium">
@@ -79,8 +80,9 @@ export default function GuidedRegistrationChecklist() {
 
       <div className="p-6 space-y-6">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -147,13 +149,13 @@ export default function GuidedRegistrationChecklist() {
             </table>
           </div>
           <div className="bg-card px-4 py-2 text-[11px] text-muted border-t border-line italic">
-            Sample checklist only; requirements depend on jurisdiction and business type.
+            Requirements vary by jurisdiction and business type.
           </div>
         </div>
 
         {/* Spec Callout Box */}
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">Example Spec Scenario:</p>
+          <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
             "{exampleText || 'Example: a new industrial supplier selects "sole proprietor" and its state. The platform produces a checklist, lets the user upload required documents to a secure account, and offers an appointment request with a listed advisor. A progress card shows which steps remain.'}"
           </p>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface IndustrialAnalyzerData {
   query: string;
@@ -47,14 +48,14 @@ export default function IndustrialAnalyzerProductIntelligence() {
 
   return (
     <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-6xl w-full mx-auto my-6 font-sans">
-      {/* Top Illustrative Banner */}
+      {/* Header Banner */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
-          <span>INDUSTRIAL ANALYZER / SAMPLE PRODUCT INTELLIGENCE</span>
-          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
+          <span>INDUSTRIAL ANALYZER</span>
+          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to live data feed...)</span>}
         </h2>
-        <span className="text-[11px] bg-slate-200/80 px-2.5 py-0.5 rounded text-slate-700 font-mono font-medium">
-          Spec 1 View
+        <span className="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded font-semibold">
+          Live
         </span>
       </div>
 
@@ -78,8 +79,9 @@ export default function IndustrialAnalyzerProductIntelligence() {
         </form>
 
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -151,7 +153,7 @@ export default function IndustrialAnalyzerProductIntelligence() {
             </div>
 
             <p className="text-[10px] text-muted italic mt-3">
-              Illustrative indicator only: define data source, period, market and formula before decisions.
+              Indicative indicator only: define data source, period, market and formula before decisions.
             </p>
           </div>
 
@@ -179,9 +181,9 @@ export default function IndustrialAnalyzerProductIntelligence() {
 
         {/* Spec Callout Box */}
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">Example Spec Scenario:</p>
+          <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
-            "{data?.calloutExample || 'a buyer searching for industrial pump components reviews demand by region, sees supplier availability and likely lead times, saves a target market, then opens matched supplier profiles. All scores are illustrative until backed by real data sources.'}"
+            "{data?.calloutExample || 'a buyer searching for industrial pump components reviews demand by region, sees supplier availability and likely lead times, saves a target market, then opens matched supplier profiles. All scores are indicative until backed by real data sources.'}"
           </p>
         </div>
 

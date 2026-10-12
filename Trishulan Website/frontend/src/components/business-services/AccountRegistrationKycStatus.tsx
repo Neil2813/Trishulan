@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 
 interface KycDocument {
   id: string;
@@ -78,21 +79,23 @@ export default function AccountRegistrationKycStatus() {
       {/* Header Banner */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
-          <span>ACCOUNT REGISTRATION / KYC STATUS / ILLUSTRATIVE</span>
+          <span>ACCOUNT REGISTRATION / KYC STATUS</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
         <button
           onClick={fetchKycStatus}
-          className="text-xs font-bold bg-card hover:bg-line/30 border border-line px-3 py-1 rounded-lg text-slate-800 shadow-sm transition"
+          className="text-xs font-bold bg-card hover:bg-line/30 border border-line px-3 py-1 rounded-lg text-slate-800 shadow-sm transition flex items-center gap-1.5"
         >
-          🔄 Refresh State
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh State</span>
         </button>
       </div>
 
       <div className="p-6 space-y-6">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -258,7 +261,7 @@ export default function AccountRegistrationKycStatus() {
 
         {/* Spec Callout Box */}
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">Example Spec Scenario:</p>
+          <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
             "{data?.exampleText || 'a new industrial supplier registers with a work email, confirms its phone, selects a business-seller account and uploads the business document and authorized-person evidence requested for its region. The dashboard shows "Address evidence - needs review," explains the issue, and offers a secure re-upload. The supplier can see what features are available while review is pending.'}"
           </p>

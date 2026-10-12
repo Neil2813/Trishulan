@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface SupportDeskModalProps {
   onClose: () => void;
@@ -163,7 +164,7 @@ export default function SupportDeskModal({ onClose }: SupportDeskModalProps) {
           {submittedTicket && (
             <div className={`p-4 rounded-xl text-xs font-mono border ${submittedTicket.error ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
               {submittedTicket.error ? (
-                <p>⚠️ {submittedTicket.error}</p>
+                <p className="flex items-center gap-1.5"><AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /><span>{submittedTicket.error}</span></p>
               ) : (
                 <div>
                   <p className="font-bold text-emerald-800">✓ Express Backend Created Support Ticket #{submittedTicket.ticket?.caseNumber || 'CS-101'}:</p>

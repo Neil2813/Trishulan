@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Building2, Package, Zap, BarChart3, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 export default function SellPage() {
   const router = useRouter();
@@ -151,7 +152,7 @@ export default function SellPage() {
 
       </div>
 
-      {/* ── 30-Day Supplier Rollout Roadmap (Guide p. 35) ─────────────────── */}
+      {/* ── 30-Day Supplier Rollout Roadmap ───────────────────────────────── */}
       <div className="max-w-[860px] mx-auto mt-12 bg-card rounded-[24px] border border-line shadow-xl p-8 md:p-10">
         <div className="mb-6">
           <span className="text-[11px] font-bold text-accent uppercase tracking-[.1em]">
@@ -172,7 +173,7 @@ export default function SellPage() {
               title: "Build Your Profile",
               color: "bg-blue-50 border-blue-200",
               badge: "bg-blue-100 text-blue-700",
-              icon: "🏭",
+              Icon: Building2,
               steps: [
                 "Complete KYC verification (GSTIN, PAN)",
                 "Upload bank proof & factory photos",
@@ -185,7 +186,7 @@ export default function SellPage() {
               title: "Create Strong Listings",
               color: "bg-violet-50 border-violet-200",
               badge: "bg-violet-100 text-violet-700",
-              icon: "📦",
+              Icon: Package,
               steps: [
                 "List 10+ products with full specs & MOQ",
                 "Include test certificates & grade details",
@@ -198,7 +199,7 @@ export default function SellPage() {
               title: "Respond Fast",
               color: "bg-amber-50 border-amber-200",
               badge: "bg-amber-100 text-amber-700",
-              icon: "⚡",
+              Icon: Zap,
               steps: [
                 "Reply to all buyer inquiries within 2 hours",
                 "Submit formal quotes with Incoterms",
@@ -211,7 +212,7 @@ export default function SellPage() {
               title: "Measure & Adjust",
               color: "bg-emerald-50 border-emerald-200",
               badge: "bg-emerald-100 text-emerald-700",
-              icon: "📊",
+              Icon: BarChart3,
               steps: [
                 "Review qualified lead count in dashboard",
                 "Check which listings generate most views",
@@ -224,7 +225,7 @@ export default function SellPage() {
               title: "Review & Renew",
               color: "bg-rose-50 border-rose-200",
               badge: "bg-rose-100 text-rose-700",
-              icon: "🔄",
+              Icon: RefreshCw,
               steps: [
                 "Calculate cost vs. leads generated",
                 "Upgrade to Growth plan if ROI positive",
@@ -238,7 +239,7 @@ export default function SellPage() {
               className={`rounded-2xl border p-4 ${phase.color}`}
             >
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">{phase.icon}</span>
+                <phase.Icon className="w-5 h-5 text-ink" />
                 <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${phase.badge}`}>
                   {phase.days}
                 </span>
@@ -256,10 +257,11 @@ export default function SellPage() {
           ))}
         </div>
 
-        {/* Product Listing Quality Checklist (Guide p. 35) */}
+        {/* Product Listing Quality Checklist */}
         <div className="bg-gradient-to-r from-[#0A1629] to-[#1a3366] rounded-2xl p-6 text-white">
           <h3 className="font-black text-[16px] mb-4 flex items-center gap-2">
-            ✅ Product Listing Quality Checklist
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            Product Listing Quality Checklist
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {[

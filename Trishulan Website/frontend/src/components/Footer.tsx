@@ -26,10 +26,10 @@ export default function Footer() {
             India's trusted industrial marketplace — connecting verified buyers and sellers across the country.
           </p>
           <div className="flex gap-[12px] mt-[24px]" suppressHydrationWarning>
-            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">in</button>
-            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">𝕏</button>
-            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">f</button>
-            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-gray-200/60 flex items-center justify-center text-[#475569] hover:bg-gray-300 transition-colors">▶</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-line/40 flex items-center justify-center text-muted hover:text-ink hover:bg-line transition-colors">in</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-line/40 flex items-center justify-center text-muted hover:text-ink hover:bg-line transition-colors">𝕏</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-line/40 flex items-center justify-center text-muted hover:text-ink hover:bg-line transition-colors">f</button>
+            <button suppressHydrationWarning className="w-[36px] h-[36px] rounded-[8px] bg-line/40 flex items-center justify-center text-muted hover:text-ink hover:bg-line transition-colors">▶</button>
           </div>
         </div>
         
@@ -92,7 +92,7 @@ export default function Footer() {
           <p className="text-[13px] text-[#64748B] mb-[16px]">Weekly market movements, straight to your inbox.</p>
           
           <div className="relative mb-[12px]">
-            <input suppressHydrationWarning type="email" placeholder="Work email" className="w-full px-[16px] py-[12px] rounded-[8px] border border-gray-300 bg-card text-ink text-[13px] outline-none focus:border-[#EA580C] transition-colors" />
+            <input suppressHydrationWarning type="email" placeholder="Work email" className="w-full px-[16px] py-[12px] rounded-[8px] border border-line bg-card text-ink text-[13px] outline-none focus:border-accent transition-colors" />
             <Mail className="absolute right-[14px] top-[14px] w-4 h-4 text-muted/70" />
           </div>
           

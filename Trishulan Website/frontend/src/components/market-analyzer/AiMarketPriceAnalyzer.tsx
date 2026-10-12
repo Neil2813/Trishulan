@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AlertCircle, Flag } from 'lucide-react';
 
 interface MarketRow {
   market: string;
@@ -99,11 +100,11 @@ export default function AiMarketPriceAnalyzer() {
       {/* Header Banner */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
-          <span>AI MARKET PRICE ANALYZER / ILLUSTRATIVE</span>
-          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Live Frankfurter FX & Yahoo Finance API)</span>}
+          <span>AI MARKET PRICE ANALYZER</span>
+          {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Live FX & commodity data)</span>}
         </h2>
-        <span className="text-[11px] bg-slate-200/80 px-2.5 py-0.5 rounded text-slate-700 font-mono font-medium">
-          Spec 2 View
+        <span className="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded font-semibold">
+          Live
         </span>
       </div>
 
@@ -158,8 +159,9 @@ export default function AiMarketPriceAnalyzer() {
         </form>
 
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -223,7 +225,7 @@ export default function AiMarketPriceAnalyzer() {
 
         {/* Spec Callout Box */}
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">Example Spec Scenario:</p>
+          <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
             "{data?.exampleCallout || 'Example: a user searches "SS316 sheet, 2 mm, 2B finish." The analyzer shows separate India, East Asia and Europe ranges, with currencies, unit, timestamp and source labels. AI explains that the numbers are not directly comparable until grade, tax, freight, quantity and delivery basis match. The sample values in the drawing are fictional.'}"
           </p>
@@ -235,9 +237,10 @@ export default function AiMarketPriceAnalyzer() {
             <h3 className="text-xs font-bold text-ink uppercase">Price Data Controls & Trust Labels</h3>
             <button
               onClick={() => setShowReportForm(!showReportForm)}
-              className="text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-1.5 rounded-lg border border-rose-200 transition"
+              className="text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-1.5 rounded-lg border border-rose-200 transition flex items-center gap-1.5"
             >
-              🚩 Report Incorrect Listing / Anomaly
+              <Flag className="w-3.5 h-3.5" />
+              <span>Report Incorrect Listing / Anomaly</span>
             </button>
           </div>
           <p className="text-xs text-muted leading-relaxed">
@@ -283,7 +286,7 @@ export default function AiMarketPriceAnalyzer() {
 
           {reportResult && (
             <div className={`p-3 rounded-lg text-xs font-mono border ${reportResult.error ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
-              {reportResult.error ? `⚠️ ${reportResult.error}` : `✓ ${reportResult.message} (Report ID: ${reportResult.report?.reportId})`}
+              {reportResult.error ? reportResult.error : `${reportResult.message} (Report ID: ${reportResult.report?.reportId})`}
             </div>
           )}
         </div>

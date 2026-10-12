@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { firebaseAuth, googleProvider, signInWithPopup } from '@/lib/firebase';
 import { UserRole } from '@/types';
+import { ShoppingCart, Building2 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -92,7 +93,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   : 'bg-card text-muted border-line hover:border-gray-300'
               }`}
             >
-              🛒 Buyer
+              <span className="inline-flex items-center gap-1.5"><ShoppingCart className="w-4 h-4" /> Buyer</span>
             </button>
             <button
               type="button"
@@ -103,7 +104,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   : 'bg-card text-muted border-line hover:border-gray-300'
               }`}
             >
-              🏭 Seller
+              <span className="inline-flex items-center gap-1.5"><Building2 className="w-4 h-4" /> Seller</span>
             </button>
           </div>
         </div>

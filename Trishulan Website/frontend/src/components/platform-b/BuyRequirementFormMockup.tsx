@@ -45,7 +45,7 @@ export default function BuyRequirementFormMockup() {
       <div>
         <span className="text-[11px] font-bold text-accent uppercase tracking-wider">LIVE INTERACTIVE MODULE</span>
         <h2 className="text-xl font-black text-ink mt-0.5">
-          Feature example: what the screen can show
+          Post a buy requirement and request quotations
         </h2>
       </div>
 

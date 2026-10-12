@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Alata&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
@@ -20,6 +22,10 @@
   --font-inter: 'Inter', system-ui, sans-serif;
   --font-manrope: 'Manrope', sans-serif;
   --font-alata: 'Alata', sans-serif;
+
+  --shadow-xs: 0 1px 2px 0 rgb(10 25 47 / 0.06);
+  --shadow-2xs: 0 1px 1px 0 rgb(10 25 47 / 0.04), 0 1px 2px -1px rgb(10 25 47 / 0.04);
+  --backdrop-blur-xs: blur(2px);
 }
 
 :root {
@@ -47,33 +53,31 @@
   --shadow-lg: 0 20px 40px rgba(10, 25, 47, 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Blue, Orange, Green Dark Mode Variables */
-    --ink: #F8FAFC;          /* Light Blue-White */
-    --ink-2: #E2E8F0;        /* Soft Blue-White */
-    --body: #CBD5E1;         /* Muted Light Blue */
-    --muted: #94A3B8;        /* Muted Blue */
-    --accent: #F97316;       /* Orange 500 */
-    --accent-2: #FB923C;     /* Orange 400 */
-    --bg: #0A192F;           /* Deep Navy Blue */
-    --card: #112240;         /* Dark Blue Card */
-    --line: #233554;         /* Border Blue */
-    --line-2: #495670;       /* Lighter Border Blue */
-    
-    --up: #10B981;
-    --up-bg: rgba(16, 185, 129, 0.2);
-    --down: #F97316;
-    --down-bg: rgba(249, 115, 22, 0.2);
-    
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.7);
-  }
+.dark {
+  /* Class-based Dark Mode Variables */
+  --ink: #F8FAFC;          /* Light Blue-White */
+  --ink-2: #E2E8F0;        /* Soft Blue-White */
+  --body: #CBD5E1;         /* Muted Light Blue */
+  --muted: #94A3B8;        /* Muted Blue */
+  --accent: #F97316;       /* Orange 500 */
+  --accent-2: #FB923C;     /* Orange 400 */
+  --bg: #0A192F;           /* Deep Navy Blue */
+  --card: #112240;         /* Dark Blue Card */
+  --line: #233554;         /* Border Blue */
+  --line-2: #495670;       /* Lighter Border Blue */
+  
+  --up: #10B981;
+  --up-bg: rgba(16, 185, 129, 0.2);
+  --down: #F97316;
+  --down-bg: rgba(249, 115, 22, 0.2);
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.7);
 }
 
 html {
-  /* Allow natural color scheme switching */
+  color-scheme: light;
 }
 
 body {
@@ -88,11 +92,13 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-manrope);
-  color: var(--ink);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-manrope);
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
 }
 
 .wrap {

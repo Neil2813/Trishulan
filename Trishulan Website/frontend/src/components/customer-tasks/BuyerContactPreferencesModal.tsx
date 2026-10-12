@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface BuyerContactPreferencesModalProps {
   rfqId?: string;
@@ -70,10 +71,10 @@ export default function BuyerContactPreferencesModal({
 
   return (
     <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-4xl w-full mx-auto my-6 font-sans">
-      {/* Top Illustrative Header Banner */}
+      {/* Header Banner */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-emerald-800 uppercase">
-          BUYER CONTACT PREFERENCES / ILLUSTRATIVE
+          BUYER CONTACT PREFERENCES
         </h2>
         {onClose && (
           <button
@@ -190,7 +191,7 @@ export default function BuyerContactPreferencesModal({
         {submissionResult && (
           <div className={`p-4 rounded-xl text-xs font-mono border ${submissionResult.error ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
             {submissionResult.error ? (
-              <p>⚠️ {submissionResult.error}</p>
+              <p className="flex items-center gap-1.5"><AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /><span>{submissionResult.error}</span></p>
             ) : (
               <div>
                 <p className="font-bold text-emerald-800">✓ Express Backend Recorded Consent Record #{submissionResult.consentRecord?.id || 'OK'}:</p>

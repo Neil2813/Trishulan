@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 
 interface WorkspaceData {
   buyerWorkspace?: {
@@ -66,21 +67,23 @@ export default function CustomerTasksDashboardWorkspace({
       {/* Header Bar */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
-          <span>CUSTOMER HOME / BUYER AND SELLER TASKS / ILLUSTRATIVE</span>
+          <span>CUSTOMER HOME / BUYER AND SELLER TASKS</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
         <button
           onClick={fetchWorkspaceData}
-          className="text-xs font-bold bg-card hover:bg-line/30 border border-line px-3 py-1 rounded-lg text-slate-800 shadow-sm transition"
+          className="text-xs font-bold bg-card hover:bg-line/30 border border-line px-3 py-1 rounded-lg text-slate-800 shadow-sm transition flex items-center gap-1.5"
         >
-          🔄 Refresh Backend State
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh Backend State</span>
         </button>
       </div>
 
       <div className="p-6 space-y-6">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 

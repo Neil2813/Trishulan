@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, UserRole } from '@/types';
 import DigitalIDCard from '@/components/DigitalIDCard';
+import { IdCard, CreditCard, FileCheck, Camera, CheckCircle2 } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -164,25 +165,25 @@ export default function ProfilePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <span className="text-2xl block mb-1">🪪</span>
+              <div className="flex justify-center mb-1"><IdCard className="w-6 h-6 text-accent" /></div>
               <span className="text-xs font-bold text-ink block">AADHAR Card</span>
               <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
             </div>
 
             <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <span className="text-2xl block mb-1">💳</span>
+              <div className="flex justify-center mb-1"><CreditCard className="w-6 h-6 text-accent" /></div>
               <span className="text-xs font-bold text-ink block">PAN Card</span>
               <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
             </div>
 
             <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <span className="text-2xl block mb-1">📜</span>
+              <div className="flex justify-center mb-1"><FileCheck className="w-6 h-6 text-accent" /></div>
               <span className="text-xs font-bold text-ink block">GST Certificate</span>
               <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
             </div>
 
             <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <span className="text-2xl block mb-1">📷</span>
+              <div className="flex justify-center mb-1"><Camera className="w-6 h-6 text-accent" /></div>
               <span className="text-xs font-bold text-ink block">Photo Selfie</span>
               <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
             </div>
@@ -197,8 +198,9 @@ export default function ProfilePage() {
           </div>
 
           {message && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 text-xs rounded-xl font-bold">
-              ✅ {message}
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 text-xs rounded-xl font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+              <span>{message}</span>
             </div>
           )}
 

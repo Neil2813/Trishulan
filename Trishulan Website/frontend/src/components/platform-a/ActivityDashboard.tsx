@@ -51,10 +51,10 @@ export default function ActivityDashboard() {
       {/* Title Header */}
       <div>
         <h2 className="text-xl font-black text-ink">
-          Illustrative activity dashboard
+          Activity dashboard
         </h2>
         <p className="text-xs text-[#64748B] font-medium mt-1">
-          Sample activity counts only; actual dashboards and available metrics vary by plan. Connected to Express backend metrics endpoint.
+          Activity counts shown; available metrics vary by subscription plan. Connected to Express backend metrics endpoint.
         </p>
       </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface ShipmentTowerData {
   activeShipments: number;
@@ -58,8 +59,9 @@ export default function ShipmentControlTower() {
 
       <div className="p-6 space-y-6">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -189,7 +191,7 @@ export default function ShipmentControlTower() {
 
         {/* Spec Callout Box */}
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">Example Spec Scenario:</p>
+          <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
             "{data?.exampleText || 'Example end-to-end shipment: after the buyer accepts a supplier quote, the seller converts the order into a shipment request with pallet dimensions and delivery window. The system compares carriers, the buyer approves a quote, the selected provider confirms the vehicle, pickup and delivery events update the shared timeline, and a photo/signature proof of delivery closes the shipment. An extra-charge alert sends the final invoice to a review queue.'}"
           </p>

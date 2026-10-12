@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface TransportQuote {
   id: string;
@@ -54,7 +55,7 @@ export default function TransportShipmentSupport() {
       {/* Header Banner */}
       <div className="bg-card px-6 py-3.5 border-b border-line flex justify-between items-center">
         <h2 className="text-xs font-bold tracking-widest text-ink uppercase flex items-center gap-2">
-          <span>4. TRANSPORT AND SHIPMENT SUPPORT / ILLUSTRATIVE</span>
+          <span>4. TRANSPORT AND SHIPMENT SUPPORT</span>
           {loading && <span className="text-[10px] text-sky-600 font-normal animate-pulse">(Connecting to Express backend...)</span>}
         </h2>
         <span className="text-[11px] bg-slate-200/80 px-2.5 py-0.5 rounded text-slate-700 font-mono font-medium">
@@ -64,8 +65,9 @@ export default function TransportShipmentSupport() {
 
       <div className="p-6 space-y-6">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg">
-            ⚠️ {error}
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 

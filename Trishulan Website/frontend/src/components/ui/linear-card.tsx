@@ -452,8 +452,6 @@ const Component = forwardRef<HTMLDivElement, ComponentProps>(({ items }, ref) =>
                     >
                       <p className='mt-3 text-zinc-600 leading-relaxed text-[15px]'>
                         {item.description}
-                        <br/><br/>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                       </p>
                       <button className="mt-8 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
                         Learn More

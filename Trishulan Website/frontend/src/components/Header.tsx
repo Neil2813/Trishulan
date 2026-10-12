@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import AuthModal from './AuthModal';
 import MegaMenu from './MegaMenu';
 import SearchToolsModal from './SearchToolsModal';
 import ServicePointsModal from './ServicePointsModal';
 import { User } from '@/types';
-import { MapPin, Search, Bell } from 'lucide-react';
+import { MapPin, Search, Bell, ClipboardList, Shield, FileText, QrCode, X } from 'lucide-react';
 
 export default function Header() {
+  const router = useRouter();
   const pathname = usePathname();
   const isLandingPage = pathname === "/";
 
@@ -22,6 +23,7 @@ export default function Header() {
   const [searchToolsTab, setSearchToolsTab] = useState<'barcode' | 'image' | 'voice' | 'hsn'>('barcode');
   const [isServicePointsOpen, setIsServicePointsOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'Price Alert: Steel Rebar 12mm', text: 'Spot prices dropped by 1.2% in Maharashtra mandi.', time: '10m ago', unread: true },
@@ -100,202 +102,259 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Mega Menu Toggle */}
+            {/* Internal Utility & Secondary Links (Hidden on Landing Page for a clean hero experience) */}
             {!isLandingPage && (
-              <button
-                suppressHydrationWarning
-                onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-                className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-line/50 hover:bg-line text-[13px] font-bold text-ink transition-all"
-              >
-                <span>Categories</span>
-                <span className="text-xs">{isMegaMenuOpen ? '▲' : '▼'}</span>
-              </button>
+              <>
+                {/* Mega Menu Toggle */}
+                <button
+                  suppressHydrationWarning
+                  onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
+                  className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-line/50 hover:bg-line text-[13px] font-bold text-ink transition-all"
+                >
+                  <span>Categories</span>
+                  <span className="text-xs">{isMegaMenuOpen ? '▲' : '▼'}</span>
+                </button>
+
+                {/* Trishulan Service Points Button */}
+                <button
+                  suppressHydrationWarning
+                  onClick={() => setIsServicePointsOpen(true)}
+                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent text-[12px] font-bold border border-accent/20 transition-all"
+                  title="View physical Trishulan Service Point Locations"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Service Points</span>
+                </button>
+
+                {/* Customer Tasks & Contact Preferences Workspace Link */}
+                <Link
+                  href="/customer-workspace"
+                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-line/30 hover:bg-line/50 text-ink text-[12px] font-bold border border-line transition-all"
+                  title="Customer Tasks Dashboard & Buyer Contact Preferences"
+                >
+                  <ClipboardList className="w-3.5 h-3.5" />
+                  <span>Workspace</span>
+                </Link>
+
+                {/* Health Insurance Access */}
+                <Link
+                  href="/insurance"
+                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[12px] font-bold border border-rose-500/20 transition-all"
+                  title="Health Insurance Access for Industrial Workers"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Insurance</span>
+                </Link>
+
+                {/* Billing & Operations */}
+                <Link
+                  href="/operations"
+                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[12px] font-bold border border-emerald-500/20 transition-all"
+                  title="Billing, Inventory & Business Accounts"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Operations</span>
+                </Link>
+              </>
             )}
-
-            {/* Trishulan Service Points Button */}
-            <button
-              suppressHydrationWarning
-              onClick={() => setIsServicePointsOpen(true)}
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent text-[12px] font-bold border border-accent/20 transition-all"
-              title="View physical Trishulan Service Point Locations"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              <span>Service Points</span>
-            </button>
-
-            {/* Customer Tasks & Contact Preferences Workspace Link */}
-            <Link
-              href="/customer-workspace"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-line/30 hover:bg-line/50 text-ink text-[12px] font-bold border border-line transition-all"
-              title="Customer Tasks Dashboard & Buyer Contact Preferences"
-            >
-              <span>📋</span>
-              <span>Workspace</span>
-            </Link>
-
-            {/* NEW: Health Insurance Access */}
-            <Link
-              href="/insurance"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[12px] font-bold border border-rose-200 transition-all"
-              title="Health Insurance Access for Industrial Workers"
-            >
-              <span>🛡️</span>
-              <span>Insurance</span>
-            </Link>
-
-            {/* NEW: Billing & Operations */}
-            <Link
-              href="/operations"
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[12px] font-bold border border-emerald-200 transition-all"
-              title="Billing, Inventory & Business Accounts"
-            >
-              <span>📑</span>
-              <span>Operations</span>
-            </Link>
           </div>
 
 
-          {/* Search Bar */}
-          {!isLandingPage && (
-            <div className="flex-1 max-w-[560px] mx-[16px] relative hidden md:block">
-              <div className="flex border-[1.5px] border-line bg-bg rounded-[9px] overflow-hidden transition focus-within:border-ink">
-                <input
-                  suppressHydrationWarning
-                  id="hdSearch"
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  placeholder="Search by name, company, HSN code or barcode…"
-                  className="flex-1 border-none outline-none px-[14px] min-w-0 bg-transparent text-[13.5px] text-ink"
-                  autoComplete="off"
-                />
-                
-                {/* Search Tools Trigger Button */}
-                <button
-                  suppressHydrationWarning
-                  type="button"
-                  onClick={() => openTools('barcode')}
-                  className="px-3 text-[12px] font-bold text-body hover:text-ink bg-line/50 border-l border-line flex items-center gap-1.5 transition-colors"
-                  title="Search via Barcode scanner, Image dropzone or Voice"
-                >
-                  <span className="w-2 h-2 rounded-full bg-accent"></span>
-                  <span>Tools</span>
-                </button>
-
-                <button
-                  suppressHydrationWarning
-                  onClick={() => handleSearch(searchQuery)}
-                  className="bg-ink text-bg px-[18px] text-[12.5px] font-semibold hover:bg-opacity-90"
-                  aria-label="Search"
-                >
-                  Search
-                </button>
+          {/* Inline Search Bar */}
+          <div className="flex-1 max-w-[540px] mx-[16px] relative hidden md:block">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  router.push(`/platform-a?query=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
+              className="flex items-center border-[1.5px] border-line bg-bg hover:border-ink/40 focus-within:border-ink rounded-[10px] overflow-hidden transition-all shadow-sm"
+            >
+              <div className="pl-3.5 pr-1 text-muted">
+                <Search className="w-4 h-4 shrink-0" />
               </div>
-
-              {/* Search Auto-complete Dropdown */}
-              {searchQuery.trim() && (
-                <div className="absolute top-[48px] left-0 right-0 bg-card rounded-2xl border border-line shadow-2xl p-4 z-50 animate-[fadeIn_0.15s_ease]">
-                  <div className="text-[11px] font-bold text-muted uppercase mb-2">Instant Search Results</div>
-                  {isSearching ? (
-                    <div className="text-xs text-muted py-2">Searching live listings...</div>
-                  ) : searchResults.length > 0 ? (
-                    <div className="space-y-2">
-                      {searchResults.map((item) => (
-                        <Link 
-                          key={item.id} 
-                          href={`/listings/${item.id}`}
-                          onClick={() => setSearchQuery('')}
-                          className="flex items-center justify-between p-2 rounded-lg hover:bg-line/50 transition-colors"
-                        >
-                          <div>
-                            <div className="text-[13.5px] font-bold text-ink">{item.title}</div>
-                            <div className="text-[11px] text-muted">{item.category} • {item.location}</div>
-                          </div>
-                          <span className="text-xs font-bold text-accent">₹{item.price.toLocaleString('en-IN')} / {item.unit}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-muted py-2">No matching listings found.</div>
-                  )}
-                </div>
+              <input
+                suppressHydrationWarning
+                id="hdSearch"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search products, HSN codes, suppliers…"
+                className="flex-1 border-none outline-none py-2 px-2 min-w-0 bg-transparent text-[13.5px] text-ink placeholder:text-muted"
+                autoComplete="off"
+              />
+              
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSearchResults([]);
+                  }}
+                  className="p-1 text-muted hover:text-ink transition-colors mr-1"
+                  title="Clear"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
-            </div>
-          )}
+
+              {/* Search Tools Trigger Button */}
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => openTools('barcode')}
+                className="px-3 py-2 text-[12px] font-bold text-body hover:text-ink bg-line/40 hover:bg-line/70 border-l border-line flex items-center gap-1.5 transition-colors shrink-0"
+                title="Search via Barcode scanner, Image dropzone, Voice or HSN"
+              >
+                <span>Tools</span>
+              </button>
+
+              <button
+                suppressHydrationWarning
+                type="submit"
+                className="bg-ink text-bg px-[16px] py-2 text-[12.5px] font-semibold hover:bg-opacity-90 shrink-0 transition-opacity"
+                aria-label="Search"
+              >
+                Search
+              </button>
+            </form>
+
+            {/* Instant Search Auto-complete Dropdown */}
+            {searchQuery.trim() && (
+              <div className="absolute top-[46px] left-0 right-0 bg-card rounded-2xl border border-line shadow-2xl p-3 z-50 animate-[fadeIn_0.15s_ease]">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-line text-[11px] font-bold text-muted uppercase">
+                  <span>Instant Matches</span>
+                  <span className="text-[10px] text-accent">Press Enter to search all</span>
+                </div>
+                {isSearching ? (
+                  <div className="text-xs text-muted py-2 px-1">Searching live listings...</div>
+                ) : searchResults.length > 0 ? (
+                  <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                    {searchResults.map((item) => (
+                      <Link 
+                        key={item.id} 
+                        href={`/listings/${item.id}`}
+                        onClick={() => setSearchQuery('')}
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-line/50 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1 mr-2">
+                          <div className="text-[13.5px] font-bold text-ink truncate">{item.title}</div>
+                          <div className="text-[11px] text-muted truncate">{item.category} • {item.location}</div>
+                        </div>
+                        <span className="text-xs font-bold text-accent shrink-0">₹{item.price?.toLocaleString('en-IN')} / {item.unit}</span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs text-muted py-2 px-1">
+                    No direct listing matches found.
+                  </div>
+                )}
+                
+                <div className="pt-2 mt-2 border-t border-line">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (searchQuery.trim()) {
+                        router.push(`/platform-a?query=${encodeURIComponent(searchQuery.trim())}`);
+                        setSearchQuery('');
+                      }
+                    }}
+                    className="text-xs font-bold text-accent hover:underline flex items-center gap-1 w-full text-left"
+                  >
+                    <span>View all supplier quotes &amp; results for &quot;{searchQuery}&quot; →</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Right Action Bar */}
           <div className="flex items-center gap-[8px] shrink-0">
 
-            {/* Mobile Search Tool Trigger */}
+            {/* Mobile Search Tools Trigger */}
             <button
               suppressHydrationWarning
               onClick={() => openTools('barcode')}
               className="relative w-[36px] h-[36px] rounded-[9px] bg-transparent border border-line flex items-center justify-center text-ink transition hover:bg-line md:hidden"
               title="Search Tools"
             >
+              <QrCode className="w-4 h-4 text-accent" />
+            </button>
+
+            {/* Mobile Inline Search Toggle */}
+            <button
+              suppressHydrationWarning
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="relative w-[36px] h-[36px] rounded-[9px] bg-transparent border border-line flex items-center justify-center text-ink transition hover:bg-line md:hidden"
+              title="Search"
+            >
               <Search className="w-4 h-4 text-ink" />
             </button>
 
-            {/* Notifications Icon Button & Drawer */}
-            <div className="relative">
-              <button
-                suppressHydrationWarning
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="relative w-[36px] h-[36px] rounded-[9px] bg-transparent border border-line flex items-center justify-center text-ink transition hover:bg-line"
-                title="Notifications"
-              >
-                <Bell className="w-4 h-4 text-ink" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] rounded-full bg-accent text-bg font-bold text-[10px] flex items-center justify-center px-1 animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
+            {/* Notifications Icon Button & Drawer (Hidden on Landing Page unless authenticated) */}
+            {(!isLandingPage || user) && (
+              <div className="relative">
+                <button
+                  suppressHydrationWarning
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  className="relative w-[36px] h-[36px] rounded-[9px] bg-transparent border border-line flex items-center justify-center text-ink transition hover:bg-line"
+                  title="Notifications"
+                >
+                  <Bell className="w-4 h-4 text-ink" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] rounded-full bg-accent text-bg font-bold text-[10px] flex items-center justify-center px-1 animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
 
-              {/* Notifications Dropdown Panel */}
-              {isNotificationsOpen && (
-                <div className="absolute right-0 top-[46px] w-[320px] sm:w-[360px] bg-card rounded-2xl border border-line shadow-2xl z-50 p-4 animate-[fadeIn_0.15s_ease]">
-                  <div className="flex items-center justify-between pb-3 border-b border-line mb-2">
-                    <h4 className="font-extrabold text-[14px] text-ink">Notifications</h4>
-                    <button
-                      suppressHydrationWarning
-                      onClick={() => setNotifications(notifications.map(n => ({ ...n, unread: false })))}
-                      className="text-[11px] font-bold text-accent hover:underline"
-                    >
-                      Mark all as read
-                    </button>
-                  </div>
-
-                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                    {notifications.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`p-3 rounded-xl border text-xs transition-colors ${
-                          item.unread
-                            ? 'bg-accent/10 border-accent/20 text-ink'
-                            : 'bg-bg border-line text-body'
-                        }`}
+                {/* Notifications Dropdown Panel */}
+                {isNotificationsOpen && (
+                  <div className="absolute right-0 top-[46px] w-[320px] sm:w-[360px] bg-card rounded-2xl border border-line shadow-2xl z-50 p-4 animate-[fadeIn_0.15s_ease]">
+                    <div className="flex items-center justify-between pb-3 border-b border-line mb-2">
+                      <h4 className="font-extrabold text-[14px] text-ink">Notifications</h4>
+                      <button
+                        suppressHydrationWarning
+                        onClick={() => setNotifications(notifications.map(n => ({ ...n, unread: false })))}
+                        className="text-[11px] font-bold text-accent hover:underline"
                       >
-                        <div className="flex items-center justify-between font-bold mb-1">
-                          <span className="text-[12px]">{item.title}</span>
-                          <span className="text-[10px] text-muted font-normal">{item.time}</span>
-                        </div>
-                        <p className="text-[11px] leading-snug">{item.text}</p>
-                      </div>
-                    ))}
-                  </div>
+                        Mark all as read
+                      </button>
+                    </div>
 
-                  <div className="mt-3 pt-2 border-t border-line text-center">
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setIsNotificationsOpen(false)}
-                      className="text-[11px] font-bold text-ink hover:underline"
-                    >
-                      View All Alerts in Dashboard →
-                    </Link>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                      {notifications.map((item) => (
+                        <div
+                          key={item.id}
+                          className={`p-3 rounded-xl border text-xs transition-colors ${
+                            item.unread
+                              ? 'bg-accent/10 border-accent/20 text-ink'
+                              : 'bg-bg border-line text-body'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between font-bold mb-1">
+                            <span className="text-[12px]">{item.title}</span>
+                            <span className="text-[10px] text-muted font-normal">{item.time}</span>
+                          </div>
+                          <p className="text-[11px] leading-snug">{item.text}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-line text-center">
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="text-[11px] font-bold text-ink hover:underline"
+                      >
+                        View All Alerts in Dashboard →
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Authentication Buttons */}
             {user ? (
@@ -324,10 +383,48 @@ export default function Header() {
 
         </div>
 
-        {/* Collapsible Mega Menu */}
-        {!isLandingPage && (
-          <MegaMenu isOpen={isMegaMenuOpen} onClose={() => setIsMegaMenuOpen(false)} />
+        {/* Mobile Inline Search Dropdown */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden px-4 py-2.5 bg-card border-t border-line animate-[fadeIn_0.15s_ease]">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  router.push(`/platform-a?query=${encodeURIComponent(searchQuery.trim())}`);
+                  setIsMobileSearchOpen(false);
+                }
+              }}
+              className="flex items-center border border-line bg-bg rounded-lg overflow-hidden"
+            >
+              <input
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search products, HSN codes…"
+                className="flex-1 px-3 py-2 text-xs bg-transparent text-ink outline-none"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  openTools('barcode');
+                  setIsMobileSearchOpen(false);
+                }}
+                className="px-2.5 py-2 text-[11px] font-bold text-body border-l border-line bg-line/40"
+              >
+                Tools
+              </button>
+              <button
+                type="submit"
+                className="px-3 py-2 bg-ink text-bg font-semibold text-xs"
+              >
+                Search
+              </button>
+            </form>
+          </div>
         )}
+
+        {/* Collapsible Mega Menu */}
+        <MegaMenu isOpen={isMegaMenuOpen} onClose={() => setIsMegaMenuOpen(false)} />
       </header>
 
       {/* Auth Modal */}

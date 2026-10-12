@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function CorporatePage() {
   const [submitted, setSubmitted] = useState(false);
@@ -27,7 +28,9 @@ export default function CorporatePage() {
 
         {submitted ? (
           <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center text-emerald-900">
-            <div className="text-3xl mb-2">✅</div>
+            <div className="flex justify-center mb-2">
+              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            </div>
             <h3 className="font-extrabold text-[18px]">Consultation Request Submitted</h3>
             <p className="text-xs text-emerald-700 mt-1">
               Our legal administration team will contact you within 4 hours with government fee breakdowns & filing details.

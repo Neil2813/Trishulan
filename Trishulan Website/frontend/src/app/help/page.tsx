@@ -15,13 +15,18 @@ import {
   Clock,
   ArrowRight,
   Headphones,
+  UserCheck,
+  Package,
+  ClipboardList,
+  Truck,
+  DollarSign,
+  Shield,
 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
 
 const HELP_CATEGORIES = [
   {
-    icon: "👤",
+    Icon: UserCheck,
     title: "Account & KYC",
     articles: [
       "How to complete KYC verification",
@@ -32,7 +37,7 @@ const HELP_CATEGORIES = [
     href: "/kyc",
   },
   {
-    icon: "📦",
+    Icon: Package,
     title: "Listings & Catalogue",
     articles: [
       "How to create a product listing",
@@ -43,7 +48,7 @@ const HELP_CATEGORIES = [
     href: "/sell",
   },
   {
-    icon: "📋",
+    Icon: ClipboardList,
     title: "RFQ & Quoting",
     articles: [
       "How to post a buyer requirement",
@@ -54,7 +59,7 @@ const HELP_CATEGORIES = [
     href: "/rfq",
   },
   {
-    icon: "🚚",
+    Icon: Truck,
     title: "Orders & Logistics",
     articles: [
       "Tracking an active shipment",
@@ -65,7 +70,7 @@ const HELP_CATEGORIES = [
     href: "/logistics",
   },
   {
-    icon: "💰",
+    Icon: DollarSign,
     title: "Billing & Invoicing",
     articles: [
       "Creating a tax invoice (CGST/SGST/IGST)",
@@ -76,7 +81,7 @@ const HELP_CATEGORIES = [
     href: "/operations",
   },
   {
-    icon: "🛡️",
+    Icon: Shield,
     title: "Platform Safety",
     articles: [
       "9-step supplier verification process",
@@ -159,7 +164,6 @@ export default function HelpPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Header />
 
       {/* ── Hero Search ──────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-[#0A1629] to-[#1a3366] text-white pt-24 pb-16 px-6 relative overflow-hidden">
@@ -375,7 +379,7 @@ export default function HelpPage() {
                 key={i}
                 className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-all"
               >
-                <div className="text-2xl mb-3">{cat.icon}</div>
+                <cat.Icon className="w-6 h-6 text-[#EA580C] mb-3" />
                 <h3 className="font-black text-[15px] text-ink mb-3">{cat.title}</h3>
                 <ul className="space-y-2 mb-4">
                   {cat.articles.map((article, j) => (
@@ -449,7 +453,6 @@ export default function HelpPage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 }

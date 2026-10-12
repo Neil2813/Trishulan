@@ -16,8 +16,7 @@ import {
   ChevronUp,
   Zap,
 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Plan {
@@ -203,7 +202,6 @@ export default function InsurancePage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#0A1629] via-[#0f2044] to-[#1a3366] text-white pt-24 pb-20 px-6">
@@ -660,7 +658,6 @@ export default function InsurancePage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 }

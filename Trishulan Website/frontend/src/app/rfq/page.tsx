@@ -62,7 +62,7 @@ export default function RFQPage() {
         
         {/* Page 5 Header: Post Requirement option & Let Us Provide You Verified Sellers */}
         <div className="text-center mb-8">
-          <span className="text-[11px] font-bold text-accent uppercase tracking-[.14em]">PAGE 5 SPECIFICATION</span>
+          <span className="text-[11px] font-bold text-accent uppercase tracking-[.14em]">Request for Quotation</span>
           <h1 className="text-[28px] font-black text-ink mt-0.5">Post Requirement Option</h1>
           <p className="text-[14px] text-teal-600 font-bold mt-1">
             Let Us Provide You Verified Sellers

@@ -26,14 +26,14 @@ export default function MarketPricesPage() {
   ];
 
   const countryPrices = [
-    { country: 'USA 🇺🇸', priceUSD: 720, priceINR: 60480, change: '+1.2%', lastUpdated: '17 Sep 2026, 10:30 AM' },
-    { country: 'China 🇨🇳', priceUSD: 660, priceINR: 55440, change: '+0.9%', lastUpdated: '17 Sep 2026, 10:29 AM' },
-    { country: 'Japan 🇯🇵', priceUSD: 690, priceINR: 57960, change: '+1.0%', lastUpdated: '17 Sep 2026, 10:25 AM' },
-    { country: 'Germany 🇩🇪', priceUSD: 770, priceINR: 64680, change: '+1.3%', lastUpdated: '17 Sep 2026, 10:20 AM' },
-    { country: 'UK 🇬🇧', priceUSD: 740, priceINR: 62160, change: '+1.1%', lastUpdated: '17 Sep 2026, 10:18 AM' },
-    { country: 'UAE 🇦🇪', priceUSD: 680, priceINR: 57120, change: '+0.8%', lastUpdated: '17 Sep 2026, 10:15 AM' },
-    { country: 'Saudi Arabia 🇸🇦', priceUSD: 640, priceINR: 53760, change: '+0.7%', lastUpdated: '17 Sep 2026, 10:12 AM' },
-    { country: 'Australia 🇦🇺', priceUSD: 750, priceINR: 63000, change: '+1.4%', lastUpdated: '17 Sep 2026, 10:10 AM' },
+    { country: 'USA', priceUSD: 720, priceINR: 60480, change: '+1.2%', lastUpdated: '17 Sep 2026, 10:30 AM' },
+    { country: 'China', priceUSD: 660, priceINR: 55440, change: '+0.9%', lastUpdated: '17 Sep 2026, 10:29 AM' },
+    { country: 'Japan', priceUSD: 690, priceINR: 57960, change: '+1.0%', lastUpdated: '17 Sep 2026, 10:25 AM' },
+    { country: 'Germany', priceUSD: 770, priceINR: 64680, change: '+1.3%', lastUpdated: '17 Sep 2026, 10:20 AM' },
+    { country: 'UK', priceUSD: 740, priceINR: 62160, change: '+1.1%', lastUpdated: '17 Sep 2026, 10:18 AM' },
+    { country: 'UAE', priceUSD: 680, priceINR: 57120, change: '+0.8%', lastUpdated: '17 Sep 2026, 10:15 AM' },
+    { country: 'Saudi Arabia', priceUSD: 640, priceINR: 53760, change: '+0.7%', lastUpdated: '17 Sep 2026, 10:12 AM' },
+    { country: 'Australia', priceUSD: 750, priceINR: 63000, change: '+1.4%', lastUpdated: '17 Sep 2026, 10:10 AM' },
   ];
 
   return (
@@ -46,7 +46,7 @@ export default function MarketPricesPage() {
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-bold text-accent uppercase tracking-[.16em]">PAGE 4 REFERENCE SPECIFICATION</span>
+              <span className="text-[11px] font-bold text-accent uppercase tracking-[.16em]">Live Market Intelligence</span>
               <h1 className="text-[28px] md:text-[36px] font-black text-ink mt-1">Market Price Today</h1>
               <p className="text-[13.5px] text-[#64748B] font-medium mt-1 max-w-xl">
                 Get real-time and average market prices of any product across Indian states and global countries. Search, compare, and make better business decisions.

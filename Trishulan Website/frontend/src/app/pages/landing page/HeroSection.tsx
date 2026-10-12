@@ -42,7 +42,7 @@ export default function HeroSection() {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="text-[36px] sm:text-[42px] md:text-[56px] lg:text-[72px] xl:text-[80px] leading-[1.05] font-black text-[#0A192F] mb-[24px] tracking-tight whitespace-nowrap drop-shadow-md"
             >
-              BUY, SELL & GROW <br />
+              <span className="text-[#0A192F]">BUY, SELL &amp; GROW</span> <br />
               <span className="text-[#0A7B3E]">ON ONE PLATFORM</span>
             </motion.h1>
 
@@ -87,4 +87,3 @@ export default function HeroSection() {
     </div>
   );
 }
-
