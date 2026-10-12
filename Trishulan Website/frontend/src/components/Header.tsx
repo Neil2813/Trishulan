@@ -169,54 +169,13 @@ export default function Header() {
                 <button
                   suppressHydrationWarning
                   onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-                  className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-line/50 hover:bg-line text-[13px] font-bold text-ink transition-all"
+                  className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-line/50 hover:bg-line text-[13px] font-bold text-ink transition-all cursor-pointer"
                   title="Browse all platform pages and modules"
                 >
                   <LayoutGrid className="w-3.5 h-3.5 text-accent" />
                   <span>Pages</span>
                   <span className="text-xs">{isMegaMenuOpen ? '▲' : '▼'}</span>
                 </button>
-
-                {/* Trishulan Service Points Button */}
-                <button
-                  suppressHydrationWarning
-                  onClick={() => setIsServicePointsOpen(true)}
-                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent text-[12px] font-bold border border-accent/20 transition-all"
-                  title="View physical Trishulan Service Point Locations"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>Service Points</span>
-                </button>
-
-                {/* Customer Tasks & Contact Preferences Workspace Link */}
-                <Link
-                  href="/customer-workspace"
-                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-line/30 hover:bg-line/50 text-ink text-[12px] font-bold border border-line transition-all"
-                  title="Customer Tasks Dashboard & Buyer Contact Preferences"
-                >
-                  <ClipboardList className="w-3.5 h-3.5" />
-                  <span>Workspace</span>
-                </Link>
-
-                {/* Health Insurance Access */}
-                <Link
-                  href="/insurance"
-                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[12px] font-bold border border-rose-500/20 transition-all"
-                  title="Health Insurance Access for Industrial Workers"
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>Insurance</span>
-                </Link>
-
-                {/* Billing & Operations */}
-                <Link
-                  href="/operations"
-                  className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[12px] font-bold border border-emerald-500/20 transition-all"
-                  title="Billing, Inventory & Business Accounts"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Operations</span>
-                </Link>
               </>
             )}
           </div>
@@ -535,7 +494,11 @@ export default function Header() {
         )}
 
         {/* Collapsible Mega Menu */}
-        <MegaMenu isOpen={isMegaMenuOpen} onClose={() => setIsMegaMenuOpen(false)} />
+        <MegaMenu 
+          isOpen={isMegaMenuOpen} 
+          onClose={() => setIsMegaMenuOpen(false)} 
+          onOpenServicePoints={() => setIsServicePointsOpen(true)}
+        />
       </header>
 
       {/* Auth Modal */}

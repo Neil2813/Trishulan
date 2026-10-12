@@ -14,6 +14,7 @@ import {
 interface MegaMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenServicePoints?: () => void;
 }
 
 const pageSections = [
@@ -41,19 +42,20 @@ const pageSections = [
     title: 'Procurement & Logistics',
     icon: Truck,
     pages: [
-      { name: 'Logistics & Fleet', desc: 'Freight, packing & dispatch', href: '/logistics' },
+      { name: 'Customer Workspace', desc: 'Buyer tasks, inquiries & preferences', href: '/customer-workspace' },
+      { name: 'Service Points', desc: 'Physical inspection, dispute & escrow hubs', isServicePoints: true },
+      { name: 'Logistics & Fleet', desc: 'Freight, packing & dispatch tracking', href: '/logistics' },
       { name: 'Post an RFQ', desc: 'Broadcast buyer requirements', href: '/rfq' },
       { name: 'Become a Seller', desc: 'Manufacturer storefront registration', href: '/sell' },
-      { name: 'Customer Workspace', desc: 'Buyer tasks & preferences', href: '/customer-workspace' },
     ]
   },
   {
     title: 'Operations & Compliance',
     icon: Briefcase,
     pages: [
-      { name: 'Business Operations', desc: 'Invoicing, billing & inventory', href: '/operations' },
-      { name: 'KYC & Verification', desc: 'GSTIN, PAN & business verification', href: '/kyc' },
+      { name: 'Business Operations', desc: 'Invoicing, billing & inventory control', href: '/operations' },
       { name: 'Health Insurance', desc: 'Industrial workforce medical access', href: '/insurance' },
+      { name: 'KYC & Verification', desc: 'GSTIN, PAN & business verification', href: '/kyc' },
       { name: 'Corporate Services', desc: 'Compliance, tax & advisory', href: '/corporate' },
     ]
   },
@@ -69,7 +71,7 @@ const pageSections = [
   },
 ];
 
-export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
+export default function MegaMenu({ isOpen, onClose, onOpenServicePoints }: MegaMenuProps) {
   if (!isOpen) return null;
 
   return (
@@ -118,19 +120,38 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
                 <ul className="space-y-1.5">
                   {section.pages.map((page, pIdx) => (
                     <li key={pIdx}>
-                      <Link 
-                        href={page.href} 
-                        onClick={onClose}
-                        className="group block p-2 rounded-lg hover:bg-line/40 border border-transparent hover:border-line transition-all"
-                      >
-                        <div className="text-[12.5px] font-bold text-ink group-hover:text-accent transition-colors flex items-center justify-between">
-                          <span>{page.name}</span>
-                          <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-accent" />
-                        </div>
-                        <div className="text-[10.5px] text-muted font-medium leading-snug mt-0.5">
-                          {page.desc}
-                        </div>
-                      </Link>
+                      {(page as any).isServicePoints ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onOpenServicePoints?.();
+                          }}
+                          className="group block w-full text-left p-2 rounded-lg hover:bg-line/40 border border-transparent hover:border-line transition-all cursor-pointer"
+                        >
+                          <div className="text-[12.5px] font-bold text-ink group-hover:text-accent transition-colors flex items-center justify-between">
+                            <span>{page.name}</span>
+                            <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-accent" />
+                          </div>
+                          <div className="text-[10.5px] text-muted font-medium leading-snug mt-0.5">
+                            {page.desc}
+                          </div>
+                        </button>
+                      ) : (
+                        <Link 
+                          href={page.href || '#'} 
+                          onClick={onClose}
+                          className="group block p-2 rounded-lg hover:bg-line/40 border border-transparent hover:border-line transition-all"
+                        >
+                          <div className="text-[12.5px] font-bold text-ink group-hover:text-accent transition-colors flex items-center justify-between">
+                            <span>{page.name}</span>
+                            <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-accent" />
+                          </div>
+                          <div className="text-[10.5px] text-muted font-medium leading-snug mt-0.5">
+                            {page.desc}
+                          </div>
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -144,16 +165,29 @@ export default function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
           <span className="font-medium">Direct access to all public, operational, and trade modules.</span>
           <div className="flex gap-4 flex-wrap font-bold text-ink">
             <Link href="/dashboard" onClick={onClose} className="hover:text-accent transition-colors">
-              Live Dashboard →
+              Dashboard →
             </Link>
+            <Link href="/customer-workspace" onClick={onClose} className="hover:text-accent transition-colors">
+              Workspace →
+            </Link>
+            <Link href="/insurance" onClick={onClose} className="hover:text-accent transition-colors">
+              Insurance →
+            </Link>
+            <Link href="/operations" onClick={onClose} className="hover:text-accent transition-colors">
+              Operations →
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenServicePoints?.();
+              }}
+              className="hover:text-accent transition-colors cursor-pointer font-bold text-ink"
+            >
+              Service Points →
+            </button>
             <Link href="/rfq" onClick={onClose} className="hover:text-accent transition-colors">
-              Post an RFQ →
-            </Link>
-            <Link href="/sell" onClick={onClose} className="hover:text-accent transition-colors">
-              Become a Seller →
-            </Link>
-            <Link href="/kyc" onClick={onClose} className="hover:text-accent transition-colors">
-              KYC Verification →
+              Post RFQ →
             </Link>
             <Link href="/help" onClick={onClose} className="hover:text-accent transition-colors">
               Help Center →
