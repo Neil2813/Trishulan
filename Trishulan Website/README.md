@@ -26,6 +26,8 @@ Create a database named `trishulan_db` in your local PostgreSQL instance.
 cd backend
 npm install
 # Edit .env — set DATABASE_URL to your PostgreSQL connection string
+# Configure GST_API_URL / GST_API_KEY and Sandbox PAN_API_URL / PAN_API_KEY / PAN_API_SECRET on the backend
+# (never put provider keys in frontend or NEXT_PUBLIC_ variables).
 npm run generate      # Generate Prisma client
 npm run db:push       # Push schema to DB (dev)
 npm run db:seed       # Seed demo data
@@ -63,6 +65,9 @@ All frontend API calls proxy through Next.js rewrites to `http://localhost:5000/
 | `/api/subscription`       | POST   | Update subscription tier |
 | `/api/kyc/verify-gstin`   | POST   | Verify GSTIN             |
 | `/api/kyc/verify-pan`     | POST   | Verify PAN               |
+| `/api/business-services/pincode-lookup` | GET | Look up city, district, and state by 6-digit PIN |
+
+Provider-backed GSTIN and PAN verification fails closed if credentials are missing or the provider does not return an explicit matching active/valid record. PAN verification uses Sandbox authentication and requires the end user's PAN name, date of birth, consent, and purpose. Sensitive GSTIN/PAN lookups require authentication, are sent in POST bodies, and are rate-limited to 10 requests per IP per 15 minutes.
 
 ---
 

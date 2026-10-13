@@ -1,13 +1,110 @@
 /**
  * Public Web API Service for B2B KYC, GSTIN & Document Verification
- * Connects directly to external public web APIs configured in .env:
- * - Public GSTIN API (https://api.gstincheck.co.in/v1/verify/)
- * - Public Identity/Address Verification API (https://api.postalpincode.in/)
- * - Public PAN Taxpayer Verification API (https://api.sandbox.co.in/kyc/pan/)
+ * Connects to third-party verification APIs configured in backend environment:
+ * - GSTIN provider via GST_API_URL / GST_API_KEY
+ * - Public Identity/Address Verification API configured via POSTAL_PIN_API_URL
+ * - PAN provider via PAN_API_URL / PAN_API_KEY
  */
 
-import dotenv from 'dotenv';
-dotenv.config();
+type JsonObject = Record<string, unknown>;
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function getConfiguredProviderUrl(value: string | undefined): string | null {
+  if (!value?.trim()) return null;
+
+  try {
+    const parsed = new URL(value.trim());
+    const isLocalHttp =
+      parsed.protocol === 'http:' &&
+      (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+    if (
+      (parsed.protocol !== 'https:' && !isLocalHttp) ||
+      parsed.username ||
+      parsed.password ||
+      parsed.search ||
+      parsed.hash
+    ) {
+      return null;
+    }
+    return parsed.toString().endsWith('/') ? parsed.toString() : `${parsed.toString()}/`;
+  } catch {
+    return null;
+  }
+}
+
+function providerStatus(value: unknown): string {
+  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
+
+export function isValidPanDateOfBirth(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const match = /^([0-3]\d)\/([01]\d)\/(\d{4})$/.exec(value);
+  if (!match) return false;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+}
+
+let sandboxPanAccessToken: string | null = null;
+let sandboxPanTokenExpiresAt = 0;
+let sandboxPanTokenRequest: Promise<string> | null = null;
+
+function isConfiguredSecret(value: string | undefined): value is string {
+  const secret = value?.trim();
+  return Boolean(
+    secret &&
+    !/^(?:public_web_access|replace(?:[-_ ].*)?|your(?:[-_ ].*)?|placeholder(?:[-_ ].*)?|change[-_ ]?me)$/i.test(secret)
+  );
+}
+
+async function getSandboxPanAccessToken(apiBaseUrl: string, apiKey: string, apiSecret: string): Promise<string> {
+  if (sandboxPanAccessToken && Date.now() < sandboxPanTokenExpiresAt) {
+    return sandboxPanAccessToken;
+  }
+  if (sandboxPanTokenRequest) return sandboxPanTokenRequest;
+
+  sandboxPanTokenRequest = (async () => {
+    const response = await fetch(new URL('/authenticate', apiBaseUrl), {
+      method: 'POST',
+      signal: AbortSignal.timeout(10_000),
+      headers: {
+        'x-api-key': apiKey,
+        'x-api-secret': apiSecret,
+        'x-api-version': '1.0.0',
+        'Accept': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      console.warn(`PAN provider authentication returned HTTP ${response.status}`);
+      throw new Error('PAN provider authentication failed');
+    }
+
+    const payload: unknown = await response.json();
+    const token = isJsonObject(payload) && payload.code === 200 &&
+      isJsonObject(payload.data) && typeof payload.data.access_token === 'string'
+      ? payload.data.access_token
+      : null;
+    if (!token) throw new Error('PAN provider authentication response was invalid');
+
+    sandboxPanAccessToken = token;
+    sandboxPanTokenExpiresAt = Date.now() + 23 * 60 * 60 * 1000;
+    return token;
+  })();
+
+  try {
+    return await sandboxPanTokenRequest;
+  } finally {
+    sandboxPanTokenRequest = null;
+  }
+}
 
 export interface GSTINVerificationResult {
   valid: boolean;
@@ -16,7 +113,12 @@ export interface GSTINVerificationResult {
   stateName?: string;
   stateCode?: string;
   businessType?: string;
-  details?: any;
+  details?: {
+    legalName?: string;
+    tradeName?: string;
+    registrationStatus?: string;
+    verifiedAt: string;
+  };
   error?: string;
   verificationUnavailable?: boolean;
 }
@@ -84,11 +186,19 @@ export async function fetchLiveGSTINData(gstinRaw: string): Promise<GSTINVerific
   const localResult = verifyGSTINAlgorithmic(gstinRaw);
   if (!localResult.valid) return localResult;
 
-  const apiUrl = process.env.GST_API_URL || 'https://api.gstincheck.co.in/v1/verify/';
-  const apiKey = process.env.GST_API_KEY || 'public_web_access';
+  const apiUrl = getConfiguredProviderUrl(process.env.GST_API_URL);
+  const apiKey = process.env.GST_API_KEY;
+  if (!apiUrl || !isConfiguredSecret(apiKey)) {
+    return {
+      ...localResult,
+      valid: false,
+      verificationUnavailable: true,
+      error: 'GSTIN verification provider is not configured',
+    };
+  }
 
   try {
-    const targetUrl = `${apiUrl.endsWith('/') ? apiUrl : apiUrl + '/'}${encodeURIComponent(localResult.gstin)}`;
+    const targetUrl = `${apiUrl}${encodeURIComponent(localResult.gstin)}`;
     const res = await fetch(targetUrl, {
       signal: AbortSignal.timeout(10_000),
       headers: {
@@ -98,24 +208,53 @@ export async function fetchLiveGSTINData(gstinRaw: string): Promise<GSTINVerific
       },
     });
 
-    if (!res.ok) throw new Error(`GSTIN verification provider returned HTTP ${res.status}`);
+    if (!res.ok) {
+      console.warn(`GSTIN verification provider returned HTTP ${res.status}`);
+      throw new Error('Provider request failed');
+    }
 
-    const data: any = await res.json();
+    const payload: unknown = await res.json();
+    if (!isJsonObject(payload) || payload.flag !== true || !isJsonObject(payload.data)) {
+      return {
+        ...localResult,
+        valid: false,
+        error: 'GSTIN provider did not confirm this registration',
+      };
+    }
+
+    const data = payload.data;
+    const returnedGstin = typeof data.gstin === 'string' ? data.gstin.trim().toUpperCase() : '';
+    const registrationStatus = providerStatus(data.sts ?? data.status);
+    if (returnedGstin !== localResult.gstin || registrationStatus !== 'active') {
+      return {
+        ...localResult,
+        valid: false,
+        error: 'GSTIN provider did not confirm an active registration matching this number',
+      };
+    }
+
+    const legalName = typeof data.lgnm === 'string' ? data.lgnm : undefined;
+    const tradeName = typeof data.tradeNam === 'string' ? data.tradeNam : undefined;
     return {
       valid: true,
       gstin: localResult.gstin,
       pan: localResult.pan,
-      stateName: data?.legal_name || data?.trade_name || localResult.stateName,
+      stateName: localResult.stateName,
       stateCode: localResult.stateCode,
-      businessType: data?.constitution_of_business || localResult.businessType,
+      businessType: typeof data.ctb === 'string' ? data.ctb : localResult.businessType,
       details: {
-        ...(typeof data === 'object' && data ? data : {}),
-        publicApiSource: apiUrl,
+        ...(legalName ? { legalName } : {}),
+        ...(tradeName ? { tradeName } : {}),
+        registrationStatus: 'Active',
         verifiedAt: new Date().toISOString(),
       },
     };
   } catch (err) {
-    console.warn(`Public GST Web API (${apiUrl}) fetch notice:`, err);
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      console.warn('GSTIN verification provider request timed out');
+    } else if (err instanceof Error && err.message !== 'Provider request failed') {
+      console.warn('GSTIN verification provider request failed');
+    }
   }
 
   return {
@@ -127,14 +266,23 @@ export async function fetchLiveGSTINData(gstinRaw: string): Promise<GSTINVerific
 }
 
 /**
- * Fetches verification data from Public Web PAN & Taxpayer API configured in .env
+ * Fetches verification data from the configured PAN verification provider.
  */
-export async function fetchLivePANData(panRaw: string): Promise<{
+export async function fetchLivePANData(
+  panRaw: string,
+  verification: { name: string; dateOfBirth: string; consent: true; reason: string },
+): Promise<{
   valid: boolean;
   pan: string;
   entityType?: string;
+  nameMatched?: boolean;
+  dateOfBirthMatched?: boolean;
   error?: string;
-  details?: any;
+  details?: {
+    category?: string;
+    verificationStatus: string;
+    verifiedAt: string;
+  };
   verificationUnavailable?: boolean;
 }> {
   const pan = (panRaw || '').trim().toUpperCase();
@@ -148,32 +296,94 @@ export async function fetchLivePANData(panRaw: string): Promise<{
     };
   }
 
-  const apiUrl = process.env.PAN_API_URL || 'https://api.sandbox.co.in/kyc/pan/';
-  const apiKey = process.env.PAN_API_KEY || 'public_web_access';
+  const apiBaseUrl = getConfiguredProviderUrl(process.env.PAN_API_URL);
+  const apiKey = process.env.PAN_API_KEY;
+  const apiSecret = process.env.PAN_API_SECRET;
+  if (!apiBaseUrl || !isConfiguredSecret(apiKey) || !isConfiguredSecret(apiSecret)) {
+    return {
+      valid: false,
+      pan,
+      verificationUnavailable: true,
+      error: 'PAN verification provider is not configured',
+    };
+  }
 
   try {
-    const res = await fetch(`${apiUrl}${encodeURIComponent(pan)}`, {
+    const accessToken = await getSandboxPanAccessToken(apiBaseUrl, apiKey, apiSecret);
+    const res = await fetch(new URL('/kyc/pan/verify', apiBaseUrl), {
+      method: 'POST',
       signal: AbortSignal.timeout(10_000),
       headers: {
         'x-api-key': apiKey,
+        'authorization': accessToken,
+        'x-api-version': '1.0.0',
+        'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
+      body: JSON.stringify({
+        '@entity': 'in.co.sandbox.kyc.pan_verification.request',
+        pan,
+        name_as_per_pan: verification.name.trim(),
+        date_of_birth: verification.dateOfBirth,
+        consent: 'Y',
+        reason: verification.reason.trim(),
+      }),
     });
 
-    if (!res.ok) throw new Error(`PAN verification provider returned HTTP ${res.status}`);
+    if (!res.ok) {
+      console.warn(`PAN verification provider returned HTTP ${res.status}`);
+      throw new Error('Provider request failed');
+    }
 
-    const data: any = await res.json();
+    const payload: unknown = await res.json();
+    if (!isJsonObject(payload)) {
+      return { valid: false, pan, error: 'PAN provider returned an invalid response' };
+    }
+    if (payload.code !== 200 || !isJsonObject(payload.data)) {
+      return { valid: false, pan, error: 'PAN provider did not confirm this record' };
+    }
+    const data = payload.data;
+    const returnedPan = typeof data.pan === 'string' ? data.pan.trim().toUpperCase() : '';
+    const verificationStatus = providerStatus(data.status);
+    if (returnedPan !== pan || verificationStatus !== 'valid') {
+      return {
+        valid: false,
+        pan,
+        error: 'PAN provider did not confirm a valid record matching this number',
+      };
+    }
+
+    const nameMatched = data.name_as_per_pan_match === true;
+    const dateOfBirthMatched = data.date_of_birth_match === true;
+    if (!nameMatched || !dateOfBirthMatched) {
+      return {
+        valid: false,
+        pan,
+        nameMatched,
+        dateOfBirthMatched,
+        error: 'PAN record was found, but the submitted name or date of birth did not match',
+      };
+    }
+
+    const category = typeof data.category === 'string' ? data.category : undefined;
     return {
       valid: true,
       pan,
-      entityType: data?.category || 'Verified Taxpayer',
+      entityType: category || 'Verified Taxpayer',
+      nameMatched,
+      dateOfBirthMatched,
       details: {
-        ...(typeof data === 'object' && data ? data : {}),
-        publicApiSource: apiUrl,
+        ...(category ? { category } : {}),
+        verificationStatus: 'Valid',
+        verifiedAt: new Date().toISOString(),
       },
     };
   } catch (err) {
-    console.warn(`Public PAN Web API (${apiUrl}) notice:`, err);
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      console.warn('PAN verification provider request timed out');
+    } else if (err instanceof Error && err.message !== 'Provider request failed') {
+      console.warn('PAN verification provider request failed');
+    }
   }
 
   return {
@@ -188,34 +398,81 @@ export async function fetchLivePANData(panRaw: string): Promise<{
  * Verifies Pincode / Address evidence against Public Postal API configured in .env
  */
 export async function fetchLivePincodeAddressData(pincode: string) {
-  const publicPincodeApiUrl = process.env.PUBLIC_KYC_VERIFY_API_URL || 'https://api.postalpincode.in/pincode/';
+  const normalizedPincode = pincode.trim();
+  const publicPincodeApiUrl = process.env.POSTAL_PIN_API_URL?.trim();
 
-  try {
-    const res = await fetch(`${publicPincodeApiUrl}${encodeURIComponent(pincode)}`, {
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (res.ok) {
-      const data: any = await res.json();
-      if (data && Array.isArray(data) && data[0]?.Status === 'Success') {
-        const postOffices = data[0].PostOffice || [];
-        return {
-          valid: true,
-          pincode,
-          district: postOffices[0]?.District,
-          state: postOffices[0]?.State,
-          postOffices: postOffices.map((po: any) => po.Name),
-          publicApiSource: publicPincodeApiUrl,
-        };
-      }
-    }
-  } catch (err) {
-    console.warn(`Public Pincode API (${publicPincodeApiUrl}) error:`, err);
+  if (!/^\d{6}$/.test(normalizedPincode)) {
+    return {
+      valid: false,
+      pincode: normalizedPincode,
+      error: 'Pincode must be exactly 6 digits',
+    };
   }
 
-  return {
-    valid: false,
-    pincode,
-    error: 'Pincode could not be verified because the verification provider is unavailable',
-    publicApiSource: publicPincodeApiUrl,
-  };
+  if (!publicPincodeApiUrl) {
+    return {
+      valid: false,
+      pincode: normalizedPincode,
+      error: 'Postal PIN lookup is not configured',
+      verificationUnavailable: true,
+    };
+  }
+
+  const apiUrl = publicPincodeApiUrl.endsWith('/')
+    ? getConfiguredProviderUrl(publicPincodeApiUrl)
+    : getConfiguredProviderUrl(`${publicPincodeApiUrl}/`);
+  if (!apiUrl) {
+    return {
+      valid: false,
+      pincode: normalizedPincode,
+      error: 'Postal PIN lookup URL is invalid',
+      verificationUnavailable: true,
+    };
+  }
+
+  try {
+    const res = await fetch(`${apiUrl}${encodeURIComponent(normalizedPincode)}`, {
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) {
+      console.warn(`Postal PIN API returned HTTP ${res.status}`);
+      throw new Error('Provider request failed');
+    }
+
+    const data: any = await res.json();
+    const postOffices = data?.[0]?.Status === 'Success' && Array.isArray(data[0].PostOffice)
+      ? data[0].PostOffice
+      : [];
+
+    if (postOffices.length > 0) {
+      return {
+        valid: true,
+        pincode: normalizedPincode,
+        city: postOffices[0]?.Block && postOffices[0].Block !== 'NA'
+          ? postOffices[0].Block
+          : postOffices[0]?.Name,
+        district: postOffices[0]?.District,
+        state: postOffices[0]?.State,
+        postOffices: postOffices.map((po: any) => po.Name),
+      };
+    }
+
+    return {
+      valid: false,
+      pincode: normalizedPincode,
+      error: 'No postal locations were found for this pincode',
+    };
+  } catch (err) {
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      console.warn('Postal PIN API request timed out');
+    } else if (err instanceof Error && err.message !== 'Provider request failed') {
+      console.warn('Postal PIN API request failed');
+    }
+    return {
+      valid: false,
+      pincode: normalizedPincode,
+      error: 'Postal lookup is temporarily unavailable',
+      verificationUnavailable: true,
+    };
+  }
 }

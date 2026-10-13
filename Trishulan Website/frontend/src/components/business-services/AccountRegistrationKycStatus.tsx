@@ -23,6 +23,23 @@ interface KycStatusData {
   exampleText: string;
 }
 
+interface PincodeLookupResult {
+  pincode: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  postOffices?: string[];
+}
+
+interface PanVerificationResult {
+  valid: boolean;
+  nameMatched?: boolean;
+  dateOfBirthMatched?: boolean;
+  entityType?: string;
+  statusMessage?: string;
+  error?: string;
+}
+
 export default function AccountRegistrationKycStatus() {
   const [data, setData] = useState<KycStatusData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -33,6 +50,17 @@ export default function AccountRegistrationKycStatus() {
   const [fileName, setFileName] = useState<string>('address_proof_utility_bill.pdf');
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadResult, setUploadResult] = useState<any>(null);
+  const [pincode, setPincode] = useState('');
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeError, setPincodeError] = useState<string | null>(null);
+  const [pincodeResult, setPincodeResult] = useState<PincodeLookupResult | null>(null);
+  const [pan, setPan] = useState('');
+  const [panName, setPanName] = useState('');
+  const [panDateOfBirth, setPanDateOfBirth] = useState('');
+  const [panConsent, setPanConsent] = useState(false);
+  const [panLoading, setPanLoading] = useState(false);
+  const [panError, setPanError] = useState<string | null>(null);
+  const [panResult, setPanResult] = useState<PanVerificationResult | null>(null);
 
   const fetchKycStatus = async () => {
     try {
@@ -52,6 +80,60 @@ export default function AccountRegistrationKycStatus() {
   useEffect(() => {
     fetchKycStatus();
   }, []);
+
+  const handlePincodeLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{6}$/.test(pincode)) return;
+
+    setPincodeLoading(true);
+    setPincodeError(null);
+    setPincodeResult(null);
+    try {
+      const res = await fetch(`/api/business-services/pincode-lookup?pincode=${encodeURIComponent(pincode)}`);
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.data?.error || json.error || 'Unable to look up this pincode');
+      }
+      setPincodeResult(json.data);
+    } catch (err: any) {
+      setPincodeError(err.message || 'Unable to look up this pincode');
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
+
+  const handlePanVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!panConsent || panLoading) return;
+
+    const [year, month, day] = panDateOfBirth.split('-');
+    const dateOfBirth = `${day}/${month}/${year}`;
+    setPanLoading(true);
+    setPanError(null);
+    setPanResult(null);
+    try {
+      const res = await fetch('/api/kyc/verify-pan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pan: pan.trim().toUpperCase(),
+          name: panName.trim(),
+          dateOfBirth,
+          consent: panConsent,
+          reason: 'Business customer onboarding KYC verification',
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || `PAN verification failed (HTTP ${res.status})`);
+      }
+      setPanResult(json);
+    } catch (err: unknown) {
+      setPanError(err instanceof Error ? err.message : 'PAN verification failed');
+    } finally {
+      setPanLoading(false);
+    }
+  };
 
   const handleReuploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,6 +217,163 @@ export default function AccountRegistrationKycStatus() {
             </div>
           ))}
         </div>
+
+        <section className="bg-card border border-line rounded-xl p-4 space-y-3">
+          <div>
+            <h3 className="text-xs font-extrabold text-ink">Verify PAN details</h3>
+            <p className="text-[11px] text-muted mt-1">
+              PAN status, holder name, and date of birth are checked with the verification provider.
+              Your consent is required. Verification is available to signed-in users.
+            </p>
+          </div>
+          <form onSubmit={handlePanVerification} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="kyc-pan" className="block text-[11px] font-semibold text-ink mb-1">PAN number</label>
+              <input
+                id="kyc-pan"
+                type="text"
+                autoComplete="off"
+                maxLength={10}
+                required
+                pattern="[A-Z]{3}[ABCFGHLJPT][A-Z][0-9]{4}[A-Z]"
+                value={pan}
+                onChange={(e) => {
+                  setPan(e.target.value.toUpperCase().slice(0, 10));
+                  setPanResult(null);
+                  setPanError(null);
+                }}
+                placeholder="ABCDE1234F"
+                className="w-full bg-card border border-line rounded-lg px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+              />
+            </div>
+            <div>
+              <label htmlFor="kyc-pan-name" className="block text-[11px] font-semibold text-ink mb-1">Name as printed on PAN</label>
+              <input
+                id="kyc-pan-name"
+                type="text"
+                autoComplete="name"
+                minLength={2}
+                required
+                value={panName}
+                onChange={(e) => {
+                  setPanName(e.target.value);
+                  setPanResult(null);
+                  setPanError(null);
+                }}
+                className="w-full bg-card border border-line rounded-lg px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+              />
+            </div>
+            <div>
+              <label htmlFor="kyc-pan-dob" className="block text-[11px] font-semibold text-ink mb-1">Date of birth / incorporation</label>
+              <input
+                id="kyc-pan-dob"
+                type="date"
+                required
+                value={panDateOfBirth}
+                onChange={(e) => {
+                  setPanDateOfBirth(e.target.value);
+                  setPanResult(null);
+                  setPanError(null);
+                }}
+                className="w-full bg-card border border-line rounded-lg px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+              />
+            </div>
+            <label className="sm:col-span-2 flex items-start gap-2 text-[11px] text-ink">
+              <input
+                type="checkbox"
+                checked={panConsent}
+                onChange={(e) => {
+                  setPanConsent(e.target.checked);
+                  setPanResult(null);
+                  setPanError(null);
+                }}
+                className="mt-0.5 accent-emerald-600"
+              />
+              <span>
+                I consent to Trishulan sending this PAN, name, and date of birth to its verification provider
+                for business customer onboarding verification.
+              </span>
+            </label>
+            <div className="sm:col-span-2 flex items-center gap-3 flex-wrap">
+              <button
+                type="submit"
+                disabled={!panConsent || panLoading}
+                className="px-4 py-2 bg-accent hover:opacity-90 text-white font-bold text-xs rounded-lg transition disabled:opacity-50"
+              >
+                {panLoading ? 'Verifying...' : 'Verify PAN'}
+              </button>
+              {panError && <p role="alert" className="text-xs text-rose-700">{panError}</p>}
+              {panResult?.valid && (
+                <p role="status" className="text-xs text-emerald-800 font-semibold">
+                  {panResult.statusMessage || 'PAN, holder name, and date of birth verified'}
+                </p>
+              )}
+              {panResult && !panResult.valid && (
+                <p role="alert" className="text-xs text-rose-700">{panResult.error || 'PAN verification did not pass'}</p>
+              )}
+            </div>
+          </form>
+        </section>
+
+        <section className="bg-card border border-line rounded-xl p-4 space-y-3">
+          <div>
+            <h3 className="text-xs font-extrabold text-ink">Postal code lookup</h3>
+            <p className="text-[11px] text-muted mt-1">
+              Find the city/locality, district, and state for an Indian 6-digit PIN code using India Post data.
+              This does not verify identity, address ownership, or PAN/GSTIN records.
+            </p>
+          </div>
+          <form onSubmit={handlePincodeLookup} className="flex flex-col sm:flex-row gap-2">
+            <label htmlFor="kyc-pincode" className="sr-only">6-digit postal PIN code</label>
+            <input
+              id="kyc-pincode"
+              type="text"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              maxLength={6}
+              value={pincode}
+              onChange={(e) => {
+                setPincode(e.target.value.replace(/\D/g, '').slice(0, 6));
+                setPincodeError(null);
+                setPincodeResult(null);
+              }}
+              placeholder="Enter 6-digit PIN code"
+              className="flex-1 bg-card border border-line rounded-lg px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+            />
+            <button
+              type="submit"
+              disabled={pincode.length !== 6 || pincodeLoading}
+              className="px-4 py-2 bg-accent hover:opacity-90 text-white font-bold text-xs rounded-lg transition disabled:opacity-50"
+            >
+              {pincodeLoading ? 'Looking up...' : 'Look up PIN code'}
+            </button>
+          </form>
+          {pincodeError && (
+            <p role="alert" className="text-xs text-rose-700">{pincodeError}</p>
+          )}
+          {pincodeResult && (
+            <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-xs">
+              <div>
+                <dt className="text-emerald-800 font-semibold">City / locality</dt>
+                <dd className="text-emerald-950 mt-0.5">{pincodeResult.city || 'Not available'}</dd>
+              </div>
+              <div>
+                <dt className="text-emerald-800 font-semibold">District</dt>
+                <dd className="text-emerald-950 mt-0.5">{pincodeResult.district || 'Not available'}</dd>
+              </div>
+              <div>
+                <dt className="text-emerald-800 font-semibold">State</dt>
+                <dd className="text-emerald-950 mt-0.5">{pincodeResult.state || 'Not available'}</dd>
+              </div>
+              {!!pincodeResult.postOffices?.length && (
+                <div className="sm:col-span-3">
+                  <dt className="text-emerald-800 font-semibold">Post offices</dt>
+                  <dd className="text-emerald-950 mt-0.5">{pincodeResult.postOffices.join(', ')}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+        </section>
 
         {/* Submitted for business account Table */}
         <div className="bg-card border border-line rounded-xl overflow-hidden shadow-sm">

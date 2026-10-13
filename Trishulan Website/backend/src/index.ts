@@ -50,6 +50,14 @@ const authLimiter = rateLimit({
   message: { error: "Too many authentication requests, please try again later." }
 });
 
+const kycVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many verification requests, please try again later." }
+});
+
 // ── Middlewares ─────────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
@@ -61,6 +69,11 @@ app.use(cookieParser());
 app.use("/api/", globalLimiter);
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
+app.use("/api/kyc/verify-gstin", kycVerificationLimiter);
+app.use("/api/kyc/verify-pan", kycVerificationLimiter);
+app.use("/api/business-services/gstin-lookup", kycVerificationLimiter);
+app.use("/api/business-services/pan-lookup", kycVerificationLimiter);
+app.use("/api/business-services/pincode-lookup", kycVerificationLimiter);
 app.use(extractUserMiddleware);
 
 // ── Routes ──────────────────────────────────────────────────────────────────

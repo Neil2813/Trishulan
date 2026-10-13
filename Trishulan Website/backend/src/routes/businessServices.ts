@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { fetchLiveGSTINData, fetchLivePANData } from '../services/kycService';
+import {
+  fetchLiveGSTINData,
+  fetchLivePANData,
+  fetchLivePincodeAddressData,
+  isValidPanDateOfBirth,
+} from '../services/kycService';
 import { fetchLiveFxRates, MarketDataUnavailableError } from '../services/marketDataService';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { prisma } from '../lib/db';
@@ -435,33 +440,80 @@ router.post('/adviser-appointment', async (req: AuthenticatedRequest, res) => {
   }
 });
 
-// GET /api/business-services/gstin-lookup
-router.get('/gstin-lookup', async (req, res) => {
+// POST /api/business-services/gstin-lookup
+router.post('/gstin-lookup', async (req, res) => {
   try {
-    const gstin = req.query.gstin;
+    if (!(req as AuthenticatedRequest).user?.id) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const gstin = req.body?.gstin;
     if (typeof gstin !== 'string' || !gstin.trim()) {
-      return res.status(400).json({ error: 'Missing gstin query parameter' });
+      return res.status(400).json({ error: 'Missing GSTIN number' });
     }
     const data = await fetchLiveGSTINData(gstin.trim());
     if (!data.valid) return res.status(data.verificationUnavailable ? 503 : 400).json({ success: false, data });
     return res.json({ success: true, data });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (err) {
+    console.error('Unexpected GSTIN lookup error', err instanceof Error ? err.name : 'UnknownError');
+    return res.status(500).json({ error: 'GSTIN lookup failed unexpectedly' });
   }
 });
 
-// GET /api/business-services/pan-lookup
-router.get('/pan-lookup', async (req, res) => {
+// POST /api/business-services/pan-lookup
+router.post('/pan-lookup', async (req, res) => {
   try {
-    const pan = req.query.pan;
-    if (typeof pan !== 'string' || !pan.trim()) {
-      return res.status(400).json({ error: 'Missing pan query parameter' });
+    if (!(req as AuthenticatedRequest).user?.id) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
     }
-    const data = await fetchLivePANData(pan.trim());
+
+    const { pan, name, dateOfBirth, consent, reason } = req.body ?? {};
+    if (typeof pan !== 'string' || !pan.trim()) {
+      return res.status(400).json({ error: 'Missing PAN number' });
+    }
+    if (typeof name !== 'string' || name.trim().length < 2) {
+      return res.status(400).json({ error: 'Name as printed on PAN is required' });
+    }
+    if (!isValidPanDateOfBirth(dateOfBirth)) {
+      return res.status(400).json({ error: 'Date of birth must be a real date in DD/MM/YYYY format' });
+    }
+    if (consent !== true) {
+      return res.status(400).json({ error: 'Explicit user consent is required for PAN verification' });
+    }
+    if (typeof reason !== 'string' || reason.trim().length < 20) {
+      return res.status(400).json({ error: 'Verification reason must be at least 20 characters' });
+    }
+
+    const data = await fetchLivePANData(pan.trim(), {
+      name: name.trim(),
+      dateOfBirth,
+      consent: true,
+      reason: reason.trim(),
+    });
     if (!data.valid) return res.status(data.verificationUnavailable ? 503 : 400).json({ success: false, data });
     return res.json({ success: true, data });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (err) {
+    console.error('Unexpected PAN lookup error', err instanceof Error ? err.name : 'UnknownError');
+    return res.status(500).json({ error: 'PAN lookup failed unexpectedly' });
+  }
+});
+
+// GET /api/business-services/pincode-lookup
+router.get('/pincode-lookup', async (req, res) => {
+  try {
+    const pincode = req.query.pincode;
+    if (typeof pincode !== 'string' || !/^\d{6}$/.test(pincode.trim())) {
+      return res.status(400).json({ success: false, error: 'Pincode must be exactly 6 digits' });
+    }
+
+    const data = await fetchLivePincodeAddressData(pincode);
+    if (!data.valid) {
+      return res.status(data.verificationUnavailable ? 503 : 404).json({ success: false, data });
+    }
+    return res.json({ success: true, data });
+  } catch (err) {
+    console.error('Unexpected postal PIN lookup error', err instanceof Error ? err.name : 'UnknownError');
+    return res.status(500).json({ success: false, error: 'Postal PIN lookup failed unexpectedly' });
   }
 });
 
