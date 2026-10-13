@@ -208,14 +208,7 @@ export default function ShipmentControlTower() {
         <div className="bg-card/80 border border-line p-4 rounded-xl space-y-3">
           <span className="text-xs font-bold text-ink uppercase block">Shipment Lifecycle</span>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            {(data?.shipmentLifecycle || [
-              { step: 1, label: 'Request rates' },
-              { step: 2, label: 'Compare / approve' },
-              { step: 3, label: 'Book carrier' },
-              { step: 4, label: 'Track milestones' },
-              { step: 5, label: 'Upload POD' },
-              { step: 6, label: 'Reconcile freight' },
-            ]).map((sl, idx) => (
+            {(data?.shipmentLifecycle || []).map((sl, idx) => (
               <React.Fragment key={sl.step}>
                 {idx > 0 && <span className="text-muted/70">→</span>}
                 <div className="px-3 py-1.5 rounded-full bg-card border border-line shadow-sm flex items-center gap-1.5 text-slate-800 font-medium">
@@ -226,6 +219,9 @@ export default function ShipmentControlTower() {
                 </div>
               </React.Fragment>
             ))}
+            {!loading && !data?.shipmentLifecycle?.length && (
+              <p className="text-xs text-muted">No shipment lifecycle data available.</p>
+            )}
           </div>
         </div>
 
@@ -233,7 +229,7 @@ export default function ShipmentControlTower() {
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
           <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
-            "{data?.exampleText || 'Example end-to-end shipment: after the buyer accepts a supplier quote, the seller converts the order into a shipment request with pallet dimensions and delivery window. The system compares carriers, the buyer approves a quote, the selected provider confirms the vehicle, pickup and delivery events update the shared timeline, and a photo/signature proof of delivery closes the shipment. An extra-charge alert sends the final invoice to a review queue.'}"
+            {data?.exampleText || 'Shipment details will appear here when available.'}
           </p>
         </div>
       </div>

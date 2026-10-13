@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Building2, Package, Zap, BarChart3, RefreshCw, CheckCircle2 } from 'lucide-react';
+import AuthModal from '@/components/AuthModal';
 
 export default function SellPage() {
   const router = useRouter();
@@ -14,9 +15,9 @@ export default function SellPage() {
   const [location, setLocation] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitListing = async () => {
     setError('');
     setLoading(true);
 
@@ -35,6 +36,11 @@ export default function SellPage() {
       });
 
       const data = await res.json();
+      if (res.status === 401) {
+        setError('Sign in to publish your listing. Your details will stay here while you sign in.');
+        setShowAuth(true);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'Failed to create listing');
 
       router.push('/dashboard');
@@ -43,6 +49,11 @@ export default function SellPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void submitListing();
   };
 
   return (
@@ -58,15 +69,16 @@ export default function SellPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+          <div role="alert" className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-ink mb-1.5">Product Title</label>
+            <label htmlFor="listing-title" className="block text-xs font-bold text-ink mb-1.5">Product Title</label>
             <input
+              id="listing-title"
               type="text"
               required
               value={title}
@@ -78,8 +90,9 @@ export default function SellPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-ink mb-1.5">Category</label>
+              <label htmlFor="listing-category" className="block text-xs font-bold text-ink mb-1.5">Category</label>
               <select
+                id="listing-category"
                 value={category}
                 onChange={(e: any) => setCategory(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-blue-600 bg-card font-semibold"
@@ -91,8 +104,9 @@ export default function SellPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-ink mb-1.5">Location (City, State)</label>
+              <label htmlFor="listing-location" className="block text-xs font-bold text-ink mb-1.5">Location (City, State)</label>
               <input
+                id="listing-location"
                 type="text"
                 required
                 value={location}
@@ -105,8 +119,9 @@ export default function SellPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-ink mb-1.5">Price (₹)</label>
+              <label htmlFor="listing-price" className="block text-xs font-bold text-ink mb-1.5">Price (₹)</label>
               <input
+                id="listing-price"
                 type="number"
                 required
                 value={price}
@@ -117,8 +132,9 @@ export default function SellPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-ink mb-1.5">Unit of Measurement</label>
+              <label htmlFor="listing-unit" className="block text-xs font-bold text-ink mb-1.5">Unit of Measurement</label>
               <input
+                id="listing-unit"
                 type="text"
                 required
                 value={unit}
@@ -130,8 +146,9 @@ export default function SellPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-ink mb-1.5">Detailed Description</label>
+            <label htmlFor="listing-description" className="block text-xs font-bold text-ink mb-1.5">Detailed Description</label>
             <textarea
+              id="listing-description"
               required
               rows={4}
               value={description}
@@ -282,7 +299,14 @@ export default function SellPage() {
           </div>
         </div>
       </div>
+      <AuthModal
+        isOpen={showAuth}
+        onClose={() => setShowAuth(false)}
+        onSuccess={() => {
+          setShowAuth(false);
+          void submitListing();
+        }}
+      />
     </div>
   );
 }
-

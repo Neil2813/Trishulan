@@ -3,21 +3,14 @@
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Activity,
   ArrowRight,
-  BarChart3,
   Camera,
   ChevronRight,
   ClipboardList,
-  FileText,
-  Globe,
-  LayoutGrid,
-  MapPin,
   Mic,
   Package,
   QrCode,
   Search,
-  Shield,
   ShoppingCart,
   Sparkles,
   Store,
@@ -267,12 +260,14 @@ const SearchResultsContainer = ({
     )}
 
     <div className="px-3 pt-1 pb-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-      {query ? `Suggestions & Matches (${searchResults.length})` : 'Popular Searches & Portals'}
+      {query ? `Matching listings (${searchResults.length})` : 'Search listings'}
     </div>
 
     {searchResults.length === 0 ? (
       <div className="px-3 py-4 text-center text-xs text-neutral-500">
-        No direct matches found. Press <kbd className="font-mono bg-neutral-200 px-1 py-0.5 rounded text-neutral-700">Enter</kbd> to search marketplace listings.
+        {query?.trim()
+          ? <>No direct matches found. Press <kbd className="font-mono bg-neutral-200 px-1 py-0.5 rounded text-neutral-700">Enter</kbd> to search marketplace listings.</>
+          : 'Enter a search to see matching marketplace listings.'}
       </div>
     ) : (
       searchResults.map((result, index) => (
@@ -311,27 +306,6 @@ const DEFAULT_SHORTCUTS: Shortcut[] = [
   { label: 'Workspace',        icon: <ClipboardList className="size-7" />, link: '/customer-workspace' },
 ];
 
-// ── Trishulan Search Suggestions & Catalog ────────────────────────────────────
-const DEFAULT_RESULTS: SearchResult[] = [
-  // Products & Raw Materials
-  { icon: <Package />,     label: 'Steel Rebar 12mm Fe-550D',        description: 'Raw Material · Primary Mills · Maharashtra Mandi',  link: '/platform-a?query=steel+rebar', badge: 'Steel' },
-  { icon: <Package />,     label: 'Industrial Pump Parts & Valves',   description: 'Machinery Components · Precision Cast · Gujarat',  link: '/platform-a?query=pump+parts',  badge: 'Machinery' },
-  { icon: <Package />,     label: 'Structural Steel Beams & Angles',  description: 'Hot Rolled Structural Sections · Mandi Govindgarh', link: '/platform-a?query=steel+beams', badge: 'Steel' },
-  // HSN Codes
-  { icon: <Tag />,         label: 'HSN 7214 – Iron & Non-Alloy Steel Bars', description: 'Indian Customs Tariff & GST Rate Lookup',       link: '/platform-a?query=HSN+7214', badge: 'HSN' },
-  { icon: <Tag />,         label: 'HSN 8482 – Ball & Roller Bearings', description: 'Mechanical Transmission Components Chapter 84',      link: '/platform-a?query=HSN+8482', badge: 'HSN' },
-  // Portals & Tools
-  { icon: <BarChart3 />,   label: 'Industrial Market Analyzer',       description: 'AI Product Intelligence & Demand Index Matrix',     link: '/market-analyzer', badge: 'Analytics' },
-  { icon: <Activity />,    label: 'Live Commodity Market Prices',     description: 'Real-time spot rates across Indian mandis',         link: '/market-prices', badge: 'Live Rates' },
-  { icon: <Globe />,       label: 'Platform A – Buyer Discovery',     description: 'Verified suppliers, quotes & RFQ broadcast',        link: '/platform-a', badge: 'Market' },
-  { icon: <Store />,       label: 'Platform B – Seller Management',    description: 'Post listings, manage inventory & leads',           link: '/platform-b', badge: 'Market' },
-  { icon: <Truck />,       label: 'Logistics & Freight Workspace',    description: 'Book freight transport & track dispatches',         link: '/logistics', badge: 'Logistics' },
-  { icon: <Shield />,      label: 'Industrial Health Insurance',      description: 'Worker healthcare access & corporate plans',        link: '/insurance', badge: 'Services' },
-  { icon: <FileText />,    label: 'Operations & Billing Desk',        description: 'E-invoicing, GST filing & business accounts',       link: '/operations', badge: 'Operations' },
-  { icon: <MapPin />,      label: 'Physical Service Points',          description: 'Trishulan touchpoints across major industrial hubs', link: '#', badge: 'Network' },
-  { icon: <LayoutGrid />,  label: 'Member Dashboard',                 description: 'Activity overview, quotes & active inquiries',     link: '/dashboard', badge: 'Dashboard' },
-];
-
 export interface AppleSpotlightProps {
   shortcuts?: Shortcut[];
   isOpen?: boolean;
@@ -352,15 +326,46 @@ const AppleSpotlight = ({
   const [hoveredSearchResult, setHoveredSearchResult] = useState<number | null>(null);
   const [hoveredShortcut, setHoveredShortcut] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [filteredResults, setFilteredResults] = useState<SearchResult[]>([]);
 
-  // Live filtered suggestions
-  const filteredResults = searchValue.trim()
-    ? DEFAULT_RESULTS.filter(
-        (r) =>
-          r.label.toLowerCase().includes(searchValue.toLowerCase()) ||
-          r.description.toLowerCase().includes(searchValue.toLowerCase())
-      )
-    : DEFAULT_RESULTS.slice(0, 7);
+  useEffect(() => {
+    const query = searchValue.trim();
+    if (!query) {
+      setFilteredResults([]);
+      return;
+    }
+
+    let cancelled = false;
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/listings?query=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error('Listing search failed');
+        const result = await response.json();
+        const listings = Array.isArray(result.listings) ? result.listings : [];
+        if (!cancelled) {
+          setFilteredResults(listings.map((listing: {
+            id: string;
+            title: string;
+            description: string;
+            category: string;
+          }) => ({
+            icon: <Package />,
+            label: listing.title,
+            description: listing.description,
+            link: `/listings/${encodeURIComponent(listing.id)}`,
+            badge: listing.category,
+          })));
+        }
+      } catch {
+        if (!cancelled) setFilteredResults([]);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [searchValue]);
 
   const executeSearch = (queryToSearch?: string) => {
     const q = queryToSearch ?? searchValue;

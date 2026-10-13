@@ -19,17 +19,17 @@ export interface TradeLeadItem {
 }
 
 export default function TradeLeadPortalMockup() {
-  const [searchTerm, setSearchTerm] = useState('stainless steel valves');
-  const [locationFilter, setLocationFilter] = useState('India');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
   const [tradeLeads, setTradeLeads] = useState<TradeLeadItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Requirement Posting Modal State
   const [showRequirementModal, setShowRequirementModal] = useState(false);
-  const [reqTitle, setReqTitle] = useState('10,000 Laminated Pouches (Food-Contact)');
-  const [reqDetails, setReqDetails] = useState('Size: 200x300mm, Material: PET/FOIL/PE, 3-side seal, food grade certification required.');
-  const [reqQty, setReqQty] = useState('10,000 pcs');
-  const [reqDestination, setReqDestination] = useState('Mumbai, Maharashtra');
+  const [reqTitle, setReqTitle] = useState('');
+  const [reqDetails, setReqDetails] = useState('');
+  const [reqQty, setReqQty] = useState('');
+  const [reqDestination, setReqDestination] = useState('');
   const [submittingReq, setSubmittingReq] = useState(false);
   const [reqSuccess, setReqSuccess] = useState(false);
 
@@ -200,13 +200,6 @@ export default function TradeLeadPortalMockup() {
           </div>
 
         </div>
-      </div>
-
-      {/* Example Use Callout Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example use:</strong> A food processor needs 10,000 laminated pouches. It posts size, material, print design, food-contact requirement, quantity and destination; suppliers provide quotations.
-        </p>
       </div>
 
       {/* Post Buy Requirement Modal */}

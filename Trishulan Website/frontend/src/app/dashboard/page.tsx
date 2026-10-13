@@ -2,185 +2,385 @@
 
 import React, { useState, useEffect } from 'react';
 import ChatSuite from '@/components/chat/ChatSuite';
-import AIAssistantBot from '@/components/AIAssistantBot';
 import DigitalIDCard from '@/components/DigitalIDCard';
+import AuthModal from '@/components/AuthModal';
 import { User, RFQ, Listing } from '@/types';
+import { getAccountDisplayName } from '@/lib/display-name';
 import Link from 'next/link';
-import { IdCard, Bot } from 'lucide-react';
+import { CheckCircle2, IdCard, X, PackagePlus, ClipboardList } from 'lucide-react';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
-  const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'AI_BOT' | 'CHAT' | 'RFQS' | 'LISTINGS'>('OVERVIEW');
+  const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'CHAT' | 'RFQS' | 'LISTINGS'>('OVERVIEW');
   const [showIdModal, setShowIdModal] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState(false);
+  const [rfqLoadError, setRfqLoadError] = useState(false);
+  const [listingsLoadError, setListingsLoadError] = useState(false);
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
+    setShowWelcome(new URLSearchParams(window.location.search).get('welcome') === '1');
+
     async function loadData() {
       try {
         const userRes = await fetch('/api/auth/me');
+        if (!userRes.ok) {
+          setSessionError(true);
+          return;
+        }
         const userData = await userRes.json();
         setUser(userData.user);
+        if (!userData.user) return;
 
-        const rfqRes = await fetch('/api/rfq');
-        const rfqData = await rfqRes.json();
-        setRfqs(rfqData.rfqs || []);
-
-        const listRes = await fetch('/api/listings');
-        const listData = await listRes.json();
-        setListings(listData.listings || []);
+        setRfqLoadError(false);
+        setListingsLoadError(false);
+        const [rfqRes, listRes] = await Promise.all([
+          fetch('/api/rfq'),
+          fetch('/api/listings'),
+        ]);
+        if (rfqRes.ok) {
+          const rfqData = await rfqRes.json();
+          setRfqs(rfqData.rfqs || []);
+        } else {
+          setRfqs([]);
+          setRfqLoadError(true);
+        }
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          const accountListings = listData.listings || [];
+          setListings(userData.user.role === 'SELLER'
+            ? accountListings.filter((listing: Listing) => listing.sellerId === userData.user.id)
+            : accountListings);
+        } else {
+          setListings([]);
+          setListingsLoadError(true);
+        }
       } catch (err) {
         console.error(err);
+        setRfqLoadError(true);
+        setListingsLoadError(true);
+        setSessionError(true);
       } finally {
         setLoading(false);
       }
     }
     loadData();
-  }, []);
+  }, [reloadCount]);
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-muted font-medium">
-        Loading Trishulan B2B Control Dashboard...
+      <div role="status" aria-live="polite" className="mx-auto flex min-h-[60vh] max-w-7xl items-center justify-center px-4">
+        <div className="w-full max-w-3xl animate-pulse space-y-4">
+          <div className="h-40 rounded-3xl bg-line/50" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-28 rounded-2xl bg-line/40" />
+            <div className="h-28 rounded-2xl bg-line/40" />
+          </div>
+          <span className="sr-only">Loading your dashboard…</span>
+        </div>
       </div>
     );
   }
 
-  const role = user ? user.role : 'BUYER';
-  const isSeller = role === 'SELLER';
+  if (!user) {
+    return (
+      <>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 px-4 text-center">
+          <div className="max-w-md rounded-3xl border border-line bg-card p-8 shadow-lg">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-accent">
+              <IdCard className="h-6 w-6" />
+            </div>
+            <h1 className="text-xl font-black text-ink">
+              {sessionError ? 'We couldn’t load your workspace' : 'Your business workspace is waiting'}
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              {sessionError
+                ? 'Your session could not be checked just now. Try again before signing in so we can keep your account secure.'
+                : 'Sign in to see your requirements, messages, and supplier activity.'}
+            </p>
+            {sessionError ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSessionError(false);
+                  setLoading(true);
+                  setReloadCount((count) => count + 1);
+                }}
+                className="mt-5 w-full rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#c2410a]"
+              >
+                Try again
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowAuth(true)}
+                  className="mt-5 w-full rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#c2410a]"
+                >
+                  Sign in
+                </button>
+                <p className="mt-4 text-xs text-muted">
+                  New to Trishulan?{' '}
+                  <Link href="/register" className="font-bold text-accent hover:underline">Create an account</Link>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+        <AuthModal
+          isOpen={showAuth}
+          onClose={() => setShowAuth(false)}
+          onSuccess={() => window.location.reload()}
+        />
+      </>
+    );
+  }
+
+  const isSeller = user.role === 'SELLER';
+  const displayName = getAccountDisplayName(user.name, user.email);
+  const firstName = displayName.split(' ')[0];
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const tabs = ['OVERVIEW', 'CHAT', 'RFQS', 'LISTINGS'] as const;
+    const currentIndex = tabs.indexOf(activeTab);
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = tabs.length - 1;
+    else return;
+
+    event.preventDefault();
+    const nextTab = tabs[nextIndex];
+    setActiveTab(nextTab);
+    document.getElementById(`dashboard-tab-${nextTab.toLowerCase()}`)?.focus();
+  };
 
   return (
-    <div className="min-h-screen bg-transparent py-8 px-4 sm:px-6">
-      <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="min-h-screen bg-transparent px-4 py-5 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1440px] space-y-5 sm:space-y-6">
         
-        {/* Top Notification Header Bar */}
-        <div className="bg-card text-ink p-6 md:p-8 rounded-[24px] border border-line shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+        {/* Workspace summary and primary actions */}
+        <div className="relative overflow-hidden rounded-[24px] border border-line bg-card p-5 text-ink shadow-lg sm:p-7 lg:flex lg:items-center lg:justify-between lg:gap-8">
           <div className="absolute right-0 top-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div>
-            <div className="flex items-center gap-2 text-xs font-extrabold text-accent uppercase tracking-wider mb-1">
-              <span>{isSeller ? 'VERIFIED SELLER PORTAL' : 'VERIFIED BUYER PROCUREMENT'}</span>
-              <span className="bg-accent text-white px-2.5 py-0.5 rounded-full text-[10px]">{user ? user.subscriptionTier : 'GROWTH'} TIER</span>
-              <span className="bg-green-100 text-green-800 border border-green-300 px-2 py-0.5 rounded text-[10px] font-bold">✓ KYC APPROVED</span>
+          <div className="relative min-w-0">
+            <div className="mb-2 flex flex-wrap items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider sm:text-xs">
+              <span>{isSeller ? 'SELLER PORTAL' : 'BUYER PROCUREMENT'}</span>
+              <span className="rounded-full bg-accent px-2.5 py-1 text-[9px] text-white sm:text-[10px]">{user.subscriptionTier} TIER</span>
+              {isSeller && (
+                <span className={`border px-2 py-0.5 rounded text-[10px] font-bold ${
+                  user.verifiedSeller
+                    ? 'bg-green-100 text-green-800 border-green-300'
+                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                }`}>
+                  {user.verifiedSeller ? 'VERIFIED SELLER' : 'VERIFICATION IN PROGRESS'}
+                </span>
+              )}
             </div>
-            <h1 className="text-[26px] md:text-[32px] font-black text-ink">
-              Welcome back, {user ? user.name : 'Industrial Member'}
+            <h1 className="text-2xl font-black leading-tight text-ink sm:text-[32px]">
+              {showWelcome
+                ? `Welcome to Trishulan${firstName ? `, ${firstName}` : ''}`
+                : firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
             </h1>
-            <p className="text-[13px] text-[#64748B] font-medium mt-1">
-              {user?.companyName || 'Trishulan Partner Firm'} • GSTIN Verified • ID: TRISH-2026-94820
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+              {showWelcome
+                ? isSeller
+                  ? 'Your supplier workspace is ready. Add your business details and start building your catalog.'
+                  : 'Your buyer workspace is ready. Find suppliers, save your business details, and post your first requirement.'
+                : [user.companyName, user.gstNumber ? `GSTIN ${user.gstNumber}` : null].filter(Boolean).join(' · ') || (isSeller ? 'Manage your listings, verification, and buyer enquiries.' : 'Track your requirements, messages, and supplier activity.')}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="relative mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 lg:mt-0 lg:max-w-[520px] lg:justify-end">
             <button
+              type="button"
               onClick={() => setShowIdModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-900 font-bold text-[13px] transition-all flex items-center gap-2 shadow-2xs"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-center text-xs font-bold text-orange-900 shadow-2xs transition-colors hover:bg-orange-100 sm:px-4 sm:text-[13px]"
             >
               <IdCard className="w-4 h-4 text-orange-600" />
-              <span>View B2B Digital ID</span>
+              <span>Digital ID</span>
             </button>
 
             <Link
               href="/market-analyzer"
-              className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-bold text-[13px] transition-all shadow-2xs"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-center text-xs font-bold text-sky-800 shadow-2xs transition-colors hover:bg-sky-100 sm:px-4 sm:text-[13px]"
             >
-              Industrial Analyzer →
+              Market insights
             </Link>
 
             <Link
-              href="/rfq"
-              className="px-5 py-2.5 rounded-xl bg-accent hover:bg-[#c2410a] text-white font-extrabold text-[13px] shadow-sm transition-all"
+              href={isSeller ? '/sell' : '/rfq'}
+              className="col-span-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-center text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-[#c2410a] sm:col-span-1 sm:min-h-11 sm:px-5 sm:py-2.5 sm:text-[13px]"
             >
-              Post Requirement +
+              {isSeller ? <><PackagePlus className="h-4 w-4" /> Create listing</> : <><ClipboardList className="h-4 w-4" /> Post a requirement</>}
             </Link>
           </div>
         </div>
 
+        {showWelcome && (
+          <section className="relative overflow-hidden rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 via-white to-amber-50 p-5 md:p-6">
+            <button
+              type="button"
+              aria-label="Dismiss welcome guide"
+              onClick={() => {
+                setShowWelcome(false);
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+              className="absolute right-3 top-3 rounded-lg p-2 text-muted transition-colors hover:bg-orange-100 hover:text-ink"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+              <div className="min-w-0 flex-1">
+                <h2 className="font-extrabold text-ink">Your next best step</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted">
+                  {isSeller
+                    ? 'Set up your business profile, then publish your first listing so buyers can find you.'
+                    : 'Tell suppliers about your business, then explore the catalog or post a requirement.'}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    href="/profile"
+                    className="rounded-lg border border-line bg-card px-3.5 py-2 text-xs font-bold text-ink transition-colors hover:border-accent"
+                  >
+                    Complete business profile
+                  </Link>
+                  <Link
+                    href={isSeller ? '/sell' : '/platform-a'}
+                    className="rounded-lg bg-accent px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-[#c2410a]"
+                  >
+                    {isSeller ? 'Create your first listing' : 'Explore suppliers'}
+                  </Link>
+                  {!isSeller && (
+                    <Link
+                      href="/rfq"
+                      className="rounded-lg border border-orange-200 bg-orange-100/70 px-3.5 py-2 text-xs font-bold text-orange-900 transition-colors hover:bg-orange-100"
+                    >
+                      Post a requirement
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Navigation Tabs */}
-        <div className="flex gap-2 border-b border-line overflow-x-auto pb-1">
+        <div role="tablist" aria-label="Dashboard sections" className="-mx-4 flex gap-1 overflow-x-auto border-b border-line px-4 pb-1 sm:mx-0 sm:gap-2 sm:px-0">
           <button
+            type="button"
+            role="tab"
+            id="dashboard-tab-overview"
+            aria-controls="dashboard-panel"
+            aria-selected={activeTab === 'OVERVIEW'}
+            tabIndex={activeTab === 'OVERVIEW' ? 0 : -1}
             onClick={() => setActiveTab('OVERVIEW')}
-            className={`px-5 py-2.5 rounded-t-xl font-bold text-[14px] border-b-2 transition-all ${
+            onKeyDown={handleTabKeyDown}
+            className={`shrink-0 whitespace-nowrap rounded-t-xl border-b-2 px-3 py-3 text-xs font-bold transition-all sm:px-5 sm:text-sm ${
               activeTab === 'OVERVIEW'
                 ? 'border-[#EA580C] text-accent bg-card'
                 : 'border-transparent text-muted hover:text-gray-900'
             }`}
           >
-            Dashboard Overview
+            Overview
           </button>
 
           <button
-            onClick={() => setActiveTab('AI_BOT')}
-            className={`px-5 py-2.5 rounded-t-xl font-bold text-[14px] border-b-2 transition-all flex items-center gap-2 ${
-              activeTab === 'AI_BOT'
-                ? 'border-[#EA580C] text-accent bg-card'
-                : 'border-transparent text-muted hover:text-gray-900'
-            }`}
-          >
-            <Bot className="w-4 h-4" />
-            <span>AI Industrial Bot</span>
-          </button>
-
-          <button
+            type="button"
+            role="tab"
+            id="dashboard-tab-chat"
+            aria-controls="dashboard-panel"
+            aria-selected={activeTab === 'CHAT'}
+            tabIndex={activeTab === 'CHAT' ? 0 : -1}
             onClick={() => setActiveTab('CHAT')}
-            className={`px-5 py-2.5 rounded-t-xl font-bold text-[14px] border-b-2 transition-all ${
+            onKeyDown={handleTabKeyDown}
+            className={`shrink-0 whitespace-nowrap rounded-t-xl border-b-2 px-3 py-3 text-xs font-bold transition-all sm:px-5 sm:text-sm ${
               activeTab === 'CHAT'
                 ? 'border-[#EA580C] text-accent bg-card'
                 : 'border-transparent text-muted hover:text-gray-900'
             }`}
           >
-            Messages & Communication ({rfqs.length})
+            Messages
           </button>
 
           <button
+            type="button"
+            role="tab"
+            id="dashboard-tab-rfqs"
+            aria-controls="dashboard-panel"
+            aria-selected={activeTab === 'RFQS'}
+            tabIndex={activeTab === 'RFQS' ? 0 : -1}
             onClick={() => setActiveTab('RFQS')}
-            className={`px-5 py-2.5 rounded-t-xl font-bold text-[14px] border-b-2 transition-all ${
+            onKeyDown={handleTabKeyDown}
+            className={`shrink-0 whitespace-nowrap rounded-t-xl border-b-2 px-3 py-3 text-xs font-bold transition-all sm:px-5 sm:text-sm ${
               activeTab === 'RFQS'
                 ? 'border-[#EA580C] text-accent bg-card'
                 : 'border-transparent text-muted hover:text-gray-900'
             }`}
           >
-            Active Requirements ({rfqs.length})
+            {isSeller ? 'Buyer requests' : 'My requirements'} <span className="ml-1 rounded-full bg-line/60 px-1.5 py-0.5 text-[10px]">{rfqs.length}</span>
           </button>
 
           <button
+            type="button"
+            role="tab"
+            id="dashboard-tab-listings"
+            aria-controls="dashboard-panel"
+            aria-selected={activeTab === 'LISTINGS'}
+            tabIndex={activeTab === 'LISTINGS' ? 0 : -1}
             onClick={() => setActiveTab('LISTINGS')}
-            className={`px-5 py-2.5 rounded-t-xl font-bold text-[14px] border-b-2 transition-all ${
+            onKeyDown={handleTabKeyDown}
+            className={`shrink-0 whitespace-nowrap rounded-t-xl border-b-2 px-3 py-3 text-xs font-bold transition-all sm:px-5 sm:text-sm ${
               activeTab === 'LISTINGS'
                 ? 'border-[#EA580C] text-accent bg-card'
                 : 'border-transparent text-muted hover:text-gray-900'
             }`}
           >
-            Catalog Listings ({listings.length})
+            {isSeller ? 'My listings' : 'Marketplace'} <span className="ml-1 rounded-full bg-line/60 px-1.5 py-0.5 text-[10px]">{listings.length}</span>
           </button>
         </div>
 
         {/* Dynamic Tab Views */}
+        <div
+          id="dashboard-panel"
+          role="tabpanel"
+          aria-labelledby={`dashboard-tab-${activeTab.toLowerCase()}`}
+          tabIndex={0}
+          className="min-w-0 outline-none"
+        >
         {activeTab === 'OVERVIEW' && (
           <div className="space-y-6">
             
-            {/* Top 3 Stat Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-gradient-to-br from-orange-50/50 via-card to-card p-6 rounded-[22px] border border-orange-200/80 shadow-2xs">
-                <div className="text-[11px] font-bold text-orange-700 uppercase tracking-wide">Active Requirement RFQs</div>
-                <div className="text-[32px] font-black text-ink mt-1">{rfqs.length}</div>
-                <div className="text-[12px] text-orange-600 font-bold mt-1">Ready for Quotes</div>
+            <div className={`grid grid-cols-2 ${isSeller ? 'lg:grid-cols-3' : ''} gap-3 sm:gap-4`}>
+              <div className="min-w-0 rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50/50 via-card to-card p-4 shadow-2xs sm:p-6">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-orange-700 sm:text-[11px]">{isSeller ? 'Open buyer requests' : 'Your requirements'}</div>
+                <div className="mt-1 text-3xl font-black text-ink sm:text-[32px]">{rfqLoadError ? '—' : rfqs.length}</div>
+                <div className="mt-1 text-[11px] font-bold text-orange-600 sm:text-xs">{isSeller ? 'Available to review' : 'Posted by you'}</div>
               </div>
 
-              <div className="bg-gradient-to-br from-sky-50/50 via-card to-card p-6 rounded-[22px] border border-sky-200/80 shadow-2xs">
-                <div className="text-[11px] font-bold text-sky-700 uppercase tracking-wide">Catalog Listings</div>
-                <div className="text-[32px] font-black text-ink mt-1">{listings.length}</div>
-                <div className="text-[12px] text-blue-600 font-bold mt-1">Live in Directory</div>
+              <div className="min-w-0 rounded-2xl border border-sky-200/80 bg-gradient-to-br from-sky-50/50 via-card to-card p-4 shadow-2xs sm:p-6">
+                <div className="text-[10px] font-bold uppercase tracking-wide text-sky-700 sm:text-[11px]">{isSeller ? 'Your listings' : 'Marketplace listings'}</div>
+                <div className="mt-1 text-3xl font-black text-ink sm:text-[32px]">{listingsLoadError ? '—' : listings.length}</div>
+                <div className="mt-1 text-[11px] font-bold text-blue-600 sm:text-xs">{isSeller ? 'Published by you' : 'Available to explore'}</div>
               </div>
 
-              <div className="bg-gradient-to-br from-emerald-50/40 via-card to-card p-6 rounded-[22px] border border-emerald-200/80 shadow-2xs">
-                <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">KYC Verification</div>
-                <div className="text-[20px] font-black text-emerald-600 mt-2">100% VERIFIED</div>
-                <Link href="/profile" className="text-[12px] font-bold text-accent hover:underline mt-1 block">
-                  View Verified Badges →
-                </Link>
-              </div>
+              {isSeller && (
+                <div className="col-span-2 rounded-2xl border border-line bg-card p-4 shadow-2xs sm:p-6 lg:col-span-1">
+                  <div className="text-[10px] font-bold uppercase tracking-wide text-muted sm:text-[11px]">Seller verification</div>
+                  <div className={`mt-2 text-lg font-black ${user.verifiedSeller ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {user.verifiedSeller ? 'Verified' : 'In progress'}
+                  </div>
+                  <Link href="/profile" className="mt-1 block text-xs font-bold text-accent hover:underline">
+                    {user.verifiedSeller ? 'View seller profile' : 'Review verification status'} →
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Quick Links Dual Banners (Light Orange & Light Blue Themes) */}
@@ -189,8 +389,8 @@ export default function DashboardPage() {
               {/* Light Orange Theme Banner: Spot Market Prices */}
               <div className="p-6 md:p-7 rounded-[22px] bg-gradient-to-br from-orange-50 via-amber-50/60 to-white border border-orange-200/90 shadow-sm flex flex-col justify-between gap-5 transition-all hover:shadow-md">
                 <div className="space-y-1.5">
-                  <span className="text-[11px] font-extrabold text-orange-600 uppercase tracking-wider block">SPOT MARKET PRICES</span>
-                  <h3 className="text-[19px] font-black text-ink">Live Commodity Price Intelligence</h3>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">MARKET DATA</span>
+                  <h3 className="text-[19px] font-black text-ink">Industrial market prices</h3>
                   <p className="text-xs text-muted font-medium leading-relaxed">
                     Check state-wise &amp; international benchmark prices for steel, copper, polymer, and machinery with live FX updates.
                   </p>
@@ -208,10 +408,10 @@ export default function DashboardPage() {
               {/* Light Blue Theme Banner: Customer Tasks & Consent */}
               <div className="p-6 md:p-7 rounded-[22px] bg-gradient-to-br from-sky-50 via-blue-50/60 to-white border border-blue-200/90 shadow-sm flex flex-col justify-between gap-5 transition-all hover:shadow-md">
                 <div className="space-y-1.5">
-                  <span className="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider block">CUSTOMER WORKSPACE SPEC</span>
-                  <h3 className="text-[19px] font-black text-ink">Customer Home, Buyer/Seller Tasks &amp; Consent</h3>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-blue-600">ACCOUNT TOOLS</span>
+                  <h3 className="text-[19px] font-black text-ink">Business workspace</h3>
                   <p className="text-xs text-muted font-medium leading-relaxed">
-                    Manage buyer phone and WhatsApp consent preferences, lead inbox privacy rules, and access the centralized support desk.
+                    Manage your business details, contact preferences, and support requests.
                   </p>
                 </div>
                 <div>
@@ -229,17 +429,32 @@ export default function DashboardPage() {
             {/* Recent RFQs List */}
             <div className="bg-card p-6 md:p-7 rounded-[22px] border border-line shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-extrabold text-[18px] text-ink">Recent Requirement Queries</h3>
-                <Link href="/rfq" className="text-xs font-bold text-accent hover:underline">Post New RFQ →</Link>
+                <h3 className="font-extrabold text-[18px] text-ink">{isSeller ? 'Open buyer requests' : 'Your recent requirements'}</h3>
+                {!isSeller && <Link href="/rfq" className="text-xs font-bold text-accent hover:underline">Post requirement →</Link>}
               </div>
               <div className="space-y-3">
-                {rfqs.map(rfq => (
-                  <div key={rfq.id} className="p-4 rounded-xl bg-card border border-line hover:border-orange-200 transition-colors flex items-center justify-between">
-                    <div>
-                      <div className="font-bold text-[14px] text-ink">{rfq.title}</div>
-                      <div className="text-xs text-muted">{rfq.buyerName} • {rfq.category} • Quantity: {rfq.quantity}</div>
-                    </div>
-                    <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-900 border border-orange-200 text-xs font-extrabold">
+                {rfqLoadError ? (
+                  <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-6 text-center">
+                    <p className="text-sm font-bold text-rose-800">Requirements couldn’t load</p>
+                    <button type="button" onClick={() => setReloadCount((count) => count + 1)} className="mt-2 text-xs font-bold text-accent hover:underline">Try again</button>
+                  </div>
+                ) : rfqs.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-line bg-bg/50 px-5 py-8 text-center">
+                    <p className="text-sm font-bold text-ink">No requirements yet</p>
+                    <p className="mt-1 text-xs text-muted">
+                      {isSeller ? 'Buyer requests will appear here when they match your catalog.' : 'Post a requirement to start receiving quotes from suppliers.'}
+                    </p>
+                    <Link href={isSeller ? '/platform-b' : '/rfq'} className="mt-3 inline-block text-xs font-bold text-accent hover:underline">
+                      {isSeller ? 'Explore buyer requests →' : 'Post your first requirement →'}
+                    </Link>
+                  </div>
+                  ) : rfqs.map(rfq => (
+                    <div key={rfq.id} className="flex flex-col gap-3 rounded-xl border border-line bg-card p-4 transition-colors hover:border-orange-200 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="font-bold text-[14px] text-ink">{rfq.title}</div>
+                        <div className="text-xs text-muted">{rfq.buyerName} • {rfq.category} • Quantity: {rfq.quantity}</div>
+                      </div>
+                      <span className="w-fit rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-900">
                       Target: ₹{rfq.targetPrice.toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -250,18 +465,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {activeTab === 'AI_BOT' && (
-          <div className="max-w-6xl mx-auto space-y-4">
-            <div>
-              <h2 className="text-[20px] font-bold text-ink">Trishulan Knowledge Base &amp; Assistant</h2>
-              <p className="text-xs text-muted mt-0.5">
-                Reference mandi benchmark prices, KYC compliance guidelines, RFQs, and platform operations.
-              </p>
-            </div>
-            <AIAssistantBot embedded={true} />
-          </div>
-        )}
-
         {activeTab === 'CHAT' && (
           <div className="max-w-4xl mx-auto">
             <ChatSuite currentUser={user} />
@@ -269,11 +472,20 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'RFQS' && (
-          <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-[20px] font-black text-ink">Active Requirements & RFQs</h2>
-              <Link href="/rfq" className="px-4 py-2 bg-accent text-white text-xs font-bold rounded-xl">Post Requirement +</Link>
+          <div className="rounded-[20px] border border-line bg-card p-4 shadow-sm sm:p-6">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-xl font-black text-ink">{isSeller ? 'Open buyer requests' : 'My requirements'}</h2>
+              {!isSeller && <Link href="/rfq" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-accent px-4 py-2 text-xs font-bold text-white">Post requirement +</Link>}
             </div>
+            {rfqLoadError ? (
+              <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-800">Requirements couldn’t load. <button type="button" onClick={() => setReloadCount((count) => count + 1)} className="font-bold underline">Try again</button></div>
+            ) : rfqs.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-line bg-bg/50 px-5 py-10 text-center">
+                <p className="text-sm font-bold text-ink">{isSeller ? 'No open buyer requests right now' : 'You haven’t posted a requirement yet'}</p>
+                <p className="mt-1 text-xs text-muted">{isSeller ? 'New requests will appear here when buyers post them.' : 'Post a request to start receiving supplier quotes.'}</p>
+                <Link href={isSeller ? '/platform-b' : '/rfq'} className="mt-3 inline-block text-xs font-bold text-accent hover:underline">{isSeller ? 'Browse buyer opportunities →' : 'Post your first requirement →'}</Link>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {rfqs.map(rfq => (
                 <div key={rfq.id} className="p-5 rounded-2xl border border-line bg-card/50">
@@ -287,15 +499,25 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         )}
 
         {activeTab === 'LISTINGS' && (
-          <div className="bg-card p-6 rounded-[20px] border border-line shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-[20px] font-black text-ink">Product & Machinery Catalog</h2>
-              <Link href="/sell" className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors">List Product +</Link>
+          <div className="rounded-[20px] border border-line bg-card p-4 shadow-sm sm:p-6">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-xl font-black text-ink">{isSeller ? 'My listings' : 'Marketplace listings'}</h2>
+              {isSeller && <Link href="/sell" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-orange-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-orange-700">Create listing +</Link>}
             </div>
+            {listingsLoadError ? (
+              <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-800">Listings couldn’t load. <button type="button" onClick={() => setReloadCount((count) => count + 1)} className="font-bold underline">Try again</button></div>
+            ) : listings.length === 0 ? (
+              <div className="col-span-full rounded-xl border border-dashed border-line bg-bg/50 px-5 py-10 text-center">
+                <p className="text-sm font-bold text-ink">{isSeller ? 'Your catalog is ready for its first listing' : 'No marketplace listings available yet'}</p>
+                <p className="mt-1 text-xs text-muted">{isSeller ? 'Add products or equipment to help buyers discover your business.' : 'Check back soon or post a requirement to let suppliers know what you need.'}</p>
+                <Link href={isSeller ? '/sell' : '/rfq'} className="mt-3 inline-block text-xs font-bold text-accent hover:underline">{isSeller ? 'Create your first listing →' : 'Post a requirement →'}</Link>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {listings.map(item => (
                 <div key={item.id} className="p-5 rounded-2xl border border-line bg-card">
@@ -307,8 +529,10 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         )}
+        </div>
 
       </div>
 
@@ -323,11 +547,13 @@ export default function DashboardPage() {
               ✕
             </button>
             <DigitalIDCard
-              name={user?.name || 'Industrial Member'}
-              role={role === 'SELLER' ? 'SELLER' : 'BUYER'}
-              companyName={user?.companyName || 'Trishulan Enterprise'}
-              gstNumber={user?.gstNumber || '27AAAAA0000A1Z5'}
-              email={user?.email || 'member@trishulan.com'}
+              name={user.name}
+              role={user.role}
+              companyName={user.companyName || ''}
+              companyId={user.id}
+              isVerified={user.verifiedSeller === true}
+              gstNumber={user.gstNumber}
+              email={user.email}
             />
           </div>
         </div>

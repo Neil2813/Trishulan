@@ -61,6 +61,7 @@ const kycVerificationLimiter = rateLimit({
 // ── Middlewares ─────────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
 }));
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
@@ -116,7 +117,7 @@ app.get("/health/deep", async (_req, res) => {
       }
     });
   } catch (err: any) {
-    res.status(500).json({ status: "UNHEALTHY", error: err.message });
+    res.status(500).json({ status: "UNHEALTHY", error: "Database health check failed" });
   }
 });
 
@@ -138,11 +139,8 @@ app.use(
       err.status < 600
         ? err.status
         : 500;
-    const errorMessage = err instanceof Error ? err.message : "Internal Server Error";
-    const message =
-      errorStatus < 500 || process.env.NODE_ENV !== "production"
-        ? errorMessage
-        : "Internal Server Error";
+    const errorMessage = err instanceof Error ? err.message : "Request failed";
+    const message = errorStatus < 500 ? errorMessage : "The service is temporarily unavailable. Please try again later.";
     res.status(errorStatus).json({ error: message });
   }
 );

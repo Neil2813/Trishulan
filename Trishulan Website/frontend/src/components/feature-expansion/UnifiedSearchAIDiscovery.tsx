@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { safeJsonFetch } from '@/lib/utils';
 
 export default function UnifiedSearchAIDiscovery() {
   const [activeTab, setActiveTab] = useState<'Product name' | 'HSN code' | 'Industry' | 'Seller company' | 'Barcode' | 'AI search'>('AI search');
-  const [queryInput, setQueryInput] = useState('AI: Find SS304 hex bolts, M12 x 50 mm, 5,000 pieces, near Chennai');
+  const [queryInput, setQueryInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [parsedData, setParsedData] = useState<any>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -32,10 +32,6 @@ export default function UnifiedSearchAIDiscovery() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    executeSearch(activeTab, queryInput);
-  }, [activeTab]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,15 +68,7 @@ export default function UnifiedSearchAIDiscovery() {
                 key={tab}
                 onClick={() => {
                   setActiveTab(tab);
-                  if (tab === 'AI search') {
-                    setQueryInput('AI: Find SS304 hex bolts, M12 x 50 mm, 5,000 pieces, near Chennai');
-                  } else if (tab === 'HSN code') {
-                    setQueryInput('7214 (Iron/Steel Bars)');
-                  } else if (tab === 'Barcode') {
-                    setQueryInput('8901030678912 (Hydraulic Bearing)');
-                  } else {
-                    setQueryInput('Stainless steel valves');
-                  }
+                  setQueryInput('');
                 }}
                 className={`flex-1 min-w-[110px] py-2 px-3 rounded-lg text-xs font-extrabold transition-all text-center ${
                   activeTab === tab
@@ -160,13 +148,6 @@ export default function UnifiedSearchAIDiscovery() {
           </div>
 
         </div>
-      </div>
-
-      {/* Example Use Callout Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example:</strong> A buyer scans a package barcode, or switches to AI search and enters a free-text industrial requirement. Search returns matching catalogue products and seller profiles with visible match reasons, MOQ and location. The buyer edits the parsed filters, compares suppliers and sends a structured RFQ.
-        </p>
       </div>
 
     </div>

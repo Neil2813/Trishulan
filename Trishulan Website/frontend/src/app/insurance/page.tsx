@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Shield,
   Users,
@@ -23,89 +23,20 @@ interface Plan {
   id: string;
   name: string;
   sumInsured: string;
+  coverageType: string;
   network: string;
+  daycarecover: boolean;
   waitingPeriod: string;
   exclusions: string;
   copay: string;
+  premiumBasis: string;
   estimatedPremium: string;
   bestFor: string;
   highlight: boolean;
   badge: string;
-  features: string[];
-  color: string;
 }
 
 type CoverageTab = "GROUP_EMPLOYEE" | "INDIVIDUAL" | "FAMILY" | "BUSINESS_OWNER";
-
-// ─── Plan Data ───────────────────────────────────────────────────────────────
-const PLANS: Plan[] = [
-  {
-    id: "plan-a",
-    name: "Plan A",
-    sumInsured: "₹5 Lakh / Employee",
-    network: "Basic hospital network",
-    waitingPeriod: "30 days (pre-existing: 48 months)",
-    exclusions: "Cosmetic surgery, dental (unless accident)",
-    copay: "10% co-pay on non-network claims",
-    estimatedPremium: "₹4,500 – ₹6,000 / employee / year",
-    bestFor: "10–50 employees | Manufacturing units",
-    highlight: false,
-    badge: "Entry Level",
-    features: [
-      "In-patient hospitalisation",
-      "Day care procedures (500+ listed)",
-      "Pre & post hospitalisation (30/60 days)",
-      "Ambulance cover up to ₹2,000",
-      "Cashless at 3,000+ network hospitals",
-    ],
-    color: "from-slate-50 to-blue-50",
-  },
-  {
-    id: "plan-b",
-    name: "Plan B",
-    sumInsured: "₹10 Lakh / Employee",
-    network: "Pan-India network (5,000+ hospitals)",
-    waitingPeriod: "Zero waiting period (first day cover)",
-    exclusions: "War, self-inflicted injuries",
-    copay: "No co-pay on network hospitals",
-    estimatedPremium: "₹9,000 – ₹14,000 / employee / year",
-    bestFor: "50–500 employees | Export-oriented units",
-    highlight: true,
-    badge: "Most Comprehensive",
-    features: [
-      "Everything in Plan A",
-      "Zero waiting period — first day cover",
-      "Maternity benefit (up to ₹75,000)",
-      "New-born baby cover from day 1",
-      "Mental health & OPD add-on available",
-      "No co-pay at any network hospital",
-      "Annual health check-up for all employees",
-    ],
-    color: "from-orange-50 to-amber-50",
-  },
-  {
-    id: "plan-c",
-    name: "Plan C",
-    sumInsured: "Custom (₹3L – ₹25L)",
-    network: "Customisable network",
-    waitingPeriod: "Negotiable",
-    exclusions: "As per policy wordings",
-    copay: "Optional co-pay for lower premium",
-    estimatedPremium: "Request a custom quote",
-    bestFor: "Business owners | OPD add-ons | 500+ employees",
-    highlight: false,
-    badge: "Custom Quote",
-    features: [
-      "Fully configurable sum insured",
-      "Optional OPD add-on module",
-      "Co-pay options for lower premium",
-      "Multi-location group policies",
-      "Dedicated insurer relationship manager",
-      "Annual renewal negotiation support",
-    ],
-    color: "from-emerald-50 to-teal-50",
-  },
-];
 
 const COVERAGE_TABS: { id: CoverageTab; label: string; icon: React.ReactNode }[] = [
   { id: "GROUP_EMPLOYEE", label: "Employee Group", icon: <Users className="w-4 h-4" /> },
@@ -139,18 +70,34 @@ const FAQ_ITEMS = [
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function InsurancePage() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+  const [plansError, setPlansError] = useState(false);
+  const [disclaimer, setDisclaimer] = useState('');
   const [activeTab, setActiveTab] = useState<CoverageTab>("GROUP_EMPLOYEE");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [formState, setFormState] = useState({
     contactPhone: "",
     companyName: "",
-    employeeCount: "10",
+    employeeCount: "",
     consentGranted: false,
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/insurance/plans')
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Insurance plans unavailable');
+        const result = await response.json();
+        setPlans(Array.isArray(result.plans) ? result.plans : []);
+        setDisclaimer(typeof result.disclaimer === 'string' ? result.disclaimer : '');
+      })
+      .catch(() => setPlansError(true))
+      .finally(() => setPlansLoading(false));
+  }, []);
 
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -168,30 +115,29 @@ export default function InsurancePage() {
       setError("Please provide consent before submitting your enquiry.");
       return;
     }
+    const plan = plans.find((item) => item.id === selectedPlan);
+    if (!plan) {
+      setError("Select an available plan before submitting your enquiry.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/insurance/lead`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            coverageType: activeTab,
-            employeeCount: Number(formState.employeeCount),
-            contactPhone: formState.contactPhone,
-            companyName: formState.companyName,
-            selectedPlan: selectedPlan,
-            consentGranted: formState.consentGranted,
-          }),
-        }
-      );
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to submit enquiry");
-      }
+      const res = await fetch('/api/insurance/lead', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          coverageType: plan.coverageType === "CUSTOM" ? "CUSTOM" : activeTab,
+          employeeCount: Number(formState.employeeCount),
+          coverageSum: plan.sumInsured,
+          contactPhone: formState.contactPhone,
+          companyName: formState.companyName,
+          selectedPlan,
+          consentGranted: formState.consentGranted,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to submit enquiry. Please try again.");
       setSubmitted(true);
     } catch (err: any) {
       setError(err.message || "An error occurred. Please try again.");
@@ -199,6 +145,10 @@ export default function InsurancePage() {
       setSubmitting(false);
     }
   };
+
+  const visiblePlans = plans.filter(
+    (plan) => plan.coverageType === activeTab || plan.coverageType === "CUSTOM"
+  );
 
   return (
     <div className="min-h-screen bg-bg">
@@ -271,7 +221,10 @@ export default function InsurancePage() {
             {COVERAGE_TABS.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setSelectedPlan(null);
+                }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold border transition-all ${
                   activeTab === tab.id
                     ? "bg-[#0A1629] text-white border-[#0A1629] shadow-md"
@@ -283,15 +236,24 @@ export default function InsurancePage() {
               </button>
             ))}
           </div>
+          {disclaimer && <p className="mt-4 text-xs text-muted">{disclaimer}</p>}
         </div>
 
         {/* ── Plan Comparison Cards ─────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-          {PLANS.map((plan) => (
+          {plansLoading ? (
+            <p className="col-span-full rounded-xl border border-line p-6 text-center text-sm text-muted">Loading insurance plans…</p>
+          ) : plansError ? (
+            <p className="col-span-full rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">Insurance plan data is temporarily unavailable.</p>
+          ) : visiblePlans.length === 0 ? (
+            <p className="col-span-full rounded-xl border border-line p-6 text-center text-sm text-muted">No plans are available for this coverage group.</p>
+          ) : visiblePlans.map((plan) => (
             <div
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id === selectedPlan ? null : plan.id)}
-              className={`relative rounded-2xl p-6 border-2 cursor-pointer transition-all bg-gradient-to-b ${plan.color} ${
+              className={`relative rounded-2xl p-6 border-2 cursor-pointer transition-all bg-gradient-to-b ${
+                plan.highlight ? "from-orange-50 to-amber-50" : "from-slate-50 to-blue-50"
+              } ${
                 selectedPlan === plan.id
                   ? "border-[#EA580C] shadow-xl scale-[1.02]"
                   : plan.highlight
@@ -327,6 +289,7 @@ export default function InsurancePage() {
                   { label: "Waiting Period", value: plan.waitingPeriod },
                   { label: "Co-Pay", value: plan.copay },
                   { label: "Est. Premium", value: plan.estimatedPremium },
+                  { label: "Premium Basis", value: plan.premiumBasis },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex justify-between gap-2 py-1.5 border-b border-black/5">
                     <span className="text-muted shrink-0">{label}</span>
@@ -335,14 +298,16 @@ export default function InsurancePage() {
                 ))}
               </div>
 
-              {/* Feature list */}
+              {/* Plan details */}
               <ul className="space-y-1.5 mb-5">
-                {plan.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12px] text-ink">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
-                    {f}
-                  </li>
-                ))}
+                <li className="flex items-start gap-2 text-[12px] text-ink">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                  {plan.daycarecover ? "Day-care cover included" : "Day-care cover not specified"}
+                </li>
+                <li className="flex items-start gap-2 text-[12px] text-ink">
+                  <Info className="w-3.5 h-3.5 text-muted mt-0.5 shrink-0" />
+                  Exclusions: {plan.exclusions}
+                </li>
               </ul>
 
               <div className="text-[11px] text-muted italic">{plan.bestFor}</div>
@@ -412,7 +377,7 @@ export default function InsurancePage() {
                     <>
                       {" "}Your interest in{" "}
                       <strong>
-                        {PLANS.find((p) => p.id === selectedPlan)?.name}
+                        {plans.find((p) => p.id === selectedPlan)?.name}
                       </strong>{" "}
                       has been noted.
                     </>
@@ -424,7 +389,7 @@ export default function InsurancePage() {
                     setFormState({
                       contactPhone: "",
                       companyName: "",
-                      employeeCount: "10",
+                      employeeCount: "",
                       consentGranted: false,
                     });
                     setSelectedPlan(null);
@@ -444,7 +409,7 @@ export default function InsurancePage() {
                     {COVERAGE_TABS.find((t) => t.id === activeTab)?.label}
                     {selectedPlan && (
                       <span className="ml-2 text-[#EA580C] font-semibold">
-                        · {PLANS.find((p) => p.id === selectedPlan)?.name}
+                        · {plans.find((p) => p.id === selectedPlan)?.name}
                       </span>
                     )}
                   </div>
@@ -479,27 +444,21 @@ export default function InsurancePage() {
                   />
                 </div>
 
-                {activeTab === "GROUP_EMPLOYEE" && (
-                  <div>
-                    <label className="block text-[12px] font-semibold text-ink mb-1.5">
-                      Number of Employees to Cover
-                    </label>
-                    <select
-                      name="employeeCount"
-                      value={formState.employeeCount}
-                      onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-[13px] text-ink outline-none focus:border-[#EA580C] bg-white"
-                    >
-                      <option value="7">7–10 employees</option>
-                      <option value="10">10–25 employees</option>
-                      <option value="25">25–50 employees</option>
-                      <option value="50">50–100 employees</option>
-                      <option value="100">100–250 employees</option>
-                      <option value="250">250–500 employees</option>
-                      <option value="500">500+ employees</option>
-                    </select>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-[12px] font-semibold text-ink mb-1.5">
+                    Number of People to Cover
+                  </label>
+                  <input
+                    name="employeeCount"
+                    type="number"
+                    min="1"
+                    step="1"
+                    required
+                    value={formState.employeeCount}
+                    onChange={handleFormChange}
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-[13px] text-ink outline-none focus:border-[#EA580C] bg-white"
+                  />
+                </div>
 
                 {/* Consent Checkbox */}
                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
@@ -559,7 +518,7 @@ export default function InsurancePage() {
             <thead>
               <tr className="bg-[#0A1629] text-white">
                 <th className="text-left px-4 py-3 font-semibold rounded-tl-xl">Criteria</th>
-                {PLANS.map((p) => (
+                {plans.map((p) => (
                   <th key={p.id} className={`text-center px-4 py-3 font-semibold ${p.id === "plan-c" ? "rounded-tr-xl" : ""}`}>
                     {p.name}
                     {p.highlight && (
@@ -588,7 +547,7 @@ export default function InsurancePage() {
                   <td className="px-4 py-3 font-semibold text-[#475569] border-b border-gray-100">
                     {row.label}
                   </td>
-                  {PLANS.map((p) => (
+                  {plans.map((p) => (
                     <td
                       key={p.id}
                       className={`px-4 py-3 text-center text-ink border-b border-gray-100 ${

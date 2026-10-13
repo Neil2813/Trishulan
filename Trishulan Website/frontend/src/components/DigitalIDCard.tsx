@@ -9,16 +9,18 @@ interface DigitalIDCardProps {
   gstNumber?: string;
   email?: string;
   photoUrl?: string;
+  isVerified?: boolean;
 }
 
 export default function DigitalIDCard({
   name,
   role,
   companyName,
-  companyId = 'TRISH-2026-94820',
-  gstNumber = '27AAAAA0000A1Z5',
-  email = 'member@trishulan.com',
+  companyId,
+  gstNumber,
+  email,
   photoUrl,
+  isVerified = false,
 }: DigitalIDCardProps) {
   const [emailSent, setEmailSent] = useState(false);
 
@@ -46,10 +48,16 @@ export default function DigitalIDCard({
           </div>
         </div>
 
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 border border-green-300 text-green-800 font-extrabold text-[10px] tracking-wider uppercase shadow-sm">
-          <Check className="w-3 h-3 text-green-700" />
-          <span>KYC VERIFIED</span>
-        </span>
+        {role === 'SELLER' && (
+          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full border font-extrabold text-[10px] tracking-wider uppercase shadow-sm ${
+            isVerified
+              ? 'bg-green-100 border-green-300 text-green-800'
+              : 'bg-amber-50 border-amber-200 text-amber-800'
+          }`}>
+            {isVerified && <Check className="w-3 h-3 text-green-700" />}
+            <span>{isVerified ? 'VERIFIED' : 'VERIFICATION PENDING'}</span>
+          </span>
+        )}
       </div>
 
       {/* Card Main Body */}
@@ -65,7 +73,7 @@ export default function DigitalIDCard({
             )}
           </div>
           <span className="mt-2 text-[10px] font-extrabold text-accent uppercase tracking-widest">
-            {role === 'SELLER' ? 'VERIFIED SELLER' : 'VERIFIED BUYER'}
+            {role === 'SELLER' ? (isVerified ? 'VERIFIED SELLER' : 'SELLER') : 'BUYER'}
           </span>
         </div>
 
@@ -73,26 +81,26 @@ export default function DigitalIDCard({
         <div className="sm:col-span-2 space-y-2.5">
           <div>
             <span className="text-[9.5px] font-bold text-muted uppercase tracking-wider block">Member / Firm Representative</span>
-            <h3 className="text-[18px] font-black text-ink leading-tight">{name || 'Industrial Member'}</h3>
+            <h3 className="text-[18px] font-black text-ink leading-tight">{name || '—'}</h3>
           </div>
 
           <div>
             <span className="text-[9.5px] font-bold text-muted uppercase tracking-wider block">Company / Firm Name</span>
-            <div className="text-[13.5px] font-extrabold text-accent">{companyName || 'Trishulan Enterprise'}</div>
+            <div className="text-[13.5px] font-extrabold text-accent">{companyName || '—'}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <div>
               <span className="text-[9px] font-bold text-muted uppercase tracking-wider block">Company ID</span>
               <span className="text-xs font-mono font-bold text-ink bg-card px-2 py-0.5 rounded border border-gray-300 block shadow-2xs">
-                {companyId}
+                {companyId || '—'}
               </span>
             </div>
 
             <div>
               <span className="text-[9px] font-bold text-muted uppercase tracking-wider block">GSTIN / Tax ID</span>
               <span className="text-xs font-mono font-bold text-ink bg-card px-2 py-0.5 rounded border border-gray-300 block truncate shadow-2xs">
-                {gstNumber}
+                {gstNumber || '—'}
               </span>
             </div>
           </div>
@@ -138,7 +146,7 @@ export default function DigitalIDCard({
 
           <div className="text-[11px] text-gray-700">
             <span className="font-bold text-ink block">Scan to Verify Authenticity</span>
-            <span className="text-[10px] text-muted">Encrypted Trishulan Trust Chain ID</span>
+            <span className="text-[10px] text-muted">{email || 'Account email unavailable'}</span>
           </div>
         </div>
 
@@ -163,7 +171,7 @@ export default function DigitalIDCard({
 
       </div>
 
-      {emailSent && (
+      {emailSent && email && (
         <div className="mt-4 p-2.5 bg-green-100 border border-green-300 text-green-900 text-xs font-bold rounded-xl text-center flex items-center justify-center gap-1.5 animate-[fadeIn_0.15s_ease]">
           <Check className="w-3.5 h-3.5 text-green-800" />
           <span>Digital ID Card & Verification Certificate emailed to {email}</span>

@@ -47,7 +47,7 @@ export default function AccountRegistrationKycStatus() {
 
   // Re-upload form state
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string>('address_proof_utility_bill.pdf');
+  const [fileName, setFileName] = useState<string>('');
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadResult, setUploadResult] = useState<any>(null);
   const [pincode, setPincode] = useState('');
@@ -183,12 +183,7 @@ export default function AccountRegistrationKycStatus() {
 
         {/* Stepper (4 steps) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {(data?.stepper || [
-            { step: 1, title: 'Account', status: 'Done' },
-            { step: 2, title: 'Contact check', status: 'Done' },
-            { step: 3, title: 'Identity / business', status: 'In review' },
-            { step: 4, title: 'Approval', status: 'Pending' },
-          ]).map((st) => (
+          {(data?.stepper || []).map((st) => (
             <div
               key={st.step}
               className={`p-3.5 rounded-xl border flex items-center gap-3 shadow-sm ${
@@ -217,6 +212,9 @@ export default function AccountRegistrationKycStatus() {
             </div>
           ))}
         </div>
+        {!loading && !error && !data?.stepper?.length && (
+          <p className="text-xs text-muted">Verification progress is not available.</p>
+        )}
 
         <section className="bg-card border border-line rounded-xl p-4 space-y-3">
           <div>
@@ -379,7 +377,7 @@ export default function AccountRegistrationKycStatus() {
         <div className="bg-card border border-line rounded-xl overflow-hidden shadow-sm">
           <div className="bg-card px-4 py-3 border-b border-line flex justify-between items-center">
             <span className="text-xs font-extrabold text-ink">Submitted for business account</span>
-            <span className="text-[10px] text-muted font-mono font-bold">Role: {data?.accountType || 'BUSINESS_SELLER'}</span>
+            <span className="text-[10px] text-muted font-mono font-bold">Role: {data?.accountType || '—'}</span>
           </div>
 
           <div className="overflow-x-auto">
@@ -422,6 +420,13 @@ export default function AccountRegistrationKycStatus() {
                     </td>
                   </tr>
                 ))}
+                {!loading && !error && !data?.documents?.length && (
+                  <tr>
+                    <td colSpan={4} className="p-6 text-center text-muted">
+                      No verification documents are available.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -469,14 +474,7 @@ export default function AccountRegistrationKycStatus() {
         <div className="bg-card/80 border border-line p-4 rounded-xl space-y-3">
           <span className="text-xs font-bold text-ink uppercase block">Account Creation and KYC Journey</span>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            {(data?.journeySteps || [
-              { step: 1, label: 'Create account', active: true },
-              { step: 2, label: 'Verify contact', active: true },
-              { step: 3, label: 'Select account type', active: true },
-              { step: 4, label: 'Submit consent', active: true },
-              { step: 5, label: 'Review / correct', active: true, current: true },
-              { step: 6, label: 'KYC status active', active: false },
-            ]).map((js, idx) => (
+            {(data?.journeySteps || []).map((js, idx) => (
               <React.Fragment key={js.step}>
                 {idx > 0 && <span className="text-muted/70">→</span>}
                 <div
@@ -496,15 +494,11 @@ export default function AccountRegistrationKycStatus() {
               </React.Fragment>
             ))}
           </div>
+          {!loading && !error && !data?.journeySteps?.length && (
+            <p className="text-xs text-muted">The account journey is not available.</p>
+          )}
         </div>
 
-        {/* Spec Callout Box */}
-        <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">How it works:</p>
-          <p className="italic leading-relaxed">
-            "{data?.exampleText || 'a new industrial supplier registers with a work email, confirms its phone, selects a business-seller account and uploads the business document and authorized-person evidence requested for its region. The dashboard shows "Address evidence - needs review," explains the issue, and offers a secure re-upload. The supplier can see what features are available while review is pending.'}"
-          </p>
-        </div>
       </div>
     </div>
   );

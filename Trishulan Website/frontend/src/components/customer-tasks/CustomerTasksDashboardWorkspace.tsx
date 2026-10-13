@@ -101,15 +101,15 @@ export default function CustomerTasksDashboardWorkspace({
             </div>
             <div className="text-xs text-slate-700 font-medium py-3 px-3.5 bg-card rounded-lg border border-line flex flex-wrap gap-x-4 gap-y-1 shadow-sm">
               <span>
-                <strong className="text-sky-700 text-sm font-extrabold">{data?.buyerWorkspace?.rfqsWaiting ?? 2}</strong> RFQs waiting
+                <strong className="text-sky-700 text-sm font-extrabold">{data?.buyerWorkspace?.rfqsWaiting ?? '—'}</strong> RFQs waiting
               </span>
               <span className="text-slate-300">|</span>
               <span>
-                <strong className="text-sky-700 text-sm font-extrabold">{data?.buyerWorkspace?.quotesToCompare ?? 3}</strong> quotes to compare
+                <strong className="text-sky-700 text-sm font-extrabold">{data?.buyerWorkspace?.quotesToCompare ?? '—'}</strong> quotes to compare
               </span>
               <span className="text-slate-300">|</span>
               <span>
-                <strong className="text-sky-700 text-sm font-extrabold">{data?.buyerWorkspace?.deliveryUpdates ?? 1}</strong> delivery update
+                <strong className="text-sky-700 text-sm font-extrabold">{data?.buyerWorkspace?.deliveryUpdates ?? '—'}</strong> delivery update
               </span>
             </div>
           </div>
@@ -126,15 +126,15 @@ export default function CustomerTasksDashboardWorkspace({
             </div>
             <div className="text-xs text-slate-700 font-medium py-3 px-3.5 bg-card rounded-lg border border-line flex flex-wrap gap-x-4 gap-y-1 shadow-sm">
               <span>
-                <strong className="text-emerald-700 text-sm font-extrabold">{data?.supplierWorkspace?.newLeads ?? 4}</strong> new leads
+                <strong className="text-emerald-700 text-sm font-extrabold">{data?.supplierWorkspace?.newLeads ?? '—'}</strong> new leads
               </span>
               <span className="text-slate-300">|</span>
               <span>
-                <strong className="text-amber-700 text-sm font-extrabold">{data?.supplierWorkspace?.quotesDue ?? 2}</strong> quotes due
+                <strong className="text-amber-700 text-sm font-extrabold">{data?.supplierWorkspace?.quotesDue ?? '—'}</strong> quotes due
               </span>
               <span className="text-slate-300">|</span>
               <span>
-                <strong className="text-rose-700 text-sm font-extrabold">{data?.supplierWorkspace?.lowStockAlerts ?? 6}</strong> low-stock alerts
+                <strong className="text-rose-700 text-sm font-extrabold">{data?.supplierWorkspace?.lowStockAlerts ?? '—'}</strong> low-stock alerts
               </span>
             </div>
           </div>
@@ -148,11 +148,7 @@ export default function CustomerTasksDashboardWorkspace({
               Recent activity
             </h3>
             <div className="space-y-3 text-xs">
-              {(data?.recentActivity || [
-                { id: '1', title: 'RFQ 208 - Supplier 1 sent a revised quote', color: 'sky' },
-                { id: '2', title: 'Shipment 304 - ETA changed to 16:00', color: 'amber' },
-                { id: '3', title: 'Invoice 1042 - payment due in 5 days', color: 'emerald' },
-              ]).map((act) => (
+              {(data?.recentActivity || []).map((act) => (
                 <div
                   key={act.id}
                   className="flex items-center gap-3 p-3 rounded-lg bg-card border border-line shadow-sm"
@@ -161,6 +157,9 @@ export default function CustomerTasksDashboardWorkspace({
                   <span className="text-slate-800 font-bold">{act.title}</span>
                 </div>
               ))}
+              {!loading && !data?.recentActivity?.length && (
+                <p className="text-xs text-muted">No recent activity available.</p>
+              )}
             </div>
           </div>
 
@@ -172,13 +171,13 @@ export default function CustomerTasksDashboardWorkspace({
               </h3>
               <div className="bg-card p-3.5 rounded-lg border border-line space-y-1.5 text-xs shadow-sm">
                 <p className="font-extrabold text-sky-800">
-                  Case #{data?.supportCase?.caseNumber || 'CS-0198'}
+                  {data?.supportCase?.caseNumber ? `Case #${data.supportCase.caseNumber}` : 'No open support case'}
                 </p>
                 <p className="text-slate-700">
-                  Status: <span className="text-amber-800 font-bold">{data?.supportCase?.status || 'waiting on reply'}</span>
+                  Status: <span className="text-amber-800 font-bold">{data?.supportCase?.status || '—'}</span>
                 </p>
                 <p className="text-muted text-[11px]">
-                  Next update: {data?.supportCase?.nextUpdate || 'within 1 day'}
+                  Next update: {data?.supportCase?.nextUpdate || '—'}
                 </p>
               </div>
             </div>

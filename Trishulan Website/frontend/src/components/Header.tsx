@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase';
+import { getAccountDisplayName } from '@/lib/display-name';
 import AuthModal from './AuthModal';
 import MegaMenu from './MegaMenu';
 import SearchToolsModal from './SearchToolsModal';
@@ -44,11 +45,13 @@ export default function Header() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Price Alert: Steel Rebar 12mm', text: 'Spot prices dropped by 1.2% in Maharashtra mandi.', time: '10m ago', unread: true },
-    { id: 2, title: 'RFQ Quote Received', text: 'Rajesh Steel Works quoted ₹52,400/MT for your inquiry.', time: '1h ago', unread: true },
-    { id: 3, title: 'KYC Document Verified', text: 'Your GST & PAN documents have been approved.', time: '1d ago', unread: false },
-  ]);
+  const [notifications, setNotifications] = useState<Array<{
+    id: string;
+    title: string;
+    text: string;
+    time: string;
+    unread: boolean;
+  }>>([]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -58,6 +61,15 @@ export default function Header() {
     try {
       const res = await fetch('/api/auth/me');
       const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) {
+          setUser(null);
+          try {
+            localStorage.removeItem('trishulan_user');
+          } catch (_) {}
+        }
+        return;
+      }
       if (data.user) {
         setUser(data.user);
         try {
@@ -138,6 +150,8 @@ export default function Header() {
       setIsSearching(false);
     }
   };
+
+  const accountName = user ? getAccountDisplayName(user.name, user.email) : '';
 
   const openTools = (tab: 'barcode' | 'image' | 'voice' | 'hsn') => {
     setSearchToolsTab(tab);
@@ -345,6 +359,9 @@ export default function Header() {
                     </div>
 
                     <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                      {notifications.length === 0 && (
+                        <p className="py-6 text-center text-xs text-muted">No notifications available.</p>
+                      )}
                       {notifications.map((item) => (
                         <div
                           key={item.id}
@@ -388,10 +405,10 @@ export default function Header() {
                   title="View Profile & Account"
                 >
                   <div className="w-7 h-7 rounded-full bg-accent/15 text-accent font-black text-[12px] flex items-center justify-center border border-accent/20">
-                    {user.name ? user.name[0].toUpperCase() : <UserIcon className="w-3.5 h-3.5" />}
+                    {accountName ? accountName[0].toUpperCase() : <UserIcon className="w-3.5 h-3.5" />}
                   </div>
                   <span className="max-w-[120px] truncate text-[13px] font-bold">
-                    {user.companyName || user.name || 'Profile'}
+                    {user.companyName || accountName || 'Profile'}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-muted transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -400,7 +417,7 @@ export default function Header() {
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 top-[44px] w-[220px] bg-card rounded-2xl border border-line shadow-2xl p-2 z-50 animate-[fadeIn_0.15s_ease]">
                     <div className="px-3 py-2.5 border-b border-line mb-1">
-                      <div className="font-extrabold text-[13px] text-ink truncate">{user.name || 'Account'}</div>
+                      <div className="font-extrabold text-[13px] text-ink truncate">{accountName || 'Your account'}</div>
                       <div className="text-[11px] text-muted truncate">{user.email}</div>
                       {user.role && (
                         <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 uppercase">
@@ -524,4 +541,3 @@ export default function Header() {
     </>
   );
 }
-

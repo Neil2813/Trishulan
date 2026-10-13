@@ -30,18 +30,7 @@ export default function PlatformEActivityDashboard() {
     loadActivity();
   }, []);
 
-  const newLeads = metrics?.newLeads ?? 24;
-  const responded = metrics?.responded ?? 18;
-  const openRfqs = metrics?.openRfqs ?? 7;
-  const weeklyTrend = metrics?.weeklyTrend ?? [
-    { day: 'Mon', count: 5 },
-    { day: 'Tue', count: 9 },
-    { day: 'Wed', count: 7 },
-    { day: 'Thu', count: 12 },
-    { day: 'Fri', count: 14 },
-    { day: 'Sat', count: 10 },
-    { day: 'Sun', count: 18 },
-  ];
+  const weeklyTrend = metrics?.weeklyTrend ?? [];
 
   const maxCount = Math.max(...weeklyTrend.map(t => t.count), 20);
 
@@ -67,7 +56,7 @@ export default function PlatformEActivityDashboard() {
             NEW LEADS
           </span>
           <span className="text-2xl md:text-3xl font-black text-[#00A896]">
-            {loading ? '...' : newLeads}
+            {loading ? '...' : metrics?.newLeads ?? '—'}
           </span>
         </div>
 
@@ -77,7 +66,7 @@ export default function PlatformEActivityDashboard() {
             RESPONDED
           </span>
           <span className="text-2xl md:text-3xl font-black text-[#00A896]">
-            {loading ? '...' : responded}
+            {loading ? '...' : metrics?.responded ?? '—'}
           </span>
         </div>
 
@@ -87,7 +76,7 @@ export default function PlatformEActivityDashboard() {
             OPEN RFQs
           </span>
           <span className="text-2xl md:text-3xl font-black text-[#00A896]">
-            {loading ? '...' : openRfqs}
+            {loading ? '...' : metrics?.openRfqs ?? '—'}
           </span>
         </div>
 
@@ -102,7 +91,7 @@ export default function PlatformEActivityDashboard() {
 
         {/* Bar Chart Visual */}
         <div className="h-44 flex items-end gap-3 md:gap-6 pt-6 border-b border-line pb-2">
-          {weeklyTrend.map((item, idx) => {
+          {weeklyTrend.length ? weeklyTrend.map((item, idx) => {
             const heightPercent = Math.min((item.count / maxCount) * 100, 100);
 
             return (
@@ -122,7 +111,11 @@ export default function PlatformEActivityDashboard() {
                 </span>
               </div>
             );
-          })}
+          }) : (
+            <p className="w-full text-center self-center text-xs text-muted">
+              {loading ? 'Loading activity…' : 'No activity data available.'}
+            </p>
+          )}
         </div>
       </div>
 

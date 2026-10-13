@@ -53,7 +53,7 @@ export default function HeroSection() {
               transition={{ delay: 0.6, duration: 0.5 }}
               className="text-[18px] md:text-[20px] text-[#334155] leading-[1.6] max-w-[560px] mb-[48px]"
             >
-              Raw materials, machinery, logistics and services from 25,000+ verified sellers, with live market prices to keep every deal fair.
+              Find raw materials, machinery, logistics and services, with market-price references for industrial purchasing.
             </motion.p>
 
             {/* Action Cards */}

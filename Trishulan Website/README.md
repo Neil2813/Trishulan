@@ -42,6 +42,14 @@ npm install
 npm run dev           # Start Next.js on http://localhost:3000
 ```
 
+### Firebase Authentication
+
+Set the Firebase web app values in `frontend/.env.local` and set the same project ID
+as `FIREBASE_PROJECT_ID` in `backend/.env`. In Firebase Console → Authentication →
+Sign-in method, enable Google and Email/Password. Email/password registration sends
+a verification email; users must verify it before the app creates their account.
+Only accounts registered in Trishulan can sign in.
+
 ---
 
 ## API Base URL

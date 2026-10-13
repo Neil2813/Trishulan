@@ -79,15 +79,7 @@ export default function PackagingRequirementsSupport() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {(options.length > 0
-                  ? options
-                  : [
-                      { option: 'Export crate', suitableUse: 'Heavy machinery', moqTiming: '10 / 7 days', buyerAction: 'Request sample', actionType: 'SAMPLE' },
-                      { option: 'Moisture barrier', suitableUse: 'Sea shipment', moqTiming: '100 / 5 days', buyerAction: 'Compare spec', actionType: 'SPEC' },
-                      { option: 'Pallet + straps', suitableUse: 'Warehouse load', moqTiming: '20 / 3 days', buyerAction: 'Add to request', actionType: 'ADD' },
-                      { option: 'Pack checklist', suitableUse: 'Photo evidence', moqTiming: 'Per shipment', buyerAction: 'Upload photos', actionType: 'UPLOAD' },
-                    ]
-                ).map((row: any, idx: number) => (
+                {options.length ? options.map((row: any, idx: number) => (
                   <tr key={idx} className="hover:bg-card transition">
                     <td className="p-3.5 font-bold text-ink">{row.packagingType || row.option}</td>
                     <td className="p-3.5 text-slate-700">{row.suitableFor || row.suitableUse}</td>
@@ -101,7 +93,13 @@ export default function PackagingRequirementsSupport() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-muted">
+                      {loading ? 'Loading packaging options…' : 'No packaging options available.'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -114,7 +112,7 @@ export default function PackagingRequirementsSupport() {
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
           <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
-            "{disclaimer || 'Example: a buyer exporting CNC lathes checks packaging specs, requests ISPM 15 wooden crating quotes, and includes photos in the packing checklist before loading.'}"
+            {disclaimer || 'No packaging guidance is available.'}
           </p>
         </div>
       </div>

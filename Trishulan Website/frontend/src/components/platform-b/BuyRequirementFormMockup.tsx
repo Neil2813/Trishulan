@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 
 export default function BuyRequirementFormMockup() {
-  const [product, setProduct] = useState('Industrial centrifugal pump');
-  const [quantity, setQuantity] = useState('50 units');
-  const [specification, setSpecification] = useState('SS316; 15 HP, 3-phase');
-  const [delivery, setDelivery] = useState('Pune, India - within 45 days');
-  const [attachmentName, setAttachmentName] = useState('Pump datasheet.pdf');
+  const [product, setProduct] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [specification, setSpecification] = useState('');
+  const [delivery, setDelivery] = useState('');
+  const [attachmentName, setAttachmentName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
 
@@ -150,13 +150,6 @@ export default function BuyRequirementFormMockup() {
           </div>
 
         </form>
-      </div>
-
-      {/* Example Use Callout Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example use:</strong> A distributor needs 5,000 custom brackets. The buyer attaches a drawing and requests material grade, unit price at multiple volumes, tooling fee, production time, sample availability and FOB/CIF options.
-        </p>
       </div>
 
     </div>

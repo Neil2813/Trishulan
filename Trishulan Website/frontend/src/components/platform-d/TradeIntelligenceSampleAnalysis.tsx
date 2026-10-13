@@ -1,48 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 export default function TradeIntelligenceSampleAnalysis() {
-  const [product, setProduct] = useState('Pump components');
-  const [destination, setDestination] = useState('United Arab Emirates');
-  const [period, setPeriod] = useState('Last 12 months');
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState('');
+  const [destination, setDestination] = useState('');
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
 
-  const fetchIntelligence = async (p: string, d: string, per: string) => {
+  const fetchIntelligence = async (p: string, d: string) => {
+    if (!p.trim() || !d.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/platform-d/intelligence?query=${encodeURIComponent(p)}&destination=${encodeURIComponent(d)}&period=${encodeURIComponent(per)}`);
+      const res = await fetch(`/api/platform-d/intelligence?query=${encodeURIComponent(p)}&destination=${encodeURIComponent(d)}`);
+      if (!res.ok) throw new Error('Trade intelligence is unavailable');
       const result = await res.json();
-      setData(result);
-    } catch (err) {
-      console.error('Failed to fetch trade intelligence:', err);
+      setData(result.intelligence ?? result);
+    } catch {
+      setData(null);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchIntelligence(product, destination, period);
-  }, []);
-
   const handleApplyFilter = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchIntelligence(product, destination, period);
+    fetchIntelligence(product, destination);
   };
-
-  const quarterlyTrend = data?.quarterlyTrend || [
-    { period: 'Q1', count: 32 },
-    { period: 'Q2', count: 44 },
-    { period: 'Q3', count: 40 },
-    { period: 'Q4', count: 56 },
-    { period: 'Q1 (New)', count: 62 },
-    { period: 'Q2 (New)', count: 70 },
-    { period: 'Q3 (New)', count: 60 },
-    { period: 'Q4 (New)', count: 85 },
-  ];
-
-  const maxVal = Math.max(...quarterlyTrend.map((q: any) => q.count), 100);
 
   return (
     <div className="bg-card rounded-[24px] border border-line p-6 md:p-8 shadow space-y-6">
@@ -53,12 +37,12 @@ export default function TradeIntelligenceSampleAnalysis() {
         </h2>
       </div>
 
-      {/* Screen Mockup Container */}
+      {/* Trade intelligence search */}
       <div className="border border-line rounded-2xl overflow-hidden bg-card shadow-xs">
         
         {/* Header Bar */}
         <div className="bg-[#0A1629] text-white px-5 py-3.5 font-extrabold text-xs tracking-wider uppercase flex justify-between items-center">
-          <span>TRADE INTELLIGENCE / SAMPLE ANALYSIS</span>
+          <span>TRADE INTELLIGENCE</span>
         </div>
 
         <div className="p-6 space-y-6">
@@ -85,22 +69,14 @@ export default function TradeIntelligenceSampleAnalysis() {
               />
             </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-muted uppercase mb-1">Period</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-card border border-line rounded-lg text-xs font-semibold text-ink focus:outline-none focus:border-[#1D4ED8]"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs rounded-lg transition-colors"
-                >
-                  Analyze
-                </button>
-              </div>
+            <div className="flex items-end">
+              <button
+                type="submit"
+                disabled={loading || !product.trim() || !destination.trim()}
+                className="w-full px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white font-bold text-xs rounded-lg transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Analyzing…' : 'Analyze'}
+              </button>
             </div>
           </form>
 
@@ -110,36 +86,15 @@ export default function TradeIntelligenceSampleAnalysis() {
             {/* Quarterly Bar Chart */}
             <div className="lg:col-span-2 bg-card border border-line p-5 rounded-2xl space-y-3 shadow-2xs">
               <div className="flex justify-between items-center text-xs font-bold text-muted">
-                <span>Shipment Volume Trend ({product} → {destination})</span>
-                <span className="text-green-600 font-bold">Active Customs Activity</span>
+                <span>Trade intelligence for {product || '—'} → {destination || '—'}</span>
+                {data?.lastUpdated && <span className="text-muted font-bold">{new Date(data.lastUpdated).toLocaleString()}</span>}
               </div>
 
-              <div className="h-44 flex items-end gap-2 md:gap-4 pt-6 border-b border-line pb-2">
-                {quarterlyTrend.map((q: any, idx: number) => {
-                  const heightPercent = Math.min((q.count / maxVal) * 100, 100);
-
-                  return (
-                    <div key={idx} className="flex-1 flex flex-col items-center gap-1 group">
-                      <span className="text-[10px] font-bold text-muted/70 group-hover:text-[#1D4ED8]">
-                        {q.count}
-                      </span>
-                      <div className="w-full bg-line/30 rounded-t h-32 flex items-end">
-                        <div
-                          style={{ height: `${heightPercent}%` }}
-                          className="w-full bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-t transition-all cursor-pointer shadow-xs"
-                          title={`${q.period}: ${q.count} shipments`}
-                        ></div>
-                      </div>
-                      <span className="text-[10px] text-muted font-mono font-semibold">
-                        {q.period}
-                      </span>
-                    </div>
-                  );
-                })}
+              <div className="h-44 flex items-center justify-center border-b border-line pb-2 text-center text-xs text-muted">
+                {loading ? 'Loading trade intelligence…' : data ? 'Shipment trend data is not provided by the current data source.' : 'Enter a product and destination to search.'}
               </div>
             </div>
 
-            {/* Sample Indicators */}
             <div className="bg-card border border-line p-5 rounded-2xl space-y-3 shadow-2xs">
               <h4 className="text-xs font-black text-ink uppercase tracking-wider border-b border-slate-100 pb-2">
                 Key indicators
@@ -147,45 +102,18 @@ export default function TradeIntelligenceSampleAnalysis() {
 
               <div className="space-y-2.5 text-xs">
                 <div className="p-2.5 bg-card rounded-xl border border-line flex justify-between items-center">
-                  <span className="text-muted font-semibold">• shipment count</span>
-                  <span className="font-extrabold text-ink">
-                    {loading ? '...' : (data?.indicators?.shipmentCount || '142 Shipments')}
-                  </span>
+                  <span className="text-muted font-semibold">Supplier profiles</span>
+                  <span className="font-extrabold text-ink">{loading ? '…' : (data?.supplierCount ?? '—')}</span>
                 </div>
-
-                <div className="p-2.5 bg-card rounded-xl border border-line flex justify-between items-center">
-                  <span className="text-muted font-semibold">• supplier count</span>
-                  <span className="font-extrabold text-ink">
-                    {loading ? '...' : (data?.indicators?.supplierCount || '28 Exporters')}
-                  </span>
-                </div>
-
-                <div className="p-2.5 bg-card rounded-xl border border-line flex justify-between items-center">
-                  <span className="text-muted font-semibold">• average declared value</span>
-                  <span className="font-extrabold text-green-600">
-                    {loading ? '...' : (data?.indicators?.avgDeclaredValue || '$48,500')}
-                  </span>
-                </div>
-
-                <div className="p-2.5 bg-card rounded-xl border border-line flex justify-between items-center">
-                  <span className="text-muted font-semibold">• repeat buyer trend</span>
-                  <span className="font-extrabold text-accent">
-                    {loading ? '...' : (data?.indicators?.repeatBuyerTrend || '+14.2% Growth')}
-                  </span>
-                </div>
+                <p className="text-[11px] text-muted">
+                  {data?.dataSource || (data ? 'Data source not specified.' : 'No analysis has been requested.')}
+                </p>
               </div>
             </div>
 
           </div>
 
         </div>
-      </div>
-
-      {/* Example Use Callout Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example use:</strong> A pump exporter identifies a target country, searches pump-related product codes and shipment activity, checks repeat importers and supplier relationships, then validates prospects independently before outreach.
-        </p>
       </div>
 
     </div>

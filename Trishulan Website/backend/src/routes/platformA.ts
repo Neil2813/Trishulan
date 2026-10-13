@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { prisma } from '../lib/db';
+import { isDatabaseConnectionError, prisma } from '../lib/db';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { buildWeeklyTrend, getWeeklyStart } from '../lib/activity';
 import { listingSchema } from '../lib/security';
@@ -76,8 +76,14 @@ router.get('/suppliers', async (req, res) => {
     });
 
     return res.json({ suppliers, total: suppliers.length });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to fetch suppliers' });
+  } catch (err: unknown) {
+    console.error('Supplier lookup failed', err instanceof Error ? err.name : 'UnknownError');
+    if (isDatabaseConnectionError(err)) {
+      return res.status(503).json({
+        error: 'Supplier data is temporarily unavailable. Check the backend database credentials and connectivity.',
+      });
+    }
+    return res.status(500).json({ error: 'Failed to fetch suppliers' });
   }
 });
 

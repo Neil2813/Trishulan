@@ -17,7 +17,7 @@ export default function BuyerRFQMatchingCompareView() {
         if (ok && resData) {
           setData(resData);
         } else if (error) {
-          console.warn('RFQ matching fallback to default preview:', error);
+          console.warn('RFQ matching data is unavailable:', error);
         }
       } catch (err) {
         console.warn('Failed to fetch RFQ matching compare view:', err);
@@ -28,7 +28,7 @@ export default function BuyerRFQMatchingCompareView() {
     loadMatch();
   }, []);
 
-  const topNeedSummary = data?.topNeedSummary?.rawString || 'Need: SS304 M12 hex bolts | 5,000 pcs | Chennai | delivery within 30 days';
+  const topNeedSummary = data?.topNeedSummary?.rawString || 'No RFQ selected.';
   const comparisonRows = data?.comparisonRows || [];
 
   return (
@@ -80,7 +80,9 @@ export default function BuyerRFQMatchingCompareView() {
                     </td>
                   </tr>
                 ) : (
-                  comparisonRows.map((r: any) => (
+                  comparisonRows.length === 0 ? (
+                    <tr><td colSpan={6} className="p-8 text-center text-xs text-muted">No supplier quotes are available for this RFQ.</td></tr>
+                  ) : comparisonRows.map((r: any) => (
                     <tr key={r.id} className="hover:bg-card transition-colors">
                       <td className="p-3.5 font-bold text-ink">{r.supplierName}</td>
                       <td className="p-3.5 text-blue-700 font-semibold">{r.matchReason}</td>
@@ -120,13 +122,6 @@ export default function BuyerRFQMatchingCompareView() {
           </p>
 
         </div>
-      </div>
-
-      {/* Example Use Callout Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example:</strong> A buyer posts one RFQ and receives three quote responses. The compare view explains why each supplier matched and places price, MOQ, delivery, documentation and freight into the same format. The buyer asks one clarification in the shared thread, then requests a transport quote after selecting the supplier.
-        </p>
       </div>
 
       {/* Clarification Drawer / Modal */}

@@ -6,7 +6,7 @@ import Image from "next/image"
 function CategoryCard({ 
   title, 
   description, 
-  listings, 
+  actionLabel = "Browse category",
   className,
   bgClass,
   imagePath,
@@ -28,7 +28,7 @@ function CategoryCard({
       
       <div className="relative z-10 mt-6">
         <span className="text-[#64748B] text-[12px] md:text-[13px] font-medium flex items-center gap-2 group-hover:text-ink transition-colors">
-          {listings} 
+          {actionLabel}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </span>
       </div>
@@ -77,7 +77,6 @@ function CategoryBentoGrid() {
           <CategoryCard
             title="Raw Materials"
             description="Industrial chemicals, polymers & metals."
-            listings="480+ listings"
             bgClass="bg-[#EFF7ED]"
             imagePath="/Bento Box/RawMaterial.png"
             imageClassName="object-right-bottom"
@@ -87,7 +86,6 @@ function CategoryBentoGrid() {
           <CategoryCard
             title="Machinery"
             description="New, used & refurbished machines."
-            listings="400+ listings"
             bgClass="bg-[#EFF4FF]"
             imagePath="/Bento Box/Machinery.png"
             imageClassName="object-right-bottom"
@@ -97,7 +95,6 @@ function CategoryBentoGrid() {
           <CategoryCard
             title="Spares & Parts"
             description="OEM-grade spares, ready to ship."
-            listings="400+ listings"
             bgClass="bg-[#FDF4EB]"
             imagePath="/Bento Box/SpareAndParts.png"
             imageClassName="object-right-bottom"
@@ -107,7 +104,6 @@ function CategoryBentoGrid() {
           <CategoryCard
             title="Transport & Logistics"
             description="FTL, PTL & container freight."
-            listings="320+ listings"
             bgClass="bg-[#FCF5EF]"
             imagePath="/Bento Box/LogisticsAndTransportation.png"
             imageClassName="object-right-bottom"
@@ -117,7 +113,6 @@ function CategoryBentoGrid() {
           <CategoryCard
             title="Workforce & Training"
             description="Skilled industrial workers and certification."
-            listings="720+ listings"
             bgClass="bg-[#F3EFFF]"
             imagePath="/Bento Box/WorkforceAndTraining.png"
             imageClassName="object-right-bottom"
@@ -127,7 +122,6 @@ function CategoryBentoGrid() {
           <CategoryCard
             title="Business Services"
             description="Company registration, Trademark, and Insurance."
-            listings="920+ listings"
             bgClass="bg-[#EBF7F2]"
             imagePath="/Bento Box/BusinessServices.png"
             imageClassName="object-right-bottom"

@@ -1,94 +1,31 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Marquee } from '@/components/ui/marquee';
 import { motion } from 'framer-motion';
 
-const sellers = [
-  {
-    initials: 'SB',
-    name: 'Shree Balaji Chemicals',
-    location: 'Ahmedabad',
-    tenure: '12 yrs on Trishulan',
-    tags: ['Raw Materials'],
-    rating: 4.8,
-    reviews: 127,
-    fulfilment: 98,
-  },
-  {
-    initials: 'GS',
-    name: 'Gujarat Steel Traders',
-    location: 'Ahmedabad',
-    tenure: '15 yrs on Trishulan',
-    tags: ['Raw Materials', 'Machinery'],
-    rating: 4.7,
-    reviews: 98,
-    fulfilment: 96,
-  },
-  {
-    initials: 'MP',
-    name: 'Mahalaxmi Polymers',
-    location: 'Surat',
-    tenure: '10 yrs on Trishulan',
-    tags: ['Raw Materials'],
-    rating: 4.9,
-    reviews: 156,
-    fulfilment: 99,
-  },
-  {
-    initials: 'RA',
-    name: 'Rajesh Alloys Pvt Ltd',
-    location: 'Jaipur',
-    tenure: '8 yrs on Trishulan',
-    tags: ['Raw Materials', 'Spares & Parts'],
-    rating: 4.6,
-    reviews: 74,
-    fulfilment: 95,
-  },
-  {
-    initials: 'KE',
-    name: 'Konark Engineering Works',
-    location: 'Pune',
-    tenure: '9 yrs on Trishulan',
-    tags: ['Machinery', 'Spares & Parts'],
-    rating: 4.5,
-    reviews: 61,
-    fulfilment: 94,
-  },
-  {
-    initials: 'VP',
-    name: 'Vardhman Polymers',
-    location: 'Vadodara',
-    tenure: '11 yrs on Trishulan',
-    tags: ['Raw Materials'],
-    rating: 4.8,
-    reviews: 112,
-    fulfilment: 97,
-  },
-];
-
-const firstRow = sellers.slice(0, 3);
-const secondRow = sellers.slice(3);
+interface Supplier {
+  id: string;
+  supplierId: string;
+  name: string;
+  category: string;
+  productTitle: string;
+  location: string;
+  badge: string;
+}
 
 const SellerCard = ({
-  initials,
-  name,
-  location,
-  tenure,
-  tags,
-  rating,
-  reviews,
-  fulfilment,
+  supplier,
 }: {
-  initials: string;
-  name: string;
-  location: string;
-  tenure: string;
-  tags: string[];
-  rating: number;
-  reviews: number;
-  fulfilment: number;
+  supplier: Supplier;
 }) => {
+  const initials = supplier.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
   return (
     <motion.figure
       initial={{ opacity: 0, scale: 0.95 }}
@@ -108,43 +45,56 @@ const SellerCard = ({
         </div>
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-bold text-ink">{name}</h3>
-            <span className="bg-up-bg text-up text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-              Verified
-            </span>
+            <h3 className="text-lg font-bold text-ink">{supplier.name}</h3>
+            {supplier.badge === 'VERIFIED' && (
+              <span className="bg-up-bg text-up text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                Verified
+              </span>
+            )}
           </div>
           <p className="text-sm font-medium text-muted mt-0.5">
-            {location} • {tenure}
+            {supplier.location || 'Location not provided'}
           </p>
         </div>
       </div>
       
       <div className="flex items-center gap-2">
-        {tags.map((tag) => (
-          <span key={tag} className="border border-line rounded-full px-3 py-1 text-xs text-body font-medium">
-            {tag}
-          </span>
-        ))}
+        <span className="border border-line rounded-full px-3 py-1 text-xs text-body font-medium">
+          {supplier.category}
+        </span>
+        <span className="text-sm font-medium text-muted">{supplier.productTitle}</span>
       </div>
       
       <div className="w-full h-px bg-line my-1" />
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-sm">
-          <span className="text-muted">★</span>
-          <span className="font-bold text-ink">{rating}</span>
-          <span className="text-muted">({reviews})</span>
-        </div>
-        <div className="text-sm">
-          <span className="font-bold text-ink">{fulfilment}%</span>
-          <span className="text-muted ml-1">fulfilment</span>
-        </div>
-      </div>
+      <p className="text-xs text-muted">Supplier listing</p>
     </motion.figure>
   );
 };
 
 export default function TopSellers() {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadSuppliers() {
+      try {
+        const response = await fetch('/api/platform-a/suppliers');
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Failed to load suppliers');
+        setSuppliers(
+          (result.suppliers || []).filter((supplier: Supplier) => supplier.badge === 'VERIFIED')
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load suppliers');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSuppliers();
+  }, []);
+
   return (
     <section className="relative w-full overflow-hidden bg-[url('/Marquee.png')] bg-cover bg-center bg-no-repeat py-[80px]">
       
@@ -169,14 +119,19 @@ export default function TopSellers() {
 
       {/* Marquee Row */}
       <div className="relative flex w-full flex-col items-center justify-center overflow-visible">
-        <Marquee pauseOnHover className="[--duration:50s] [--gap:1.5rem] overflow-visible py-4">
-          {sellers.map((seller) => (
-            <SellerCard key={seller.name} {...seller} />
-          ))}
-          {sellers.map((seller) => (
-            <SellerCard key={seller.name + "-dup"} {...seller} />
-          ))}
-        </Marquee>
+        {loading ? (
+          <p className="py-8 text-sm text-muted">Loading verified supplier listings…</p>
+        ) : error ? (
+          <p className="py-8 text-sm text-rose-700">{error}</p>
+        ) : suppliers.length ? (
+          <Marquee pauseOnHover className="[--duration:50s] [--gap:1.5rem] overflow-visible py-4">
+            {suppliers.map((supplier) => (
+              <SellerCard key={supplier.id} supplier={supplier} />
+            ))}
+          </Marquee>
+        ) : (
+          <p className="py-8 text-sm text-muted">No verified supplier listings are available yet.</p>
+        )}
       </div>
     </section>
   );

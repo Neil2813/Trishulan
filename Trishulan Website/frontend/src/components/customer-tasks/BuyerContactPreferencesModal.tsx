@@ -13,18 +13,14 @@ interface BuyerContactPreferencesModalProps {
 }
 
 export default function BuyerContactPreferencesModal({
-  rfqId = 'rfq-208',
-  productName = 'SS304 M12 bolts',
-  quantity = '5,000 pcs',
-  suppliers = [
-    { id: 'sup-1', name: 'Supplier 1 (Apex Fasteners)' },
-    { id: 'sup-2', name: 'Supplier 2 (Precision Steel)' },
-    { id: 'sup-3', name: 'Supplier 3 (BoltsDirect)' },
-  ],
+  rfqId = '',
+  productName = '',
+  quantity = '',
+  suppliers = [],
   onClose,
   onSuccess,
 }: BuyerContactPreferencesModalProps) {
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>(['sup-1']);
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
   const [sharePhone, setSharePhone] = useState<boolean>(true);
   const [allowWhatsApp, setAllowWhatsApp] = useState<boolean>(false);
   const [futureOffers, setFutureOffers] = useState<boolean>(false);
@@ -38,6 +34,8 @@ export default function BuyerContactPreferencesModal({
   };
 
   const handleConsentSubmit = async (withPhone: boolean) => {
+    if (!rfqId || selectedSuppliers.length === 0) return;
+
     setLoading(true);
     setSubmissionResult(null);
 
@@ -87,17 +85,20 @@ export default function BuyerContactPreferencesModal({
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Main Mock Form Card */}
+        {/* Contact preference form */}
         <div className="bg-card/80 border border-line rounded-xl p-6 space-y-5">
           <div>
             <span className="text-sm font-semibold text-muted">Your RFQ: </span>
             <span className="text-base font-extrabold text-ink">
-              {productName}, {quantity}
+              {rfqId && productName ? `${productName}${quantity ? `, ${quantity}` : ''}` : 'No RFQ selected'}
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700 font-medium">
             <span className="font-bold text-ink">Send request to:</span>
+            {suppliers.length === 0 && (
+              <span className="text-muted">No suppliers are available for this RFQ.</span>
+            )}
             {suppliers.map((sup) => (
               <label
                 key={sup.id}
@@ -172,14 +173,14 @@ export default function BuyerContactPreferencesModal({
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-line">
             <button
               onClick={() => handleConsentSubmit(false)}
-              disabled={loading}
+              disabled={loading || !rfqId || selectedSuppliers.length === 0}
               className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-line hover:bg-line/30 text-slate-700 font-bold text-xs transition"
             >
               Continue on site without phone sharing
             </button>
             <button
               onClick={() => handleConsentSubmit(true)}
-              disabled={loading || selectedSuppliers.length === 0}
+              disabled={loading || !rfqId || selectedSuppliers.length === 0}
               className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition disabled:opacity-50"
             >
               {loading ? 'Submitting...' : 'Send RFQ with selected contact options'}

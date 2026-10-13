@@ -13,12 +13,13 @@ export async function safeJsonFetch<T = any>(
     const res = await fetch(input, init);
     const contentType = res.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) {
-      const text = await res.text();
       return {
         ok: res.ok,
         status: res.status,
         data: null,
-        error: text || `HTTP ${res.status}`,
+        error: res.status >= 500
+          ? "The service is temporarily unavailable. Please try again later."
+          : `Request failed (HTTP ${res.status}).`,
       };
     }
     const data = await res.json();
@@ -26,15 +27,18 @@ export async function safeJsonFetch<T = any>(
       ok: res.ok,
       status: res.status,
       data,
-      error: res.ok ? undefined : (data?.error || `HTTP ${res.status}`),
+      error: res.ok
+        ? undefined
+        : res.status >= 500
+          ? "The service is temporarily unavailable. Please try again later."
+          : (data?.error || `Request failed (HTTP ${res.status}).`),
     };
-  } catch (err: any) {
+  } catch {
     return {
       ok: false,
       status: 0,
       data: null,
-      error: err?.message || "Network error",
+      error: "Unable to connect to the service. Check your connection and try again.",
     };
   }
 }
-

@@ -18,6 +18,7 @@ export async function createUserInDb(data: {
   city?: string;
   state?: string;
   verifiedSeller?: boolean;
+  subscriptionTier?: SubscriptionTier;
 }): Promise<User> {
   const passwordHash = data.password
     ? await hashPassword(data.password)
@@ -39,7 +40,7 @@ export async function createUserInDb(data: {
       city: data.city,
       state: data.state,
       verifiedSeller: data.verifiedSeller ?? false,
-      subscriptionTier: "BASIC",
+      subscriptionTier: data.subscriptionTier ?? "BASIC",
     },
   });
 

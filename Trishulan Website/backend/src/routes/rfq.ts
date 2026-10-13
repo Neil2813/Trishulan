@@ -7,9 +7,15 @@ import { AuthenticatedRequest } from "../middleware/authMiddleware";
 const router = Router();
 
 // GET /api/rfq
-router.get("/", async (_req, res) => {
+router.get("/", async (req: AuthenticatedRequest, res) => {
   try {
-    const rfqs = await prisma.rFQ.findMany({ orderBy: { createdAt: "desc" } });
+    const user = req.user ?? (await getUserFromToken(req.cookies?.trishulan_token || req.headers.authorization?.replace("Bearer ", "")));
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const rfqs = await prisma.rFQ.findMany({
+      where: user.role === "BUYER" ? { buyerId: user.id } : { status: "OPEN" },
+      orderBy: { createdAt: "desc" },
+    });
     return res.json({ rfqs });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });

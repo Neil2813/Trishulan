@@ -75,12 +75,7 @@ export default function TransportShipmentSupport() {
         <div className="bg-card/80 border border-line p-4 rounded-xl space-y-3">
           <span className="text-xs font-bold text-ink uppercase block">Shipment Milestones Tracker</span>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            {(milestones.length > 0 ? milestones : [
-              { step: 1, title: 'Rate Requested', status: 'COMPLETED', time: '09:00 AM' },
-              { step: 2, title: 'Carrier Booked', status: 'COMPLETED', time: '11:30 AM' },
-              { step: 3, title: 'In Transit', status: 'IN_PROGRESS', time: 'ETA 06:00 PM' },
-              { step: 4, title: 'POD Verified', status: 'PENDING', time: 'Tomorrow' },
-            ]).map((ms, idx) => (
+            {milestones.length ? milestones.map((ms, idx) => (
               <React.Fragment key={ms.step}>
                 {idx > 0 && <span className="text-muted/70">→</span>}
                 <div
@@ -96,7 +91,7 @@ export default function TransportShipmentSupport() {
                   <span className="text-[10px] opacity-80">{ms.time}</span>
                 </div>
               </React.Fragment>
-            ))}
+            )) : <p className="text-xs text-muted">{loading ? 'Loading shipment milestones…' : 'No shipment milestones available.'}</p>}
           </div>
         </div>
 
@@ -104,10 +99,7 @@ export default function TransportShipmentSupport() {
         <div className="space-y-3">
           <h3 className="text-xs font-bold text-ink uppercase">Multimodal Transport Quotations</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {(quotes.length > 0 ? quotes : [
-              { id: '1', provider: 'VRL Logistics Express', mode: 'FTL Road', estimatedPrice: '₹48,500', pickup: 'Mumbai', destination: 'Pune', capacity: '32 Ft Container', transitTime: '1 Day', includedServices: ['Transit Insurance', 'Live GPS'], exclusions: ['Loading Labor'], demurrageNotes: 'Free 3 hours loading' },
-              { id: '2', provider: 'TCI Freight Services', mode: 'PTL Road', estimatedPrice: '₹22,000', pickup: 'Ahmedabad', destination: 'Surat', capacity: '19 Ft Truck', transitTime: '2 Days', includedServices: ['Door Pickup'], exclusions: ['Unloading'], demurrageNotes: 'Demurrage ₹500/hr after 2h' },
-            ]).map((q: any) => (
+            {quotes.length ? quotes.map((q: any) => (
               <div key={q.id} className="bg-card/80 border border-line rounded-xl p-4 space-y-3 flex flex-col justify-between hover:border-line shadow-sm transition">
                 <div>
                   <div className="flex justify-between items-start mb-2">
@@ -134,7 +126,9 @@ export default function TransportShipmentSupport() {
                   ℹ️ {q.demurrageNotes || 'Standard demurrage rules apply after free loading window.'}
                 </div>
               </div>
-            ))}
+            )) : <p className="md:col-span-3 text-center py-8 text-sm text-muted">
+              {loading ? 'Loading transport quotations…' : 'No transport quotations available.'}
+            </p>}
           </div>
         </div>
 

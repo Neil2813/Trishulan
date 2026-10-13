@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AIAssistantBot from "@/components/AIAssistantBot";
 
 export const metadata: Metadata = {
   title: "Trishulan Industrial Connect",
@@ -33,6 +34,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <AIAssistantBot />
       </body>
     </html>
   );

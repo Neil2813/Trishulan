@@ -1,16 +1,38 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { safeJsonFetch } from '@/lib/utils';
 
 export default function BuyerLeadSharingWhatsapp() {
-  const [buyerName, setBuyerName] = useState('Industrial Procurement Manager');
-  const [buyerPhone, setBuyerPhone] = useState('9008631171');
-  const [allowWhatsapp, setAllowWhatsapp] = useState(true);
-  const [selectedSellers, setSelectedSellers] = useState<string[]>(['usr_seller1', 'usr_seller2']);
-  const [inquiryText, setInquiryText] = useState('We need 5,000 units SS304 hex bolts M12x50mm in Chennai within 30 days. Please send landed quotation.');
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  const [allowWhatsapp, setAllowWhatsapp] = useState(false);
+  const [selectedSellers, setSelectedSellers] = useState<string[]>([]);
+  const [sellers, setSellers] = useState<Array<{ id: string; name: string }>>([]);
+  const [sellersLoading, setSellersLoading] = useState(true);
+  const [inquiryText, setInquiryText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    fetch('/api/platform-a/suppliers')
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Supplier list unavailable');
+        const result = await response.json();
+        const availableSellers = Array.isArray(result.suppliers)
+          ? result.suppliers
+            .filter((supplier: { badge?: string; supplierId?: string; name?: string }) =>
+              supplier.badge === 'VERIFIED' && supplier.supplierId && supplier.name)
+            .map((supplier: { supplierId: string; name: string }) => ({
+              id: supplier.supplierId,
+              name: supplier.name,
+            }))
+          : [];
+        setSellers(availableSellers);
+      })
+      .catch(() => setSellers([]))
+      .finally(() => setSellersLoading(false));
+  }, []);
 
   const handleToggleSeller = (id: string) => {
     if (selectedSellers.includes(id)) {
@@ -109,11 +131,11 @@ export default function BuyerLeadSharingWhatsapp() {
               Choose Named Sellers Authorized to Receive This Lead:
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-              {[
-                { id: 'usr_seller1', name: 'Apex Steel & Fasteners Corp' },
-                { id: 'usr_seller2', name: 'Precision Metal Works Pvt Ltd' },
-                { id: 'usr_seller3', name: 'Southern Industrial Supplies' },
-              ].map((seller) => {
+              {sellersLoading ? (
+                <p className="text-muted">Loading verified suppliers…</p>
+              ) : sellers.length === 0 ? (
+                <p className="text-muted">No verified suppliers are available.</p>
+              ) : sellers.map((seller) => {
                 const isSelected = selectedSellers.includes(seller.id);
                 return (
                   <button

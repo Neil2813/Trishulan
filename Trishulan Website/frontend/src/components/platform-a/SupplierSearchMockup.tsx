@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { safeJsonFetch } from '@/lib/utils';
 
 export interface SupplierItem {
@@ -13,18 +13,18 @@ export interface SupplierItem {
   unit?: string;
   location: string;
   badge: 'VERIFIED' | 'DOCS_LISTED' | 'MANUFACTURER';
-  productGroupsCount: number;
-  moq: string;
-  details: string;
+  productGroupsCount?: number | null;
+  moq?: string | number | null;
+  details?: string | null;
   responseTime?: string;
   hasCertificates?: boolean;
 }
 
 export default function SupplierSearchMockup() {
-  const [searchTerm, setSearchTerm] = useState('stainless steel valves');
-  const [locationFilter, setLocationFilter] = useState('India');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierItem | null>(null);
   const [inquiryText, setInquiryText] = useState('');
   const [inquirySending, setInquirySending] = useState(false);
@@ -35,19 +35,15 @@ export default function SupplierSearchMockup() {
     setLoading(true);
     try {
       const { ok, data } = await safeJsonFetch(`/api/platform-a/suppliers?query=${encodeURIComponent(queryVal)}&location=${encodeURIComponent(locVal)}`);
-      if (ok && data && data.suppliers) {
-        setSuppliers(data.suppliers);
-      }
+      if (!ok) throw new Error('Supplier lookup failed');
+      setSuppliers(Array.isArray(data?.suppliers) ? data.suppliers : []);
     } catch (err) {
+      setSuppliers([]);
       console.warn('Failed to fetch suppliers from backend:', err);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchSuppliers(searchTerm, locationFilter);
-  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,7 +162,10 @@ export default function SupplierSearchMockup() {
                       </div>
 
                       <p className="text-xs text-muted font-medium">
-                        {s.productTitle} • {s.productGroupsCount} product groups • <span className="font-bold text-ink">MOQ {s.moq}</span> • {s.location}
+                        {s.productTitle}
+                        {s.productGroupsCount ? ` • ${s.productGroupsCount} product groups` : ''}
+                        {s.moq ? <> • <span className="font-bold text-ink">MOQ {s.moq}</span></> : ''}
+                        {s.location ? ` • ${s.location}` : ''}
                       </p>
 
                       {s.details && (
@@ -192,13 +191,6 @@ export default function SupplierSearchMockup() {
           </div>
 
         </div>
-      </div>
-
-      {/* Example Use Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example use:</strong> A maintenance buyer searches for a 2-inch stainless steel valve, selects the delivery region, compares three suppliers and asks each for grade certificate, price, MOQ and delivery time.
-        </p>
       </div>
 
       {/* Inquiry Submission Modal */}

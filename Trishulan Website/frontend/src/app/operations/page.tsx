@@ -1,26 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FileText,
   Package,
   TrendingUp,
-  Plus,
   ArrowRight,
-  ChevronDown,
-  CheckCircle2,
   AlertTriangle,
   RefreshCw,
   Download,
   CreditCard,
   BarChart3,
-  ShoppingCart,
-  Truck,
   BookOpen,
   Layers,
-  Filter,
   Search,
-  X,
 } from "lucide-react";
 
 
@@ -64,66 +57,6 @@ interface InventoryItem {
   createdAt: string;
 }
 
-// ─── Sample data ────────────────────────────────────────────────────────────
-const SAMPLE_DOCS: DocItem[] = [
-  {
-    id: "d1", docNumber: "INV-0001", docType: "TAX_INVOICE",
-    partyName: "Bharat Steel Works Pvt. Ltd.", partyGstin: "27AABCS1234F1ZX",
-    subtotal: 125000, taxAmount: 22500, totalAmount: 147500, paidAmount: 147500,
-    status: "PAID", dueDate: "2026-10-15T00:00:00.000Z", createdAt: "2026-09-25T10:00:00.000Z",
-  },
-  {
-    id: "d2", docNumber: "SO-0003", docType: "SALES_ORDER",
-    partyName: "Chennai Machinery Exports", partyGstin: "33AADCE5678G1ZK",
-    subtotal: 85000, taxAmount: 15300, totalAmount: 100300, paidAmount: 30000,
-    status: "PARTIAL", dueDate: "2026-10-31T00:00:00.000Z", createdAt: "2026-10-01T09:00:00.000Z",
-  },
-  {
-    id: "d3", docNumber: "DC-0002", docType: "DELIVERY_CHALLAN",
-    partyName: "Rajasthan Minerals Trading Co.",
-    subtotal: 45000, taxAmount: 8100, totalAmount: 53100, paidAmount: 0,
-    status: "ISSUED", createdAt: "2026-10-08T14:00:00.000Z",
-  },
-  {
-    id: "d4", docNumber: "QT-0005", docType: "QUOTATION",
-    partyName: "Hyderabad Pharma Equipment Co.",
-    subtotal: 220000, taxAmount: 39600, totalAmount: 259600, paidAmount: 0,
-    status: "DRAFT", dueDate: "2026-10-20T00:00:00.000Z", createdAt: "2026-10-10T08:00:00.000Z",
-  },
-];
-
-const SAMPLE_INVENTORY: InventoryItem[] = [
-  {
-    id: "i1", skuCode: "MS-HR-001", itemName: "MS Hot Rolled Coil 2mm", category: "Raw Materials",
-    hsnCode: "7208", unit: "MT", costPrice: 52000, salePrice: 58000,
-    currentStock: 24.5, reorderPoint: 10, createdAt: "2026-09-01T00:00:00.000Z",
-  },
-  {
-    id: "i2", skuCode: "SS-304-002", itemName: "SS304 Sheet 1.5mm", category: "Raw Materials",
-    hsnCode: "7219", unit: "MT", costPrice: 185000, salePrice: 210000,
-    currentStock: 4.2, reorderPoint: 5, createdAt: "2026-09-10T00:00:00.000Z",
-  },
-  {
-    id: "i3", skuCode: "BOLT-M12-003", itemName: "M12 x 50mm Hex Bolt (Gr 8.8)", category: "Fasteners",
-    hsnCode: "7318", unit: "Pieces", costPrice: 18, salePrice: 28,
-    currentStock: 5800, reorderPoint: 1000, createdAt: "2026-09-15T00:00:00.000Z",
-  },
-  {
-    id: "i4", skuCode: "DRUM-HDPE-004", itemName: "HDPE Drum 200L Blue", category: "Packaging",
-    hsnCode: "3923", unit: "Pieces", costPrice: 650, salePrice: 950,
-    currentStock: 38, reorderPoint: 50, createdAt: "2026-09-20T00:00:00.000Z",
-  },
-];
-
-const DAYBOOK_ENTRIES = [
-  { date: "2026-10-10", type: "RECEIPT", narration: "Received payment — Bharat Steel Works", amount: 147500, balance: 147500, mode: "NEFT" },
-  { date: "2026-10-09", type: "PAYMENT", narration: "Freight charges — Blue Dart Express", amount: -12400, balance: 0, mode: "IMPS" },
-  { date: "2026-10-08", type: "RECEIPT", narration: "Advance received — Chennai Machinery Exports", amount: 30000, balance: 0, mode: "RTGS" },
-  { date: "2026-10-07", type: "PAYMENT", narration: "Raw material purchase — JSW Steel", amount: -85000, balance: 0, mode: "Cheque" },
-  { date: "2026-10-06", type: "PAYMENT", narration: "Packing material — Suraj Packaging", amount: -8200, balance: 0, mode: "UPI" },
-  { date: "2026-10-05", type: "RECEIPT", narration: "Platform transaction — Trishulan RFQ-4821", amount: 53100, balance: 0, mode: "NEFT" },
-];
-
 // ─── Helper functions ─────────────────────────────────────────────────────────
 const DOC_LABELS: Record<DocType, string> = {
   ESTIMATE: "Estimate",
@@ -163,11 +96,23 @@ function fmtDate(s?: string) {
 // ─── Tab Components ───────────────────────────────────────────────────────────
 
 function DocumentsTab() {
-  const [docs, setDocs] = useState<DocItem[]>(SAMPLE_DOCS);
+  const [docs, setDocs] = useState<DocItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [filterType, setFilterType] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [convertingId, setConvertingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/operations/documents")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Could not load documents");
+        const result = await response.json();
+        setDocs(Array.isArray(result.documents) ? result.documents : []);
+      })
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = docs.filter(
     (d) =>
@@ -176,21 +121,22 @@ function DocumentsTab() {
         d.docNumber.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleConvert = (doc: DocItem) => {
+  const handleConvert = async (doc: DocItem) => {
     const nextType = CONVERSION_MAP[doc.docType];
     if (!nextType) return;
-    const newDoc: DocItem = {
-      ...doc,
-      id: "new-" + Date.now(),
-      docNumber: `${nextType.split("_")[0].slice(0, 3)}-${String(docs.length + 1).padStart(4, "0")}`,
-      docType: nextType,
-      paidAmount: 0,
-      status: "DRAFT",
-      createdAt: new Date().toISOString(),
-    };
-    setDocs((prev) => [newDoc, ...prev]);
-    setConvertingId(null);
-    alert(`Converted to ${DOC_LABELS[nextType]} — ${newDoc.docNumber}`);
+    setConvertingId(doc.id);
+    try {
+      const response = await fetch(`/api/operations/documents/${encodeURIComponent(doc.id)}/convert`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error("Could not convert document");
+      const result = await response.json();
+      if (result.document) setDocs((prev) => [result.document, ...prev]);
+    } catch {
+      alert("Document conversion failed. Please try again.");
+    } finally {
+      setConvertingId(null);
+    }
   };
 
   return (
@@ -216,12 +162,6 @@ function DocumentsTab() {
             <option key={k} value={k}>{v}</option>
           ))}
         </select>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#EA580C] text-white text-[13px] font-semibold hover:bg-[#c2410a] transition-colors"
-        >
-          <Plus className="w-4 h-4" /> New Document
-        </button>
       </div>
 
       {/* Conversion pipeline banner */}
@@ -250,6 +190,8 @@ function DocumentsTab() {
             </tr>
           </thead>
           <tbody>
+            {loading && <tr><td colSpan={8} className="px-4 py-8 text-center text-muted">Loading documents…</td></tr>}
+            {loadError && <tr><td colSpan={8} className="px-4 py-8 text-center text-red-600">Documents are temporarily unavailable.</td></tr>}
             {filtered.map((doc) => {
               const nextType = CONVERSION_MAP[doc.docType];
               const outstanding = doc.totalAmount - doc.paidAmount;
@@ -290,6 +232,7 @@ function DocumentsTab() {
                       {nextType && (
                         <button
                           onClick={() => handleConvert(doc)}
+                          disabled={convertingId === doc.id}
                           className="text-[11px] text-blue-600 font-semibold hover:text-blue-800 flex items-center gap-1 border border-blue-200 px-2 py-1 rounded-lg"
                           title={`Convert to ${DOC_LABELS[nextType]}`}
                         >
@@ -303,7 +246,7 @@ function DocumentsTab() {
             })}
           </tbody>
         </table>
-        {filtered.length === 0 && (
+        {!loading && !loadError && filtered.length === 0 && (
           <div className="text-center py-10 text-muted text-[13px]">
             No documents found.
           </div>
@@ -314,10 +257,23 @@ function DocumentsTab() {
 }
 
 function InventoryTab() {
-  const [items, setItems] = useState<InventoryItem[]>(SAMPLE_INVENTORY);
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [adjustingId, setAdjustingId] = useState<string | null>(null);
   const [adjustQty, setAdjustQty] = useState("");
+
+  useEffect(() => {
+    fetch("/api/operations/inventory")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Could not load inventory");
+        const result = await response.json();
+        setItems(Array.isArray(result.items) ? result.items : []);
+      })
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = items.filter(
     (i) =>
@@ -325,16 +281,25 @@ function InventoryTab() {
       i.skuCode.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleStockAdjust = (id: string) => {
+  const handleStockAdjust = async (id: string) => {
     const qty = parseFloat(adjustQty);
-    if (isNaN(qty)) return;
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === id ? { ...i, currentStock: Math.max(0, i.currentStock + qty) } : i
-      )
-    );
-    setAdjustingId(null);
-    setAdjustQty("");
+    if (!Number.isFinite(qty) || qty === 0) return;
+    try {
+      const response = await fetch(`/api/operations/inventory/${encodeURIComponent(id)}/stock`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adjustment: qty }),
+      });
+      if (!response.ok) throw new Error("Could not adjust stock");
+      const result = await response.json();
+      if (result.item) {
+        setItems((prev) => prev.map((item) => item.id === id ? result.item : item));
+      }
+      setAdjustingId(null);
+      setAdjustQty("");
+    } catch {
+      alert("Stock adjustment failed. Check the quantity and try again.");
+    }
   };
 
   const totalValue = items.reduce((s, i) => s + i.currentStock * i.costPrice, 0);
@@ -388,9 +353,6 @@ function InventoryTab() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#EA580C] text-white text-[13px] font-semibold hover:bg-[#c2410a] transition-colors">
-          <Plus className="w-4 h-4" /> Add Item
-        </button>
       </div>
 
       {/* Table */}
@@ -404,6 +366,8 @@ function InventoryTab() {
             </tr>
           </thead>
           <tbody>
+            {loading && <tr><td colSpan={10} className="px-4 py-8 text-center text-muted">Loading inventory…</td></tr>}
+            {loadError && <tr><td colSpan={10} className="px-4 py-8 text-center text-red-600">Inventory is temporarily unavailable.</td></tr>}
             {filtered.map((item) => {
               const isLow = item.currentStock <= item.reorderPoint;
               return (
@@ -452,6 +416,9 @@ function InventoryTab() {
                 </tr>
               );
             })}
+            {!loading && !loadError && filtered.length === 0 && (
+              <tr><td colSpan={10} className="px-4 py-8 text-center text-muted">No inventory items are available.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -460,159 +427,85 @@ function InventoryTab() {
 }
 
 function DaybookTab() {
-  let runningBalance = 72000;
-  const entries = DAYBOOK_ENTRIES.map((e) => {
-    runningBalance += e.amount;
-    return { ...e, runningBalance };
-  });
-
-  const totalReceipts = entries.filter((e) => e.type === "RECEIPT").reduce((s, e) => s + e.amount, 0);
-  const totalPayments = Math.abs(entries.filter((e) => e.type === "PAYMENT").reduce((s, e) => s + e.amount, 0));
-
   return (
-    <div>
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {[
-          { label: "Total Receipts (Oct)", value: fmtCurrency(totalReceipts), color: "text-emerald-700", bg: "bg-emerald-50" },
-          { label: "Total Payments (Oct)", value: fmtCurrency(totalPayments), color: "text-red-600", bg: "bg-red-50" },
-          { label: "Net Cash Position", value: fmtCurrency(totalReceipts - totalPayments), color: "text-ink", bg: "bg-blue-50" },
-        ].map((s) => (
-          <div key={s.label} className={`${s.bg} rounded-xl p-4 border border-white/60`}>
-            <div className="text-[11px] text-muted font-semibold mb-1">{s.label}</div>
-            <div className={`text-[22px] font-black ${s.color}`}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="overflow-x-auto rounded-xl border border-gray-200">
-        <table className="w-full text-[13px]">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              {["Date", "Type", "Narration", "Amount", "Mode", "Balance"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left font-semibold text-[#475569]">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, i) => (
-              <tr key={i} className="border-b border-gray-100 hover:bg-gray-50/50">
-                <td className="px-4 py-3 text-muted whitespace-nowrap">{entry.date}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                    entry.type === "RECEIPT" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"
-                  }`}>
-                    {entry.type}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-ink">{entry.narration}</td>
-                <td className={`px-4 py-3 font-semibold ${entry.amount > 0 ? "text-emerald-700" : "text-red-600"}`}>
-                  {entry.amount > 0 ? "+" : ""}{fmtCurrency(Math.abs(entry.amount))}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-[11px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md">{entry.mode}</span>
-                </td>
-                <td className="px-4 py-3 font-bold text-ink">{fmtCurrency(entry.runningBalance)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="rounded-xl border border-line bg-card p-8 text-center text-sm text-muted">
+      Day book entries are not available from a connected data source.
     </div>
   );
 }
 
 function SummaryTab() {
-  const totalRevenue = 485000;
-  const totalPaid = 320000;
-  const outstanding = totalRevenue - totalPaid;
-  const totalInventoryValue = 220000;
+  const [summary, setSummary] = useState<{
+    totalRevenue: number;
+    totalPaid: number;
+    totalOutstanding: number;
+    totalInventoryValue: number;
+    lowStockItems: number;
+    openDocuments: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  const plData = [
-    { label: "Gross Revenue (Oct)", value: fmtCurrency(485000), positive: true },
-    { label: "Raw Material Cost", value: `− ${fmtCurrency(240000)}`, positive: false },
-    { label: "Operating Expenses", value: `− ${fmtCurrency(38000)}`, positive: false },
-    { label: "Transport & Logistics", value: `− ${fmtCurrency(21000)}`, positive: false },
-    { label: "Gross Profit", value: fmtCurrency(186000), positive: true, bold: true },
-    { label: "Platform Fees (1.5%)", value: `− ${fmtCurrency(7275)}`, positive: false },
-    { label: "Net Operating Profit", value: fmtCurrency(178725), positive: true, bold: true },
-  ];
+  useEffect(() => {
+    fetch("/api/operations/summary")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Could not load summary");
+        const result = await response.json();
+        setSummary(result.summary ?? null);
+      })
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* P&L */}
       <div>
         <h3 className="font-black text-[17px] text-ink mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-[#EA580C]" /> Profit & Loss — October 2026
+          <BarChart3 className="w-5 h-5 text-[#EA580C]" /> Receivables
         </h3>
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          {plData.map((row, i) => (
-            <div
-              key={i}
-              className={`flex justify-between px-5 py-3 border-b border-gray-100 ${
-                row.bold ? "bg-gray-50" : ""
-              }`}
-            >
-              <span className={`text-[13px] ${row.bold ? "font-black text-ink" : "text-muted"}`}>
-                {row.label}
-              </span>
-              <span className={`text-[13px] font-bold ${
-                row.bold ? "text-ink text-[15px]" : row.positive ? "text-emerald-700" : "text-red-600"
-              }`}>
-                {row.value}
-              </span>
-            </div>
-          ))}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+          {loadError ? (
+            <p className="text-sm text-red-600">Financial summary is temporarily unavailable.</p>
+          ) : loading ? (
+            <p className="text-sm text-muted">Loading summary…</p>
+          ) : summary ? (
+            [
+              { label: "Invoiced", value: fmtCurrency(summary.totalRevenue) },
+              { label: "Collected", value: fmtCurrency(summary.totalPaid) },
+              { label: "Outstanding", value: fmtCurrency(summary.totalOutstanding) },
+              { label: "Open documents", value: String(summary.openDocuments) },
+            ].map((row) => (
+              <div key={row.label} className="flex justify-between text-[13px] pb-2 border-b border-gray-100">
+                <span className="text-muted">{row.label}</span>
+                <span className="font-bold text-ink">{row.value}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted">No receivables data is available.</p>
+          )}
         </div>
       </div>
 
-      {/* Receivables & Payables + Inventory */}
       <div className="space-y-5">
         <div>
           <h3 className="font-black text-[17px] text-ink mb-4 flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-[#EA580C]" /> Receivables Snapshot
-          </h3>
-          <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-            {[
-              { label: "Total Invoiced", value: fmtCurrency(totalRevenue), color: "text-ink" },
-              { label: "Collected", value: fmtCurrency(totalPaid), color: "text-emerald-700" },
-              { label: "Outstanding", value: fmtCurrency(outstanding), color: "text-red-600" },
-              { label: "Overdue (>30 days)", value: fmtCurrency(42000), color: "text-red-700 font-black" },
-            ].map(({ label, value, color }) => (
-              <div key={label} className="flex justify-between text-[13px] pb-2 border-b border-gray-100">
-                <span className="text-muted">{label}</span>
-                <span className={`font-bold ${color}`}>{value}</span>
-              </div>
-            ))}
-            {/* Visual bar */}
-            <div>
-              <div className="flex justify-between text-[11px] text-muted mb-1.5">
-                <span>Collection rate</span>
-                <span>{Math.round((totalPaid / totalRevenue) * 100)}%</span>
-              </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full"
-                  style={{ width: `${(totalPaid / totalRevenue) * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="font-black text-[17px] text-ink mb-4 flex items-center gap-2">
-            <Package className="w-5 h-5 text-[#EA580C]" /> Inventory Value
+            <Package className="w-5 h-5 text-[#EA580C]" /> Inventory
           </h3>
           <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <div className="text-[32px] font-black text-ink mb-1">
-              {fmtCurrency(totalInventoryValue)}
-            </div>
-            <div className="text-[13px] text-muted mb-4">Total inventory at cost (FIFO)</div>
-            <div className="text-[12px] text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg">
-              2 items below reorder point — review inventory tab
-            </div>
+            {loading ? <p className="text-sm text-muted">Loading summary…</p> : loadError ? (
+              <p className="text-sm text-red-600">Inventory summary is temporarily unavailable.</p>
+            ) : summary ? (
+              <>
+                <div className="text-[32px] font-black text-ink mb-1">{fmtCurrency(summary.totalInventoryValue)}</div>
+                <div className="text-[13px] text-muted mb-4">Total inventory at cost</div>
+                <div className="text-[12px] text-muted bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg">
+                  {summary.lowStockItems} item{summary.lowStockItems === 1 ? "" : "s"} at or below reorder point
+                </div>
+              </>
+            ) : <p className="text-sm text-muted">No inventory summary is available.</p>}
           </div>
         </div>
+        <p className="text-xs text-muted">Profit and loss details are not available from the connected summary service.</p>
       </div>
     </div>
   );
@@ -621,6 +514,23 @@ function SummaryTab() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function OperationsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("documents");
+  const [overview, setOverview] = useState<{
+    totalRevenue: number;
+    totalOutstanding: number;
+    totalInventoryValue: number;
+    lowStockItems: number;
+    openDocuments: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/operations/summary")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Could not load operations overview");
+        const result = await response.json();
+        setOverview(result.summary ?? null);
+      })
+      .catch(() => setOverview(null));
+  }, []);
 
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "documents", label: "Invoices & Sales Docs", icon: <FileText className="w-4 h-4" /> },
@@ -675,10 +585,10 @@ export default function OperationsPage() {
         {/* Quick stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Revenue (Oct)", value: "₹4,85,000", change: "+12%", icon: <TrendingUp className="w-5 h-5 text-emerald-500" />, bg: "bg-emerald-50" },
-            { label: "Outstanding", value: "₹1,65,000", change: "3 invoices", icon: <CreditCard className="w-5 h-5 text-amber-500" />, bg: "bg-amber-50" },
-            { label: "Inventory Value", value: "₹2,20,000", change: "4 SKUs", icon: <Package className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50" },
-            { label: "Low Stock Items", value: "2", change: "Needs reorder", icon: <AlertTriangle className="w-5 h-5 text-red-500" />, bg: "bg-red-50" },
+            { label: "Total Revenue", value: overview ? fmtCurrency(overview.totalRevenue) : "—", change: "From issued invoices", icon: <TrendingUp className="w-5 h-5 text-emerald-500" />, bg: "bg-emerald-50" },
+            { label: "Outstanding", value: overview ? fmtCurrency(overview.totalOutstanding) : "—", change: overview ? `${overview.openDocuments} open documents` : "Data unavailable", icon: <CreditCard className="w-5 h-5 text-amber-500" />, bg: "bg-amber-50" },
+            { label: "Inventory Value", value: overview ? fmtCurrency(overview.totalInventoryValue) : "—", change: "At cost", icon: <Package className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50" },
+            { label: "Low Stock Items", value: overview ? String(overview.lowStockItems) : "—", change: overview ? "At or below reorder point" : "Data unavailable", icon: <AlertTriangle className="w-5 h-5 text-red-500" />, bg: "bg-red-50" },
           ].map((stat) => (
             <div key={stat.label} className={`${stat.bg} rounded-xl p-5 border border-white/60 flex items-start gap-3`}>
               <div className="mt-0.5 shrink-0">{stat.icon}</div>

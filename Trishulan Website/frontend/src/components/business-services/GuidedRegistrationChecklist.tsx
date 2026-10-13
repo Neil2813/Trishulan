@@ -157,7 +157,7 @@ export default function GuidedRegistrationChecklist() {
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
           <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
-            "{exampleText || 'Example: a new industrial supplier selects "sole proprietor" and its state. The platform produces a checklist, lets the user upload required documents to a secure account, and offers an appointment request with a listed advisor. A progress card shows which steps remain.'}"
+            {exampleText || 'Registration guidance is not available.'}
           </p>
         </div>
 

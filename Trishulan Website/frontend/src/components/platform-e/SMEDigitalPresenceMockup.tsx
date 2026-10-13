@@ -24,18 +24,18 @@ export interface SMESupplierItem {
 }
 
 export default function SMEDigitalPresenceMockup() {
-  const [searchTerm, setSearchTerm] = useState('stainless steel valves');
-  const [locationFilter, setLocationFilter] = useState('India');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
   const [suppliers, setSuppliers] = useState<SMESupplierItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Structured RFQ Modal State
   const [selectedSupplier, setSelectedSupplier] = useState<SMESupplierItem | null>(null);
-  const [rfqQuantity, setRfqQuantity] = useState('50 pcs');
-  const [rfqMaterials, setRfqMaterials] = useState('SS316 Stainless Steel');
-  const [rfqTolerances, setRfqTolerances] = useState('± 0.02mm ISO 2768-m');
-  const [rfqCerts, setRfqCerts] = useState('ISO 9001:2015 Required');
-  const [rfqNotes, setRfqNotes] = useState('Please provide formal quotation with tooling fees, lead time, and sample availability.');
+  const [rfqQuantity, setRfqQuantity] = useState('');
+  const [rfqMaterials, setRfqMaterials] = useState('');
+  const [rfqTolerances, setRfqTolerances] = useState('');
+  const [rfqCerts, setRfqCerts] = useState('');
+  const [rfqNotes, setRfqNotes] = useState('');
   const [submittingRfq, setSubmittingRfq] = useState(false);
   const [rfqSuccess, setRfqSuccess] = useState(false);
 
@@ -219,13 +219,6 @@ export default function SMEDigitalPresenceMockup() {
           </div>
 
         </div>
-      </div>
-
-      {/* Example Use Callout Box */}
-      <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl">
-        <p className="text-xs md:text-sm text-[#166534] font-medium leading-relaxed">
-          <strong className="font-black text-[#14532D]">Example use:</strong> A small component maker builds a catalogue with product dimensions, materials, tolerances, certifications and MOQ. A buyer searches the catalogue and submits a structured RFQ.
-        </p>
       </div>
 
       {/* Structured RFQ Modal */}

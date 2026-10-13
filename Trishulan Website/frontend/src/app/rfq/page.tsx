@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mic, Store } from 'lucide-react';
+import AuthModal from '@/components/AuthModal';
 
 export default function RFQPage() {
   const router = useRouter();
@@ -10,12 +11,13 @@ export default function RFQPage() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<'RAW_MATERIALS' | 'MACHINERY' | 'SPARES'>('RAW_MATERIALS');
   const [quantity, setQuantity] = useState('');
-  const [targetPrice, setTargetPrice] = useState('52000');
+  const [targetPrice, setTargetPrice] = useState('');
   const [city, setCity] = useState('');
   const [phone, setPhone] = useState('');
   const [details, setDetails] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +29,13 @@ export default function RFQPage() {
     setStep(2);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitRFQ = async () => {
     setError('');
+    const parsedTargetPrice = Number(targetPrice);
+    if (!Number.isFinite(parsedTargetPrice) || parsedTargetPrice <= 0) {
+      setError('Enter a target budget greater than zero.');
+      return;
+    }
     setLoading(true);
 
     try {
@@ -39,13 +45,18 @@ export default function RFQPage() {
         body: JSON.stringify({
           title,
           category,
-          quantity: quantity || '1 Batch',
-          targetPrice: parseFloat(targetPrice) || 50000,
-          details: `Delivery City: ${city || 'India'}, Phone: ${phone}. Specs: ${details || 'Standard industrial specifications'}`,
+          quantity,
+          targetPrice: parsedTargetPrice,
+          details: `Delivery City: ${city}, Phone: ${phone}${details.trim() ? `. Specs: ${details.trim()}` : ''}`,
         }),
       });
 
       const data = await res.json();
+      if (res.status === 401) {
+        setError('Sign in to post your requirement. Your details will stay here while you sign in.');
+        setShowAuth(true);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'Failed to submit RFQ');
       
       router.push('/dashboard');
@@ -54,6 +65,11 @@ export default function RFQPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void submitRFQ();
   };
 
   return (
@@ -70,7 +86,7 @@ export default function RFQPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+          <div role="alert" className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
             {error}
           </div>
         )}
@@ -79,9 +95,10 @@ export default function RFQPage() {
         {step === 1 && (
           <form onSubmit={handleNext} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-muted mb-2">Enter Product or Service Name *</label>
+              <label htmlFor="rfq-title" className="block text-xs font-bold text-muted mb-2">Enter Product or Service Name *</label>
               <div className="relative">
                 <input
+                  id="rfq-title"
                   type="text"
                   required
                   value={title}
@@ -121,8 +138,9 @@ export default function RFQPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-ink mb-1">Quantity & Unit *</label>
+                <label htmlFor="rfq-quantity" className="block text-xs font-bold text-ink mb-1">Quantity & Unit *</label>
                 <input
+                  id="rfq-quantity"
                   type="text"
                   required
                   value={quantity}
@@ -133,12 +151,15 @@ export default function RFQPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-ink mb-1">Target Budget (₹/unit)</label>
+                <label htmlFor="rfq-target-price" className="block text-xs font-bold text-ink mb-1">Target Budget (₹/unit) *</label>
                 <input
+                  id="rfq-target-price"
                   type="number"
+                  required
+                  min="0.01"
+                  step="0.01"
                   value={targetPrice}
                   onChange={(e) => setTargetPrice(e.target.value)}
-                  placeholder="50000"
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 text-xs focus:outline-none focus:border-[#EA580C]"
                 />
               </div>
@@ -146,8 +167,9 @@ export default function RFQPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-ink mb-1">Delivery City / Location *</label>
+                <label htmlFor="rfq-city" className="block text-xs font-bold text-ink mb-1">Delivery City / Location *</label>
                 <input
+                  id="rfq-city"
                   type="text"
                   required
                   value={city}
@@ -158,8 +180,9 @@ export default function RFQPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-ink mb-1">Contact Phone Number *</label>
+                <label htmlFor="rfq-phone" className="block text-xs font-bold text-ink mb-1">Contact Phone Number *</label>
                 <input
+                  id="rfq-phone"
                   type="tel"
                   required
                   value={phone}
@@ -171,8 +194,9 @@ export default function RFQPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-ink mb-1">Additional Specifications / Notes</label>
+              <label htmlFor="rfq-details" className="block text-xs font-bold text-ink mb-1">Additional Specifications / Notes</label>
               <textarea
+                id="rfq-details"
                 rows={3}
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
@@ -192,6 +216,14 @@ export default function RFQPage() {
         )}
 
       </div>
+      <AuthModal
+        isOpen={showAuth}
+        onClose={() => setShowAuth(false)}
+        onSuccess={() => {
+          setShowAuth(false);
+          void submitRFQ();
+        }}
+      />
     </div>
   );
 }

@@ -13,6 +13,13 @@ export class FirebaseVerificationUnavailableError extends Error {
   }
 }
 
+export class FirebaseConfigurationError extends Error {
+  constructor() {
+    super('Firebase authentication is not configured on the backend. Set FIREBASE_PROJECT_ID to the Firebase project used by the frontend.');
+    this.name = 'FirebaseConfigurationError';
+  }
+}
+
 async function getFirebaseCertificates(): Promise<Record<string, string>> {
   if (firebaseCerts && Date.now() < firebaseCertsExpiresAt) return firebaseCerts;
 
@@ -36,7 +43,7 @@ export async function verifyFirebaseIdToken(idToken: string): Promise<{
   name?: string;
 }> {
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  if (!projectId) throw new Error('FIREBASE_PROJECT_ID is not configured');
+  if (!projectId) throw new FirebaseConfigurationError();
 
   const decoded = jwt.decode(idToken, { complete: true });
   if (!decoded || typeof decoded === 'string' || decoded.header.alg !== 'RS256' || !decoded.header.kid) {
@@ -104,11 +111,13 @@ export const registerSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
+  tier: z.enum(['BASIC', 'GROWTH', 'ENTERPRISE']).default('BASIC'),
 });
 
 export const firebaseRegisterSchema = z.object({
   idToken: z.string().min(1, 'Firebase identity token is required'),
   role: z.enum(['BUYER', 'SELLER']),
+  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   companyName: z.string().optional(),
   phone: z.string().optional(),
   gstNumber: z.string().optional(),
@@ -117,6 +126,7 @@ export const firebaseRegisterSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
+  tier: z.enum(['BASIC', 'GROWTH', 'ENTERPRISE']).default('BASIC'),
 });
 
 export const profileSchema = z.object({

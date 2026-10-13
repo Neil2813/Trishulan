@@ -5,6 +5,7 @@ import {
   profileSchema,
   registerSchema,
   signJwtToken,
+  FirebaseConfigurationError,
   FirebaseVerificationUnavailableError,
   verifyFirebaseIdToken,
 } from "../lib/security";
@@ -16,6 +17,7 @@ import {
   getUserFromToken,
 } from "../lib/auth";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
+import { isDatabaseConnectionError } from "../lib/db";
 
 const router = Router();
 
@@ -30,12 +32,24 @@ const COOKIE = {
 function authErrorStatus(err: any): number {
   if (err?.name === "ZodError") return 400;
   if (err instanceof FirebaseVerificationUnavailableError) return 503;
+  if (err instanceof FirebaseConfigurationError) return 503;
+  if (isDatabaseConnectionError(err)) return 503;
   if (
     ["JsonWebTokenError", "NotBeforeError", "TokenExpiredError"].includes(err?.name) ||
     err?.message === "Invalid Firebase identity token" ||
     err?.message === "A verified Firebase email address is required"
   ) return 401;
   return 500;
+}
+
+function authErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof FirebaseConfigurationError) return err.message;
+  if (isDatabaseConnectionError(err)) {
+    return "The database connection failed. Check the backend DATABASE_URL credentials and connectivity.";
+  }
+  const status = authErrorStatus(err);
+  if (status >= 500) return fallback;
+  return err instanceof Error ? err.message : fallback;
 }
 
 // POST /api/auth/register
@@ -48,7 +62,7 @@ router.post("/register", async (req, res) => {
       if (existing) return res.status(409).json({ error: "Email already registered" });
 
       const user = await createUserInDb({
-        name: identity.name || identity.email.split("@")[0],
+        name: validated.name || identity.name || identity.email.split("@")[0],
         email: identity.email,
         role: validated.role,
         authProvider: "FIREBASE",
@@ -61,22 +75,32 @@ router.post("/register", async (req, res) => {
         city: validated.city,
         state: validated.state,
         verifiedSeller: false,
+        subscriptionTier: validated.tier,
       });
       const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
       res.cookie("trishulan_token", token, COOKIE);
       return res.json({ success: true, user });
     }
 
-    const validated = registerSchema.parse(req.body);
-    const existing = await findUserByEmail(validated.email);
+    const { tier, ...registrationData } = registerSchema.parse(req.body);
+    const existing = await findUserByEmail(registrationData.email);
     if (existing) return res.status(409).json({ error: "Email already registered" });
 
-    const user = await createUserInDb({ ...validated, authProvider: "JWT", verifiedSeller: false });
+    const user = await createUserInDb({
+      ...registrationData,
+      authProvider: "JWT",
+      verifiedSeller: false,
+      subscriptionTier: tier,
+    });
     const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
     res.cookie("trishulan_token", token, COOKIE);
     return res.json({ success: true, user });
-  } catch (err: any) {
-    return res.status(authErrorStatus(err)).json({ error: err.message || "Registration failed" });
+  } catch (err: unknown) {
+    const status = authErrorStatus(err);
+    console.error("Authentication registration failed", err instanceof Error ? err.name : "UnknownError");
+    return res.status(status).json({
+      error: authErrorMessage(err, "Registration is temporarily unavailable. Please try again later."),
+    });
   }
 });
 
@@ -91,18 +115,10 @@ router.post("/login", async (req, res) => {
         return res.status(400).json({ error: "Firebase identity token is required" });
       }
       const identity = await verifyFirebaseIdToken(body.idToken);
-      let user = await findUserByEmail(identity.email);
+      const user = await findUserByEmail(identity.email);
       if (!user) {
-        user = await createUserInDb({
-          name: identity.name || identity.email.split("@")[0],
-          email: identity.email,
-          role: body.role === "SELLER" ? "SELLER" : "BUYER",
-          authProvider: "FIREBASE",
-          companyName: body.companyName,
-          phone: body.phone,
-        });
+        return res.status(404).json({ error: "No account found for this email. Register first, then sign in." });
       }
-      if (!user) return res.status(500).json({ error: "Failed to create or find user" });
       const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
       res.cookie("trishulan_token", token, COOKIE);
       return res.json({ success: true, user });
@@ -117,8 +133,12 @@ router.post("/login", async (req, res) => {
     const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
     res.cookie("trishulan_token", token, COOKIE);
     return res.json({ success: true, user });
-  } catch (err: any) {
-    return res.status(authErrorStatus(err)).json({ error: err.message || "Login failed" });
+  } catch (err: unknown) {
+    const status = authErrorStatus(err);
+    console.error("Authentication login failed", err instanceof Error ? err.name : "UnknownError");
+    return res.status(status).json({
+      error: authErrorMessage(err, "Sign-in is temporarily unavailable. Please try again later."),
+    });
   }
 });
 
@@ -133,8 +153,9 @@ router.get("/me", async (req: AuthenticatedRequest, res) => {
   try {
     const user = req.user ?? (await getUserFromToken(req.cookies?.trishulan_token || req.headers.authorization?.replace("Bearer ", "")));
     return res.json({ user: user ?? null });
-  } catch (err: any) {
-    return res.status(500).json({ user: null, error: err.message });
+  } catch (err: unknown) {
+    console.error("Authentication session lookup failed", err instanceof Error ? err.name : "UnknownError");
+    return res.status(500).json({ user: null, error: "Unable to load your session right now. Please try again later." });
   }
 });
 
@@ -147,9 +168,14 @@ router.put("/profile", async (req: AuthenticatedRequest, res) => {
     const profile = profileSchema.parse(req.body);
     const updated = await updateUserProfileInDb(user.id, profile);
     return res.json({ success: true, user: updated });
-  } catch (err: any) {
-    const status = err?.name === "ZodError" ? 400 : 500;
-    return res.status(status).json({ error: err.message });
+  } catch (err: unknown) {
+    const status = err instanceof Error && err.name === "ZodError" ? 400 : 500;
+    console.error("Authentication profile update failed", err instanceof Error ? err.name : "UnknownError");
+    return res.status(status).json({
+      error: status >= 500
+        ? "Unable to update your profile right now. Please try again later."
+        : err instanceof Error ? err.message : "Invalid profile details",
+    });
   }
 });
 

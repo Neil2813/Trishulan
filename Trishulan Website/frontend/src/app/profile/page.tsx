@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, UserRole } from '@/types';
 import DigitalIDCard from '@/components/DigitalIDCard';
-import { IdCard, CreditCard, FileCheck, Camera, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
+import AuthModal from '@/components/AuthModal';
 
 export default function ProfilePage() {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -21,6 +20,7 @@ export default function ProfilePage() {
   const [role, setRole] = useState<UserRole>('BUYER');
   
   const [loading, setLoading] = useState(true);
+  const [showAuth, setShowAuth] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -38,13 +38,11 @@ export default function ProfilePage() {
           setCompanyName(u.companyName || '');
           setPhone(u.phone || '');
           setGstNumber(u.gstNumber || '');
-          setIndustrySector(u.industrySector || 'RAW_MATERIALS');
+          setIndustrySector(u.industrySector || '');
           setAddress(u.address || '');
           setCity(u.city || '');
           setState(u.state || '');
           setRole(u.role || 'BUYER');
-        } else {
-          router.push('/register');
         }
       } catch (err) {
         console.error(err);
@@ -53,7 +51,7 @@ export default function ProfilePage() {
       }
     }
     loadProfile();
-  }, [router]);
+  }, []);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +95,36 @@ export default function ProfilePage() {
     );
   }
 
+  if (!user) {
+    return (
+      <>
+        <div className="min-h-[60vh] flex items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-3xl border border-line bg-card p-8 text-center shadow-lg">
+            <h1 className="text-xl font-black text-ink">Your profile is yours to complete</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Sign in to manage your business details and digital ID, or create an account to get started.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowAuth(true)}
+              className="mt-5 w-full rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#c2410a]"
+            >
+              Sign in to view your profile
+            </button>
+            <Link href="/register" className="mt-4 inline-block text-xs font-bold text-accent hover:underline">
+              Create a new account
+            </Link>
+          </div>
+        </div>
+        <AuthModal
+          isOpen={showAuth}
+          onClose={() => setShowAuth(false)}
+          onSuccess={() => window.location.reload()}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-transparent py-12 px-4 sm:px-6">
       <div className="max-w-[1100px] mx-auto space-y-8">
@@ -113,13 +141,15 @@ export default function ProfilePage() {
                 <span className="px-2.5 py-0.5 rounded-full bg-accent text-white font-extrabold text-[10px] uppercase">
                   {role}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 font-extrabold text-[10px] uppercase">
-                  ✓ MANDATORY KYC VERIFIED
-                </span>
+                {role === 'SELLER' && (
+                  <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[10px] uppercase ${
+                    user?.verifiedSeller ? 'bg-green-100 text-green-800' : 'bg-amber-50 text-amber-800'
+                  }`}>
+                    {user?.verifiedSeller ? 'VERIFIED' : 'VERIFICATION PENDING'}
+                  </span>
+                )}
               </div>
-              <p className="text-xs text-muted mt-1">
-                {companyName || 'Business Entity'} • {user?.email}
-              </p>
+              <p className="text-xs text-muted mt-1">{companyName || '—'} • {user?.email}</p>
             </div>
           </div>
 
@@ -145,50 +175,31 @@ export default function ProfilePage() {
           </div>
 
           <DigitalIDCard
-            name={name || 'Industrial Member'}
-            role={role === 'SELLER' ? 'SELLER' : 'BUYER'}
-            companyName={companyName || 'Trishulan Enterprise'}
-            gstNumber={gstNumber || '27AAAAA0000A1Z5'}
-            email={user?.email || 'member@trishulan.com'}
+            name={name}
+            role={role}
+            companyName={companyName}
+            companyId={user?.id}
+            isVerified={user?.verifiedSeller === true}
+            gstNumber={gstNumber || undefined}
+            email={user?.email}
           />
         </div>
 
-        {/* KYC Verification Checklist Status */}
-        <div className="bg-card rounded-[24px] border border-line shadow-xl p-6 md:p-8">
-          <div className="flex items-center justify-between pb-4 border-b border-line mb-6">
-            <div>
-              <h3 className="font-black text-[18px] text-ink">KYC Document Verification Status</h3>
-              <p className="text-xs text-muted">Document inspection verified by Trishulan Compliance Hub</p>
-            </div>
-            <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold">100% VERIFIED</span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <div className="flex justify-center mb-1"><IdCard className="w-6 h-6 text-accent" /></div>
-              <span className="text-xs font-bold text-ink block">AADHAR Card</span>
-              <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <div className="flex justify-center mb-1"><CreditCard className="w-6 h-6 text-accent" /></div>
-              <span className="text-xs font-bold text-ink block">PAN Card</span>
-              <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <div className="flex justify-center mb-1"><FileCheck className="w-6 h-6 text-accent" /></div>
-              <span className="text-xs font-bold text-ink block">GST Certificate</span>
-              <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-card border border-line text-center">
-              <div className="flex justify-center mb-1"><Camera className="w-6 h-6 text-accent" /></div>
-              <span className="text-xs font-bold text-ink block">Photo Selfie</span>
-              <span className="text-[10px] text-green-600 font-extrabold block mt-1">✓ Verified</span>
+        {role === 'SELLER' && (
+          <div className="bg-card rounded-[24px] border border-line shadow-xl p-6 md:p-8">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="font-black text-[18px] text-ink">Business verification status</h3>
+                <p className="text-xs text-muted">Verification status is based on your account record.</p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                user?.verifiedSeller ? 'bg-green-100 text-green-800' : 'bg-amber-50 text-amber-800'
+              }`}>
+                {user?.verifiedSeller ? 'VERIFIED' : 'PENDING'}
+              </span>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Profile Edit Form */}
         <div className="bg-card rounded-[24px] border border-line shadow-xl p-6 md:p-8">

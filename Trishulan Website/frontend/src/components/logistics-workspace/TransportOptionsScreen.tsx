@@ -72,21 +72,20 @@ export default function TransportOptionsScreen() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {(quotes.length > 0
-                  ? quotes
-                  : [
-                      { id: '1', provider: 'VRL Logistics Express', route: 'Pune to Chennai / FTL Road', estimatedPrice: '₹48,500', status: 'Quote received', statusType: 'RECEIVED' },
-                      { id: '2', provider: 'TCI Freight Services', route: 'Pune to Chennai / PTL Road', estimatedPrice: '₹22,000', status: '2-day transit', statusType: 'TRANSIT' },
-                      { id: '3', provider: 'Safexpress Cargo', route: 'Pune to Chennai / Rail Air-Ride', estimatedPrice: '₹62,000', status: 'Capacity check', statusType: 'CAPACITY' },
-                    ]
-                ).map((row: any) => (
+                {quotes.length ? quotes.map((row: any) => (
                   <tr key={row.id} className="hover:bg-card transition">
                     <td className="p-3.5 font-bold text-ink">{row.carrierName || row.provider}</td>
                     <td className="p-3.5 text-slate-700">{row.mode || row.route}</td>
                     <td className="p-3.5 font-mono font-bold text-emerald-700">{row.rateQuote || row.estimatedPrice}</td>
                     <td className="p-3.5 text-muted font-medium">{row.vehicleType || row.status}</td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-muted">
+                      {loading ? 'Loading transport quotations…' : 'No transport quotations available.'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -99,7 +98,7 @@ export default function TransportOptionsScreen() {
         <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
           <p className="font-bold text-cyan-800 mb-1">How it works:</p>
           <p className="italic leading-relaxed">
-            "{exampleText || 'Example: a user requesting 10 tons of steel plate transport compares rates from verified carriers, checks insurance coverage, and selects door-to-door delivery with tracking.'}"
+            {exampleText || 'No transport scenario details are available.'}
           </p>
         </div>
       </div>
