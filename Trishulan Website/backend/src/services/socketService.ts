@@ -1,46 +1,70 @@
 import { Server as HttpServer } from "http";
 import { Server, Socket } from "socket.io";
+import { getUserFromToken } from "../lib/auth";
+import { allowedOrigins } from "../lib/cors";
+import { prisma } from "../lib/db";
 
 let io: Server | null = null;
 
 export function initSocketServer(server: HttpServer): Server {
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || true,
+      origin: allowedOrigins,
       credentials: true,
     },
   });
 
-  io.on("connection", (socket: Socket) => {
-    const userId = socket.handshake.query.userId as string;
-    if (userId) {
-      socket.join(`user:${userId}`);
-      console.log(`⚡ WebSocket connected: User ${userId} (${socket.id})`);
+  io.use(async (socket, next) => {
+    try {
+      const authToken = socket.handshake.auth?.token;
+      const cookieHeader = socket.handshake.headers.cookie || "";
+      const cookieToken = cookieHeader
+        .split(";")
+        .map((cookie) => cookie.trim())
+        .find((cookie) => cookie.startsWith("trishulan_token="))
+        ?.slice("trishulan_token=".length);
+      const token = typeof authToken === "string"
+        ? authToken
+        : cookieToken
+          ? decodeURIComponent(cookieToken)
+          : undefined;
+      const user = await getUserFromToken(token);
+      if (!user) return next(new Error("Authentication required"));
+
+      socket.data.userId = user.id;
+      socket.data.userRole = user.role;
+      return next();
+    } catch (err) {
+      return next(err instanceof Error ? err : new Error("Socket authentication failed"));
     }
+  });
 
-    socket.on("join_room", (roomId: string) => {
-      socket.join(roomId);
-    });
+  io.on("connection", (socket: Socket) => {
+    const userId = socket.data.userId as string;
+    const userRole = socket.data.userRole as string;
+    socket.join(`user:${userId}`);
+    console.log(`⚡ WebSocket connected: User ${userId} (${socket.id})`);
 
-    socket.on("send_message", (messageData: any) => {
-      // Emit to direct user channel
-      if (messageData.receiverId) {
-        socket.to(`user:${messageData.receiverId}`).emit("new_message", messageData);
+    socket.on("typing", async (data: { receiverId?: unknown; isTyping?: unknown }) => {
+      if (typeof data?.receiverId !== "string" || typeof data.isTyping !== "boolean") return;
+      try {
+        const receiver = await prisma.user.findUnique({
+          where: { id: data.receiverId },
+          select: { id: true, role: true },
+        });
+        if (!receiver || receiver.role === userRole) return;
+        socket.to(`user:${receiver.id}`).emit("user_typing", {
+          senderId: userId,
+          receiverId: receiver.id,
+          isTyping: data.isTyping,
+        });
+      } catch (err) {
+        console.error("Failed to broadcast typing event:", err);
       }
-      // Also broadcast to room if applicable
-      if (messageData.roomId) {
-        socket.to(messageData.roomId).emit("new_message", messageData);
-      }
-    });
-
-    socket.on("typing", (data: { senderId: string; receiverId: string; isTyping: boolean }) => {
-      socket.to(`user:${data.receiverId}`).emit("user_typing", data);
     });
 
     socket.on("disconnect", () => {
-      if (userId) {
-        console.log(`🔌 WebSocket disconnected: User ${userId}`);
-      }
+      console.log(`🔌 WebSocket disconnected: User ${userId}`);
     });
   });
 

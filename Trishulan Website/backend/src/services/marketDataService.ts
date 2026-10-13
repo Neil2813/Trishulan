@@ -6,12 +6,9 @@
  */
 
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
+import { prisma } from '../lib/db';
 
 dotenv.config();
-
-const DB_PATH = path.join(process.cwd(), 'trishulan_db.json');
 
 interface CommodityConfig {
   id: string;
@@ -57,74 +54,87 @@ const COMMODITIES: CommodityConfig[] = [
   }
 ];
 
+export class MarketDataUnavailableError extends Error {
+  constructor(source: string) {
+    super(`${source} is temporarily unavailable`);
+    this.name = 'MarketDataUnavailableError';
+  }
+}
+
 /**
  * Reads database stats for supplier counts and real listings
  */
-function readDatabaseStats() {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const raw = fs.readFileSync(DB_PATH, 'utf-8');
-      const data = JSON.parse(raw);
-      const suppliersCount = (data.users || []).filter((u: any) => u.role === 'SELLER').length || 146;
-      const listingsCount = (data.listings || []).length || 45;
-      const rfqsCount = (data.rfqs || []).length || 28;
-      return { suppliersCount, listingsCount, rfqsCount };
-    }
-  } catch (err) {
-    console.warn('Failed to read trishulan_db.json for stats:', err);
-  }
-  return { suppliersCount: 146, listingsCount: 45, rfqsCount: 28 };
+async function readDatabaseStats() {
+  const [suppliersCount, listingsCount, rfqsCount] = await Promise.all([
+    prisma.user.count({ where: { role: 'SELLER' } }),
+    prisma.listing.count(),
+    prisma.rFQ.count(),
+  ]);
+  return { suppliersCount, listingsCount, rfqsCount };
 }
 
 /**
  * Fetches live exchange rates (USD -> INR, EUR) from Frankfurter Open API
  */
 export async function fetchLiveFxRates(): Promise<{ inr: number; eur: number }> {
+  let response: Response;
   try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=INR,EUR');
-    if (res.ok) {
-      const data: any = await res.json();
-      return {
-        inr: data?.rates?.INR || 86.5,
-        eur: data?.rates?.EUR || 0.92,
-      };
-    }
+    response = await fetch('https://api.frankfurter.app/latest?from=USD&to=INR,EUR', {
+      signal: AbortSignal.timeout(10_000),
+    });
   } catch (err) {
-    console.warn('Using fallback FX rates (86.5 USD/INR, 0.92 USD/EUR):', err);
+    console.warn('FX rates provider request failed:', err);
+    throw new MarketDataUnavailableError('FX rates provider');
   }
-  return { inr: 86.5, eur: 0.92 };
+  if (!response.ok) throw new MarketDataUnavailableError('FX rates provider');
+
+  const data = await response.json() as { rates?: { INR?: number; EUR?: number } };
+  const inr = data.rates?.INR;
+  const eur = data.rates?.EUR;
+  if (
+    typeof inr !== 'number' || !Number.isFinite(inr) || inr <= 0 ||
+    typeof eur !== 'number' || !Number.isFinite(eur) || eur <= 0
+  ) {
+    throw new MarketDataUnavailableError('FX rates provider');
+  }
+  return { inr, eur };
 }
 
 /**
  * Fetches live market price benchmark from Yahoo Finance API
  */
 export async function fetchLiveYahooCommodity(ticker: string): Promise<{ currentPrice: number; change24h: number; history7d: number[] }> {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=7d`;
+  let response: Response;
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=7d`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
-    
-    if (res.ok) {
-      const data: any = await res.json();
-      const result = data?.chart?.result?.[0];
-      if (result) {
-        const meta = result.meta;
-        const current = meta.regularMarketPrice || meta.chartPreviousClose || 50;
-        const prevClose = meta.chartPreviousClose || current;
-        const change24h = Number((((current - prevClose) / prevClose) * 100).toFixed(2));
-        
-        const closes: number[] = result.indicators?.quote?.[0]?.close?.filter((v: any) => typeof v === 'number') || [current];
-        return {
-          currentPrice: current,
-          change24h,
-          history7d: closes,
-        };
-      }
-    }
+    response = await fetch(url, {
+      signal: AbortSignal.timeout(10_000),
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+    });
   } catch (err) {
-    console.warn(`Failed to fetch Yahoo ticker ${ticker}:`, err);
+    console.warn(`Yahoo Finance request failed for ${ticker}:`, err);
+    throw new MarketDataUnavailableError(`Yahoo Finance ${ticker}`);
   }
-  
-  return { currentPrice: 65, change24h: 2.4, history7d: [63, 64, 64.5, 65] };
+  if (!response.ok) throw new MarketDataUnavailableError(`Yahoo Finance ${ticker}`);
+
+  const data = await response.json() as {
+    chart?: {
+      result?: Array<{
+        meta?: { regularMarketPrice?: number; chartPreviousClose?: number };
+        indicators?: { quote?: Array<{ close?: Array<number | null> }> };
+      }>;
+    };
+  };
+  const result = data.chart?.result?.[0];
+  const current = result?.meta?.regularMarketPrice ?? result?.meta?.chartPreviousClose;
+  if (typeof current !== 'number' || !Number.isFinite(current) || current <= 0) {
+    throw new MarketDataUnavailableError(`Yahoo Finance ${ticker}`);
+  }
+  const previousClose = result?.meta?.chartPreviousClose ?? current;
+  const change24h = Number((((current - previousClose) / previousClose) * 100).toFixed(2));
+  const history7d = (result?.indicators?.quote?.[0]?.close ?? [])
+    .filter((price): price is number => typeof price === 'number' && Number.isFinite(price));
+  return { currentPrice: current, change24h, history7d };
 }
 
 /**
@@ -132,7 +142,7 @@ export async function fetchLiveYahooCommodity(ticker: string): Promise<{ current
  */
 export async function getIndustrialAnalyzerData(query?: string) {
   const fx = await fetchLiveFxRates();
-  const dbStats = readDatabaseStats();
+  const dbStats = await readDatabaseStats();
   const tickerData = await fetchLiveYahooCommodity('SLX');
 
   const now = new Date().toISOString();
@@ -140,7 +150,7 @@ export async function getIndustrialAnalyzerData(query?: string) {
 
   // Dynamic calculations based on live market feed & DB state
   const demandIndex = Math.min(98, Math.max(60, Math.round(75 + (tickerData.change24h * 2.5))));
-  const supplierCount = dbStats.suppliersCount + Math.floor(Math.random() * 5);
+  const supplierCount = dbStats.suppliersCount;
   const priceChange = tickerData.change24h > 0 ? `+${tickerData.change24h}%` : `${tickerData.change24h}%`;
   const leadTime = demandIndex > 80 ? '4-6 weeks' : '3-5 weeks';
 
@@ -298,36 +308,13 @@ export async function getLiveMarketPricesData() {
   return prices;
 }
 
-/**
- * Returns trade intelligence analysis and supplier benchmarking metrics.
- */
-export async function fetchTradeIntelligence(product?: string, destination?: string) {
-  const fx = await fetchLiveFxRates();
-  const prod = product || 'Industrial Components';
-  const dest = destination || 'Global';
-
-  const quarterlyTrend = [
-    { period: 'Q1', count: 32 },
-    { period: 'Q2', count: 44 },
-    { period: 'Q3', count: 40 },
-    { period: 'Q4', count: 56 },
-    { period: 'Q1 (New)', count: 62 },
-    { period: 'Q2 (New)', count: 70 },
-    { period: 'Q3 (New)', count: 60 },
-    { period: 'Q4 (New)', count: 85 },
-  ];
-
-  const indicators = {
-    shipmentCount: '142 Shipments',
-    supplierCount: '28 Exporters',
-    avgDeclaredValue: `$${Math.round(48500 * (fx.eur || 1)).toLocaleString()}`,
-  };
-
+export async function fetchTradeIntelligence(query = 'Industrial Components', destination = 'Global') {
+  const analysis = await getIndustrialAnalyzerData(query);
   return {
-    product: prod,
-    destination: dest,
-    quarterlyTrend,
-    indicators,
-    lastUpdated: new Date().toISOString(),
+    ...analysis,
+    destination,
+    databaseStats: {
+      suppliers: analysis.supplierCount,
+    },
   };
 }

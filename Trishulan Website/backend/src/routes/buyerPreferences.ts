@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomUUID } from 'crypto';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { prisma } from '../lib/db';
 
@@ -6,7 +7,7 @@ const router = Router();
 
 // ─── Helper: generate case number ───────────────────────────────────────────
 function generateCaseNumber(): string {
-  return 'CS-' + String(Math.floor(1000 + Math.random() * 9000));
+  return `CS-${randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -17,6 +18,7 @@ function generateCaseNumber(): string {
 router.get('/consent', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers have communication consent preferences' });
 
     const latest = await prisma.buyerConsentLog.findFirst({
       where: { buyerId: req.user.id },
@@ -51,6 +53,7 @@ router.get('/consent', async (req: AuthenticatedRequest, res) => {
 router.post('/consent', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers can update communication consent' });
 
     const {
       allowPhoneSharing,
@@ -59,16 +62,45 @@ router.post('/consent', async (req: AuthenticatedRequest, res) => {
       targetSellerId,
       rfqId,
       consentWording,
-    } = req.body;
+    } = req.body ?? {};
+
+    const consentValues = [allowPhoneSharing, allowWhatsappAlerts, allowMarketing];
+    if (consentValues.some((value) => value !== undefined && typeof value !== 'boolean')) {
+      return res.status(400).json({ error: 'Consent preferences must be boolean values' });
+    }
+    if (targetSellerId !== undefined && typeof targetSellerId !== 'string') {
+      return res.status(400).json({ error: 'targetSellerId must be a string' });
+    }
+    if (rfqId !== undefined && rfqId !== null && typeof rfqId !== 'string') {
+      return res.status(400).json({ error: 'rfqId must be a string' });
+    }
+    if (consentWording !== undefined && typeof consentWording !== 'string') {
+      return res.status(400).json({ error: 'consentWording must be a string' });
+    }
+
+    if (targetSellerId && targetSellerId !== 'GENERAL') {
+      const seller = await prisma.user.findFirst({
+        where: { id: targetSellerId, role: 'SELLER' },
+        select: { id: true },
+      });
+      if (!seller) return res.status(404).json({ error: 'Seller not found' });
+    }
+    if (rfqId) {
+      const rfq = await prisma.rFQ.findFirst({
+        where: { id: rfqId, buyerId: req.user.id },
+        select: { id: true },
+      });
+      if (!rfq) return res.status(404).json({ error: 'RFQ not found' });
+    }
 
     const log = await prisma.buyerConsentLog.create({
       data: {
         buyerId: req.user.id,
         targetSellerId: targetSellerId || 'GENERAL',
         rfqId: rfqId || null,
-        allowPhoneSharing: Boolean(allowPhoneSharing),
-        allowWhatsappAlerts: Boolean(allowWhatsappAlerts),
-        allowMarketing: Boolean(allowMarketing),
+        allowPhoneSharing: allowPhoneSharing ?? false,
+        allowWhatsappAlerts: allowWhatsappAlerts ?? false,
+        allowMarketing: allowMarketing ?? false,
         consentWording: consentWording || 'User updated communication preferences',
         ipAddress: req.ip || null,
         userAgent: req.headers['user-agent'] || null,
@@ -92,6 +124,7 @@ router.post('/consent', async (req: AuthenticatedRequest, res) => {
 router.get('/workspace', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers have a customer workspace' });
 
     const [activeRfqs, openTickets, pendingQuotes, verifiedSuppliersCount] = await Promise.all([
       prisma.rFQ.count({ where: { buyerId: req.user.id, status: { in: ['OPEN', 'IN_NEGOTIATION'] } } }),
@@ -122,16 +155,27 @@ router.post('/ticket', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const { subject, details, priority, category } = req.body;
-    if (!subject) return res.status(400).json({ error: 'Missing ticket subject' });
+    const { subject, details, priority, category } = req.body ?? {};
+    if (typeof subject !== 'string' || !subject.trim()) {
+      return res.status(400).json({ error: 'Missing ticket subject' });
+    }
+    if (details !== undefined && typeof details !== 'string') {
+      return res.status(400).json({ error: 'Ticket details must be a string' });
+    }
+    if (priority !== undefined && !['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority)) {
+      return res.status(400).json({ error: 'Invalid ticket priority' });
+    }
+    if (category !== undefined && (typeof category !== 'string' || !category.trim())) {
+      return res.status(400).json({ error: 'Ticket category must be a non-empty string' });
+    }
 
     const ticket = await prisma.supportTicket.create({
       data: {
         caseNumber: generateCaseNumber(),
         userId: req.user.id,
         category: category || 'Account',
-        subject,
-        details: details || '',
+        subject: subject.trim(),
+        details: typeof details === 'string' ? details.trim() : '',
         priority: priority || 'MEDIUM',
         status: 'OPEN',
       },

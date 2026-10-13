@@ -6,6 +6,7 @@ import {
   getIndustrialAnalyzerData,
   getAiMarketPriceAnalyzerData,
 } from "../services/marketDataService";
+import { MarketDataUnavailableError } from "../services/marketDataService";
 
 const router = Router();
 
@@ -31,7 +32,8 @@ router.get("/", async (req: AuthenticatedRequest, res) => {
 
     return res.json({ tier, marketPrices });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || "Failed to fetch market data" });
+    const status = err instanceof MarketDataUnavailableError ? 503 : 500;
+    return res.status(status).json({ error: err.message || "Failed to fetch market data" });
   }
 });
 
@@ -42,7 +44,8 @@ router.get("/analyzer", async (req, res) => {
     const data = await getIndustrialAnalyzerData(query);
     return res.json(data);
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || "Failed to analyze market" });
+    const status = err instanceof MarketDataUnavailableError ? 503 : 500;
+    return res.status(status).json({ error: err.message || "Failed to analyze market" });
   }
 });
 
@@ -55,7 +58,8 @@ router.get("/ai-price-analyzer", async (req, res) => {
     const data = await getAiMarketPriceAnalyzerData(product, grade, thickness);
     return res.json(data);
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || "Failed to fetch price benchmark" });
+    const status = err instanceof MarketDataUnavailableError ? 503 : 500;
+    return res.status(status).json({ error: err.message || "Failed to fetch price benchmark" });
   }
 });
 
@@ -80,4 +84,3 @@ router.post("/report-listing", async (req, res) => {
 });
 
 export default router;
-

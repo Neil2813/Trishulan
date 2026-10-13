@@ -1,14 +1,22 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { buildWeeklyTrend, getWeeklyStart } from '../lib/activity';
 
 const router = Router();
 
 // GET /api/platform-e/sme-network
 router.get('/sme-network', async (req, res) => {
   try {
-    const query = (req.query.query as string | undefined)?.toLowerCase().trim();
-    const location = (req.query.location as string | undefined)?.toLowerCase().trim();
+    const { query: queryParam, location: locationParam } = req.query;
+    if (
+      (queryParam !== undefined && typeof queryParam !== 'string') ||
+      (locationParam !== undefined && typeof locationParam !== 'string')
+    ) {
+      return res.status(400).json({ error: 'query and location must be strings' });
+    }
+    const query = queryParam?.toLowerCase().trim();
+    const location = locationParam?.toLowerCase().trim();
 
     let listings = await prisma.listing.findMany({
       orderBy: { createdAt: 'desc' },
@@ -69,9 +77,10 @@ router.get('/sme-network', async (req, res) => {
 router.post('/rfq', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers can submit RFQs' });
 
-    const { smeId, productRequirement, quantity, targetDate, category } = req.body;
-    if (!productRequirement) {
+    const { smeId, productRequirement, quantity, targetDate, category } = req.body ?? {};
+    if (typeof productRequirement !== 'string' || !productRequirement.trim()) {
       return res.status(400).json({ error: 'Missing product requirement details' });
     }
 
@@ -80,19 +89,22 @@ router.post('/rfq', async (req: AuthenticatedRequest, res) => {
     if (!resolvedCategory) {
       return res.status(400).json({ error: `category must be one of: ${VALID_CATEGORIES.join(', ')}` });
     }
+    if (quantity !== undefined && quantity !== null && !String(quantity).trim()) {
+      return res.status(400).json({ error: 'quantity cannot be empty' });
+    }
 
     const rfq = await prisma.rFQ.create({
       data: {
         buyerId: req.user.id,
         buyerName: req.user.companyName || req.user.name,
-        title: productRequirement,
+        title: productRequirement.trim(),
         category: resolvedCategory,
-        quantity: String(quantity || 1),
+        quantity: quantity == null ? '1' : String(quantity).trim(),
         targetPrice: 0,
         details: [
           smeId ? `SME Target: ${smeId}` : null,
           targetDate ? `Target Date: ${targetDate}` : null,
-        ].filter(Boolean).join('. ') || '',
+        ].filter(Boolean).join('. ') || `Requirement: ${productRequirement.trim()}`,
         status: 'OPEN',
       },
     });
@@ -108,22 +120,21 @@ router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+    const weekStart = getWeeklyStart();
+    const [newLeads, respondedLeads, openRfqs, weeklyMessages] = await Promise.all([
       prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
       prisma.chatMessage.count({ where: { senderId: req.user.id } }),
-      prisma.rFQ.count({ where: { status: 'OPEN' } }),
-      prisma.$queryRaw<{ day: number; count: bigint }[]>`
-        SELECT EXTRACT(DOW FROM timestamp)::int AS day, COUNT(*)::bigint AS count
-        FROM "ChatMessage"
-        WHERE ("senderId" = ${req.user.id} OR "receiverId" = ${req.user.id})
-          AND timestamp >= NOW() - INTERVAL '7 days'
-        GROUP BY day ORDER BY day
-      `,
+      prisma.rFQ.count({ where: { buyerId: req.user.id, status: 'OPEN' } }),
+      prisma.chatMessage.findMany({
+        where: {
+          OR: [{ senderId: req.user.id }, { receiverId: req.user.id }],
+          timestamp: { gte: weekStart },
+        },
+        select: { timestamp: true },
+      }),
     ]);
 
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
-    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
+    const weeklyTrend = buildWeeklyTrend(weeklyMessages.map((message) => message.timestamp));
 
     return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {

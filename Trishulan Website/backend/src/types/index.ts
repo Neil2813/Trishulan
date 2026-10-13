@@ -11,6 +11,7 @@ export interface User {
   companyName?: string;
   phone?: string;
   gstNumber?: string;
+  panNumber?: string;
   industrySector?: string;
   address?: string;
   city?: string;
@@ -147,4 +148,3 @@ export interface AdviserAppointment {
   scheduledTime: string;
   timestamp: string;
 }
-

@@ -22,14 +22,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
       const user = result.user;
+      const idToken = await user.getIdToken();
 
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           authProvider: 'FIREBASE',
-          email: user.email,
-          name: user.displayName || user.email?.split('@')[0],
+          idToken,
         }),
       });
 

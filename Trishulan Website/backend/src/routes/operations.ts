@@ -17,7 +17,7 @@
 import { Router } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { prisma } from '../lib/db';
-import { DocType } from '@prisma/client';
+import { DocType, Prisma } from '@prisma/client';
 
 const router = Router();
 
@@ -53,6 +53,12 @@ router.get('/documents', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
     const { docType, status } = req.query;
+    if (docType !== undefined && !Object.values(DocType).includes(docType as DocType)) {
+      return res.status(400).json({ error: 'Invalid document type' });
+    }
+    if (status !== undefined && !['DRAFT', 'ISSUED', 'PAID', 'PARTIAL', 'CANCELLED'].includes(String(status))) {
+      return res.status(400).json({ error: 'Invalid document status' });
+    }
     const documents = await prisma.businessDocument.findMany({
       where: {
         userId: req.user.id,
@@ -84,27 +90,64 @@ router.post('/documents', async (req: AuthenticatedRequest, res) => {
       taxRatePercent,
       notes,
       dueDate,
-    } = req.body;
+    } = req.body ?? {};
 
-    if (!partyName || !items) {
-      return res.status(400).json({ error: 'partyName and items are required' });
+    if (typeof partyName !== 'string' || !partyName.trim()) {
+      return res.status(400).json({ error: 'partyName is required' });
     }
-    if (taxRatePercent === undefined || taxRatePercent === null) {
-      return res.status(400).json({ error: 'taxRatePercent is required' });
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'items must be a non-empty array' });
     }
-    if (!docType) {
-      return res.status(400).json({ error: 'docType is required' });
+    if (typeof taxRatePercent !== 'number' || !Number.isFinite(taxRatePercent) || taxRatePercent < 0 || taxRatePercent > 100) {
+      return res.status(400).json({ error: 'taxRatePercent must be a number between 0 and 100' });
+    }
+    if (typeof docType !== 'string' || !Object.values(DocType).includes(docType as DocType)) {
+      return res.status(400).json({ error: 'Invalid document type' });
+    }
+    if (partyGstin !== undefined && partyGstin !== null && typeof partyGstin !== 'string') {
+      return res.status(400).json({ error: 'partyGstin must be a string' });
+    }
+    if (partyAddress !== undefined && partyAddress !== null && typeof partyAddress !== 'string') {
+      return res.status(400).json({ error: 'partyAddress must be a string' });
+    }
+    if (notes !== undefined && notes !== null && typeof notes !== 'string') {
+      return res.status(400).json({ error: 'notes must be a string' });
     }
 
-    const parsedItems = Array.isArray(items) ? items : JSON.parse(items);
-    const subtotal = parsedItems.reduce(
-      (sum: number, item: any) => sum + (Number(item.qty) * Number(item.unitPrice) || 0),
+    const parsedItems: Prisma.InputJsonObject[] = [];
+    for (const item of items) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        return res.status(400).json({ error: 'Each item must be an object' });
+      }
+      const row = item as Record<string, unknown>;
+      const quantity = Number(row.qty);
+      const unitPrice = Number(row.unitPrice);
+      if (
+        typeof row.description !== 'string' || !row.description.trim() ||
+        !Number.isFinite(quantity) || quantity <= 0 ||
+        !Number.isFinite(unitPrice) || unitPrice < 0
+      ) {
+        return res.status(400).json({ error: 'Each item needs a description, positive qty, and non-negative unitPrice' });
+      }
+      parsedItems.push({
+        description: row.description.trim(),
+        qty: quantity,
+        unitPrice,
+        total: Number((quantity * unitPrice).toFixed(2)),
+        ...(typeof row.hsn === 'string' ? { hsn: row.hsn } : {}),
+      });
+    }
+    const subtotal = Number(parsedItems.reduce(
+      (sum, item) => sum + Number(item.qty) * Number(item.unitPrice),
       0
-    );
-    const taxRate = Number(taxRatePercent);
-    const taxAmount = parseFloat(((subtotal * taxRate) / 100).toFixed(2));
-    const totalAmount = parseFloat((subtotal + taxAmount).toFixed(2));
+    ).toFixed(2));
+    const taxAmount = Number(((subtotal * taxRatePercent) / 100).toFixed(2));
+    const totalAmount = Number((subtotal + taxAmount).toFixed(2));
     const resolvedDocType: DocType = docType as DocType;
+    const resolvedDueDate = dueDate ? new Date(dueDate) : null;
+    if (resolvedDueDate && Number.isNaN(resolvedDueDate.getTime())) {
+      return res.status(400).json({ error: 'dueDate must be a valid date' });
+    }
 
     const docNumber = await generateDocNumber(resolvedDocType, req.user.id);
     const doc = await prisma.businessDocument.create({
@@ -112,7 +155,7 @@ router.post('/documents', async (req: AuthenticatedRequest, res) => {
         userId: req.user.id,
         docNumber,
         docType: resolvedDocType,
-        partyName,
+        partyName: partyName.trim(),
         partyGstin: partyGstin || null,
         partyAddress: partyAddress || null,
         subtotal,
@@ -120,8 +163,8 @@ router.post('/documents', async (req: AuthenticatedRequest, res) => {
         totalAmount,
         paidAmount: 0,
         status: 'DRAFT',
-        dueDate: dueDate ? new Date(dueDate) : null,
-        notes: notes || null,
+        dueDate: resolvedDueDate,
+        notes: typeof notes === 'string' && notes.trim() ? notes.trim() : null,
         items: parsedItems,
       },
     });
@@ -157,15 +200,37 @@ router.get('/documents/:id', async (req: AuthenticatedRequest, res) => {
 router.patch('/documents/:id/status', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
-    const { status, paidAmount } = req.body;
-    const doc = await prisma.businessDocument.updateMany({
+    const { status, paidAmount } = req.body ?? {};
+    if (!['DRAFT', 'ISSUED', 'PAID', 'PARTIAL', 'CANCELLED'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid document status' });
+    }
+    const document = await prisma.businessDocument.findFirst({
       where: { id: req.params.id, userId: req.user.id },
-      data: {
-        status,
-        ...(paidAmount !== undefined ? { paidAmount: Number(paidAmount) } : {}),
-      },
     });
-    if (doc.count === 0) return res.status(404).json({ error: 'Document not found' });
+    if (!document) return res.status(404).json({ error: 'Document not found' });
+
+    const resolvedPaidAmount = paidAmount === undefined
+      ? (status === 'PAID' ? document.totalAmount : document.paidAmount)
+      : Number(paidAmount);
+    if (
+      !Number.isFinite(resolvedPaidAmount) ||
+      resolvedPaidAmount < 0 ||
+      resolvedPaidAmount > document.totalAmount
+    ) {
+      return res.status(400).json({ error: 'paidAmount must be between zero and the document total' });
+    }
+    if (
+      (status === 'PAID' && resolvedPaidAmount !== document.totalAmount) ||
+      (status === 'PARTIAL' && (resolvedPaidAmount <= 0 || resolvedPaidAmount >= document.totalAmount)) ||
+      (['DRAFT', 'ISSUED', 'CANCELLED'].includes(status) && resolvedPaidAmount > 0)
+    ) {
+      return res.status(400).json({ error: 'Document status and paidAmount are inconsistent' });
+    }
+
+    await prisma.businessDocument.update({
+      where: { id: document.id },
+      data: { status, paidAmount: resolvedPaidAmount },
+    });
     return res.json({ success: true, message: 'Document status updated' });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to update document status' });
@@ -248,25 +313,40 @@ router.post('/inventory', async (req: AuthenticatedRequest, res) => {
     const {
       skuCode, itemName, category, hsnCode, unit,
       costPrice, salePrice, currentStock, reorderPoint, batchNumber,
-    } = req.body;
+    } = req.body ?? {};
 
-    if (!skuCode || !itemName) {
+    if (typeof skuCode !== 'string' || !skuCode.trim() || typeof itemName !== 'string' || !itemName.trim()) {
       return res.status(400).json({ error: 'skuCode and itemName are required' });
+    }
+    if ([category, hsnCode, unit, batchNumber].some((value) => value !== undefined && value !== null && typeof value !== 'string')) {
+      return res.status(400).json({ error: 'Inventory text fields must be strings' });
+    }
+    const resolvedCostPrice = Number(costPrice ?? 0);
+    const resolvedSalePrice = Number(salePrice ?? 0);
+    const resolvedCurrentStock = Number(currentStock ?? 0);
+    const resolvedReorderPoint = Number(reorderPoint ?? 10);
+    if (
+      !Number.isFinite(resolvedCostPrice) || resolvedCostPrice < 0 ||
+      !Number.isFinite(resolvedSalePrice) || resolvedSalePrice < 0 ||
+      !Number.isFinite(resolvedCurrentStock) || resolvedCurrentStock < 0 ||
+      !Number.isFinite(resolvedReorderPoint) || resolvedReorderPoint < 0
+    ) {
+      return res.status(400).json({ error: 'Inventory quantities and prices must be non-negative numbers' });
     }
 
     const item = await prisma.inventoryItem.create({
       data: {
         userId: req.user.id,
-        skuCode,
-        itemName,
-        category: category || 'General',
-        hsnCode: hsnCode || null,
-        unit: unit || 'Units',
-        costPrice: Number(costPrice) || 0,
-        salePrice: Number(salePrice) || 0,
-        currentStock: Number(currentStock) || 0,
-        reorderPoint: Number(reorderPoint) || 10,
-        batchNumber: batchNumber || null,
+        skuCode: skuCode.trim(),
+        itemName: itemName.trim(),
+        category: typeof category === 'string' && category.trim() ? category.trim() : 'General',
+        hsnCode: typeof hsnCode === 'string' && hsnCode.trim() ? hsnCode.trim() : null,
+        unit: typeof unit === 'string' && unit.trim() ? unit.trim() : 'Units',
+        costPrice: resolvedCostPrice,
+        salePrice: resolvedSalePrice,
+        currentStock: resolvedCurrentStock,
+        reorderPoint: resolvedReorderPoint,
+        batchNumber: typeof batchNumber === 'string' && batchNumber.trim() ? batchNumber.trim() : null,
       },
     });
 
@@ -283,20 +363,37 @@ router.post('/inventory', async (req: AuthenticatedRequest, res) => {
 router.patch('/inventory/:id/stock', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
-    const { adjustment } = req.body;
-    const item = await prisma.inventoryItem.findFirst({
-      where: { id: req.params.id, userId: req.user.id },
-    });
-    if (!item) return res.status(404).json({ error: 'Inventory item not found' });
+    const { adjustment } = req.body ?? {};
+    const numericAdjustment = Number(adjustment);
+    if (!Number.isFinite(numericAdjustment) || numericAdjustment === 0) {
+      return res.status(400).json({ error: 'adjustment must be a non-zero number' });
+    }
 
-    const newStock = item.currentStock + Number(adjustment);
-    const updated = await prisma.inventoryItem.update({
-      where: { id: item.id },
-      data: {
-        currentStock: newStock,
-        reorderAlertSent: newStock <= item.reorderPoint,
-      },
-    });
+    const result = await prisma.$transaction(async (transaction) => {
+      const item = await transaction.inventoryItem.findFirst({
+        where: { id: req.params.id, userId: req.user!.id },
+      });
+      if (!item) return { outcome: 'NOT_FOUND' as const };
+
+      const newStock = item.currentStock + numericAdjustment;
+      if (newStock < 0) return { outcome: 'INSUFFICIENT_STOCK' as const };
+
+      const updated = await transaction.inventoryItem.update({
+        where: { id: item.id },
+        data: {
+          currentStock: newStock,
+          reorderAlertSent: newStock <= item.reorderPoint,
+        },
+      });
+      return { outcome: 'UPDATED' as const, item: updated };
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+
+    if (result.outcome === 'NOT_FOUND') return res.status(404).json({ error: 'Inventory item not found' });
+    if (result.outcome === 'INSUFFICIENT_STOCK') {
+      return res.status(400).json({ error: 'Stock adjustment cannot make inventory negative' });
+    }
+    const updated = result.item;
+    const newStock = updated.currentStock;
 
     return res.json({
       success: true,
@@ -323,7 +420,11 @@ router.get('/summary', async (req: AuthenticatedRequest, res) => {
       prisma.inventoryItem.findMany({ where: { userId: req.user.id } }),
     ]);
 
-    const invoices = documents.filter((d) => d.docType === 'TAX_INVOICE');
+    const invoices = documents.filter(
+      (document) =>
+        document.docType === 'TAX_INVOICE' &&
+        ['ISSUED', 'PARTIAL', 'PAID'].includes(document.status)
+    );
     const totalRevenue = invoices.reduce((s, d) => s + d.totalAmount, 0);
     const totalPaid = invoices.reduce((s, d) => s + d.paidAmount, 0);
     const totalOutstanding = totalRevenue - totalPaid;

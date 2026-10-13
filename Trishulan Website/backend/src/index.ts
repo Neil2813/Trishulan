@@ -28,6 +28,7 @@ import quotesRouter           from "./routes/quotes";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { prisma } from "./lib/db";
+import { allowedOrigins } from "./lib/cors";
 
 dotenv.config();
 
@@ -53,7 +54,7 @@ const authLimiter = rateLimit({
 app.use(helmet({
   contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
 }));
-app.use(cors({ origin: process.env.FRONTEND_URL || true, credentials: true }));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -113,9 +114,23 @@ app.use((_req, res) => {
 
 // ── Global error handler ────────────────────────────────────────────────────
 app.use(
-  (err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error("Server Error:", err);
-    res.status(500).json({ error: err.message || "Internal Server Error" });
+    const errorStatus =
+      typeof err === "object" &&
+      err !== null &&
+      "status" in err &&
+      typeof err.status === "number" &&
+      err.status >= 400 &&
+      err.status < 600
+        ? err.status
+        : 500;
+    const errorMessage = err instanceof Error ? err.message : "Internal Server Error";
+    const message =
+      errorStatus < 500 || process.env.NODE_ENV !== "production"
+        ? errorMessage
+        : "Internal Server Error";
+    res.status(errorStatus).json({ error: message });
   }
 );
 

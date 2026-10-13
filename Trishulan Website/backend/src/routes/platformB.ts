@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { buildWeeklyTrend, getWeeklyStart } from '../lib/activity';
 
 const router = Router();
 
@@ -18,9 +19,10 @@ router.get('/rfqs', async (_req, res) => {
 router.post('/rfqs', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers can submit RFQs' });
 
-    const { product, quantity, specification, delivery, attachmentName, category } = req.body;
-    if (!product || !quantity) {
+    const { product, quantity, specification, delivery, attachmentName, category } = req.body ?? {};
+    if (typeof product !== 'string' || !product.trim() || !quantity || !String(quantity).trim()) {
       return res.status(400).json({ error: 'Missing product name or target quantity' });
     }
 
@@ -33,15 +35,15 @@ router.post('/rfqs', async (req: AuthenticatedRequest, res) => {
       data: {
         buyerId: req.user.id,
         buyerName: req.user.companyName || req.user.name,
-        title: `${product} (${quantity})`,
+        title: `${product.trim()} (${String(quantity).trim()})`,
         category,
-        quantity: String(quantity),
+        quantity: String(quantity).trim(),
         targetPrice: 0,
         details: [
           specification ? `Specification: ${specification}` : null,
           delivery ? `Delivery Target: ${delivery}` : null,
           attachmentName ? `Attachment: ${attachmentName}` : null,
-        ].filter(Boolean).join('. ') || '',
+        ].filter(Boolean).join('. ') || `Wholesale RFQ for ${product.trim()}`,
         status: 'OPEN',
         documentUrl: attachmentName ? `/documents/${attachmentName}` : null,
       },
@@ -58,22 +60,18 @@ router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+    const weekStart = getWeeklyStart();
+    const [newLeads, respondedLeads, openRfqs, weeklyRfqs] = await Promise.all([
       prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
       prisma.chatMessage.count({ where: { senderId: req.user.id } }),
-      prisma.rFQ.count({ where: { status: 'OPEN' } }),
-      prisma.$queryRaw<{ day: number; count: bigint }[]>`
-        SELECT EXTRACT(DOW FROM "createdAt")::int AS day, COUNT(*)::bigint AS count
-        FROM "RFQ"
-        WHERE "buyerId" = ${req.user.id}
-          AND "createdAt" >= NOW() - INTERVAL '7 days'
-        GROUP BY day ORDER BY day
-      `,
+      prisma.rFQ.count({ where: { buyerId: req.user.id, status: 'OPEN' } }),
+      prisma.rFQ.findMany({
+        where: { buyerId: req.user.id, createdAt: { gte: weekStart } },
+        select: { createdAt: true },
+      }),
     ]);
 
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
-    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
+    const weeklyTrend = buildWeeklyTrend(weeklyRfqs.map((rfq) => rfq.createdAt));
 
     return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {

@@ -22,53 +22,87 @@ const router = Router();
 router.post('/', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'SELLER') return res.status(403).json({ error: 'Only sellers can submit quotes' });
 
     const {
       rfqId, unitPrice, currency, moq, leadTimeDays,
       freightCost, taxRatePercent, incoterm, paymentTerms, validUntil, notes,
-    } = req.body;
+    } = req.body ?? {};
 
-    if (!rfqId || !unitPrice || !moq || !leadTimeDays || !validUntil || !currency || !incoterm || !paymentTerms) {
+    if (
+      typeof rfqId !== 'string' || !rfqId.trim() ||
+      typeof currency !== 'string' || !currency.trim() ||
+      (typeof moq !== 'string' && typeof moq !== 'number') || !String(moq).trim() ||
+      typeof incoterm !== 'string' || !incoterm.trim() ||
+      typeof paymentTerms !== 'string' || !paymentTerms.trim()
+    ) {
       return res.status(400).json({
         error: 'rfqId, unitPrice, currency, moq, leadTimeDays, incoterm, paymentTerms, and validUntil are required',
       });
     }
 
-    if (typeof taxRatePercent !== 'number') {
-      return res.status(400).json({ error: 'taxRatePercent is required and must be a number' });
+    const price = Number(unitPrice);
+    const leadTime = Number(leadTimeDays);
+    const freight = freightCost == null ? 0 : Number(freightCost);
+    const taxRate = Number(taxRatePercent);
+    const expiry = new Date(validUntil);
+    if (!Number.isFinite(price) || price <= 0) {
+      return res.status(400).json({ error: 'unitPrice must be a positive number' });
+    }
+    if (!Number.isInteger(leadTime) || leadTime <= 0) {
+      return res.status(400).json({ error: 'leadTimeDays must be a positive integer' });
+    }
+    if (!Number.isFinite(freight) || freight < 0) {
+      return res.status(400).json({ error: 'freightCost must be a non-negative number' });
+    }
+    if (!Number.isFinite(taxRate) || taxRate < 0 || taxRate > 100) {
+      return res.status(400).json({ error: 'taxRatePercent must be between 0 and 100' });
+    }
+    if (Number.isNaN(expiry.getTime()) || expiry.getTime() <= Date.now()) {
+      return res.status(400).json({ error: 'validUntil must be a future date' });
     }
 
-    const rfq = await prisma.rFQ.findUnique({ where: { id: rfqId } });
-    if (!rfq) return res.status(404).json({ error: 'RFQ not found' });
-    if (rfq.status === 'COMPLETED' || rfq.status === 'CANCELLED') {
-      return res.status(400).json({ error: 'This RFQ is no longer accepting quotes' });
-    }
+    const normalizedRfqId = rfqId.trim();
+    const result = await prisma.$transaction(async (transaction) => {
+      const rfq = await transaction.rFQ.findUnique({ where: { id: normalizedRfqId } });
+      if (!rfq) return { outcome: 'NOT_FOUND' as const };
+      if (rfq.buyerId === req.user!.id) return { outcome: 'OWN_RFQ' as const };
+      if (rfq.status === 'COMPLETED' || rfq.status === 'CANCELLED') {
+        return { outcome: 'CLOSED' as const };
+      }
 
-    const quote = await prisma.quote.create({
-      data: {
-        rfqId,
-        sellerId: req.user.id,
-        sellerName: req.user.name || req.user.companyName || 'Seller',
-        unitPrice: Number(unitPrice),
-        currency,
-        moq: String(moq),
-        leadTimeDays: Number(leadTimeDays),
-        freightCost: freightCost != null ? Number(freightCost) : 0,
-        taxRatePercent: Number(taxRatePercent),
-        incoterm,
-        paymentTerms,
-        validUntil: new Date(validUntil),
-        notes: notes ?? null,
-        status: 'SUBMITTED',
-      },
+      const quote = await transaction.quote.create({
+        data: {
+          rfqId: normalizedRfqId,
+          sellerId: req.user!.id,
+          sellerName: req.user!.companyName || req.user!.name,
+          unitPrice: price,
+          currency: currency.trim().toUpperCase(),
+          moq: String(moq).trim(),
+          leadTimeDays: leadTime,
+          freightCost: freight,
+          taxRatePercent: taxRate,
+          incoterm: incoterm.trim().toUpperCase(),
+          paymentTerms: paymentTerms.trim(),
+          validUntil: expiry,
+          notes: typeof notes === 'string' ? notes.trim() || null : null,
+          status: 'SUBMITTED',
+        },
+      });
+
+      if (rfq.status === 'OPEN') {
+        await transaction.rFQ.update({
+          where: { id: normalizedRfqId },
+          data: { status: 'IN_NEGOTIATION' },
+        });
+      }
+      return { outcome: 'CREATED' as const, quote };
     });
 
-    // Transition RFQ to IN_NEGOTIATION once the first quote arrives
-    if (rfq.status === 'OPEN') {
-      await prisma.rFQ.update({ where: { id: rfqId }, data: { status: 'IN_NEGOTIATION' } });
-    }
-
-    return res.json({ success: true, quote });
+    if (result.outcome === 'NOT_FOUND') return res.status(404).json({ error: 'RFQ not found' });
+    if (result.outcome === 'OWN_RFQ') return res.status(403).json({ error: 'You cannot quote on your own RFQ' });
+    if (result.outcome === 'CLOSED') return res.status(400).json({ error: 'This RFQ is no longer accepting quotes' });
+    return res.json({ success: true, quote: result.quote });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to submit quote' });
   }
@@ -84,8 +118,16 @@ router.get('/rfq/:rfqId', async (req: AuthenticatedRequest, res) => {
 
     const { rfqId } = req.params;
 
+    const rfq = await prisma.rFQ.findUnique({ where: { id: rfqId }, select: { buyerId: true } });
+    if (!rfq || (req.user.role === 'BUYER' && rfq.buyerId !== req.user.id)) {
+      return res.status(404).json({ error: 'RFQ not found' });
+    }
+
     const quotes = await prisma.quote.findMany({
-      where: { rfqId },
+      where: {
+        rfqId,
+        ...(req.user.role === 'SELLER' ? { sellerId: req.user.id } : {}),
+      },
       orderBy: { createdAt: 'asc' },
       include: {
         seller: {
@@ -109,18 +151,56 @@ router.patch('/:id/status', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const { status } = req.body;
+    if (req.user.role !== 'BUYER') {
+      return res.status(403).json({ error: 'Only the RFQ buyer can update quote status' });
+    }
+
+    const { status } = req.body ?? {};
     const validStatuses = ['ACCEPTED', 'REJECTED', 'EXPIRED'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
     }
 
-    const updated = await prisma.quote.updateMany({
-      where: { id: req.params.id },
-      data: { status },
+    const result = await prisma.$transaction(async (transaction) => {
+      const quote = await transaction.quote.findUnique({
+        where: { id: req.params.id },
+        include: { rfq: { select: { buyerId: true, status: true } } },
+      });
+      if (!quote || quote.rfq.buyerId !== req.user!.id) return 'NOT_FOUND';
+      if (quote.status !== 'SUBMITTED') return 'NOT_SUBMITTED';
+      if (quote.validUntil <= new Date()) {
+        await transaction.quote.update({
+          where: { id: quote.id },
+          data: { status: 'EXPIRED' },
+        });
+        return 'EXPIRED';
+      }
+      if (status === 'ACCEPTED' && !['OPEN', 'IN_NEGOTIATION'].includes(quote.rfq.status)) {
+        return 'RFQ_CLOSED';
+      }
+
+      const updated = await transaction.quote.updateMany({
+        where: { id: quote.id, status: 'SUBMITTED' },
+        data: { status },
+      });
+      if (updated.count === 0) return 'NOT_SUBMITTED';
+      if (status === 'ACCEPTED') {
+        await transaction.rFQ.update({
+          where: { id: quote.rfqId },
+          data: { status: 'COMPLETED' },
+        });
+        await transaction.quote.updateMany({
+          where: { rfqId: quote.rfqId, id: { not: quote.id }, status: 'SUBMITTED' },
+          data: { status: 'REJECTED' },
+        });
+      }
+      return 'UPDATED';
     });
 
-    if (updated.count === 0) return res.status(404).json({ error: 'Quote not found' });
+    if (result === 'NOT_FOUND') return res.status(404).json({ error: 'Quote not found' });
+    if (result === 'NOT_SUBMITTED') return res.status(409).json({ error: 'Quote is no longer awaiting a decision' });
+    if (result === 'EXPIRED') return res.status(409).json({ error: 'Quote has expired' });
+    if (result === 'RFQ_CLOSED') return res.status(409).json({ error: 'RFQ is no longer accepting decisions' });
     return res.json({ success: true, message: `Quote marked as ${status}` });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to update quote status' });

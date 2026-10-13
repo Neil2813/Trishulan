@@ -2,6 +2,73 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
+const FIREBASE_CERTS_URL = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
+let firebaseCerts: Record<string, string> | null = null;
+let firebaseCertsExpiresAt = 0;
+
+export class FirebaseVerificationUnavailableError extends Error {
+  constructor() {
+    super('Unable to verify Firebase identity right now');
+    this.name = 'FirebaseVerificationUnavailableError';
+  }
+}
+
+async function getFirebaseCertificates(): Promise<Record<string, string>> {
+  if (firebaseCerts && Date.now() < firebaseCertsExpiresAt) return firebaseCerts;
+
+  let response: Response;
+  try {
+    response = await fetch(FIREBASE_CERTS_URL);
+  } catch {
+    throw new FirebaseVerificationUnavailableError();
+  }
+  if (!response.ok) throw new FirebaseVerificationUnavailableError();
+
+  const certificates = await response.json() as Record<string, string>;
+  const maxAge = response.headers.get('cache-control')?.match(/max-age=(\d+)/i)?.[1];
+  firebaseCerts = certificates;
+  firebaseCertsExpiresAt = Date.now() + (Number(maxAge) || 300) * 1000;
+  return certificates;
+}
+
+export async function verifyFirebaseIdToken(idToken: string): Promise<{
+  email: string;
+  name?: string;
+}> {
+  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  if (!projectId) throw new Error('FIREBASE_PROJECT_ID is not configured');
+
+  const decoded = jwt.decode(idToken, { complete: true });
+  if (!decoded || typeof decoded === 'string' || decoded.header.alg !== 'RS256' || !decoded.header.kid) {
+    throw new Error('Invalid Firebase identity token');
+  }
+
+  const certificates = await getFirebaseCertificates();
+  const certificate = certificates[decoded.header.kid];
+  if (!certificate) throw new Error('Invalid Firebase identity token');
+
+  const payload = jwt.verify(idToken, certificate, {
+    algorithms: ['RS256'],
+    audience: projectId,
+    issuer: `https://securetoken.google.com/${projectId}`,
+  });
+
+  if (
+    typeof payload === 'string' ||
+    typeof payload.email !== 'string' ||
+    payload.email_verified !== true ||
+    typeof payload.sub !== 'string' ||
+    payload.sub.length === 0
+  ) {
+    throw new Error('A verified Firebase email address is required');
+  }
+
+  return {
+    email: payload.email.trim().toLowerCase(),
+    ...(typeof payload.name === 'string' ? { name: payload.name } : {}),
+  };
+}
+
 export function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -26,9 +93,34 @@ export function sanitizeInput(str: string): string {
 
 export const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
+  email: z.string().trim().email('Invalid email address').transform((email) => email.toLowerCase()),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['BUYER', 'SELLER']),
+  companyName: z.string().optional(),
+  phone: z.string().optional(),
+  gstNumber: z.string().optional(),
+  panNumber: z.string().optional(),
+  industrySector: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+});
+
+export const firebaseRegisterSchema = z.object({
+  idToken: z.string().min(1, 'Firebase identity token is required'),
+  role: z.enum(['BUYER', 'SELLER']),
+  companyName: z.string().optional(),
+  phone: z.string().optional(),
+  gstNumber: z.string().optional(),
+  panNumber: z.string().optional(),
+  industrySector: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+});
+
+export const profileSchema = z.object({
+  name: z.string().min(2).optional(),
   companyName: z.string().optional(),
   phone: z.string().optional(),
   gstNumber: z.string().optional(),
@@ -36,7 +128,7 @@ export const registerSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
-});
+}).strict();
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -108,4 +200,3 @@ export function revokeToken(token: string): void {
 export function requireRole(userRole: string, allowedRoles: ('BUYER' | 'SELLER')[]): boolean {
   return allowedRoles.includes(userRole as 'BUYER' | 'SELLER');
 }
-

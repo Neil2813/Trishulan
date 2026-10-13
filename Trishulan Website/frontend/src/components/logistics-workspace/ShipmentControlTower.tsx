@@ -33,6 +33,7 @@ interface ShipmentTowerData {
   };
   shipmentLifecycle?: Array<{ step: number; label: string }>;
   exampleText?: string;
+  } | null;
 }
 
 export default function ShipmentControlTower() {
@@ -61,11 +62,11 @@ export default function ShipmentControlTower() {
   }, []);
 
   const shipmentsList: ActiveShipmentItem[] = Array.isArray(data?.activeShipments) ? data.activeShipments : [];
-  const activeCount: number = typeof data?.activeShipmentsCount === 'number'
+  const activeCount: number | string = typeof data?.activeShipmentsCount === 'number'
     ? data.activeShipmentsCount
     : Array.isArray(data?.activeShipments)
     ? data.activeShipments.length
-    : (typeof data?.activeShipments === 'number' ? data.activeShipments : 18);
+    : (typeof data?.activeShipments === 'number' ? data.activeShipments : loading ? '—' : 0);
 
   const activeShipment = shipmentsList[selectedShipmentIdx] || null;
 
@@ -99,12 +100,12 @@ export default function ShipmentControlTower() {
 
           <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
             <span className="text-xs font-bold text-muted uppercase">ON TIME</span>
-            <span className="text-2xl font-extrabold text-emerald-600">{data?.onTime || '92%'}</span>
+            <span className="text-2xl font-extrabold text-emerald-600">{data?.onTime ?? (loading ? '—' : 'N/A')}</span>
           </div>
 
           <div className="bg-card/80 border border-line p-4 rounded-xl flex justify-between items-center">
             <span className="text-xs font-bold text-muted uppercase">NEEDS ACTION</span>
-            <span className="text-2xl font-extrabold text-amber-600">{typeof data?.needsAction === 'number' ? data.needsAction : 2}</span>
+            <span className="text-2xl font-extrabold text-amber-600">{data?.needsAction ?? (loading ? '—' : 0)}</span>
           </div>
         </div>
 
@@ -134,26 +135,17 @@ export default function ShipmentControlTower() {
           {/* Active Shipment Progress (2 cols) */}
           <div className="md:col-span-2 bg-card/80 border border-line rounded-xl p-5 space-y-4 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-extrabold text-ink">
-                  Shipment {activeShipment?.trackingNo || data?.currentShipment?.id || 'TRC-2048'} | {activeShipment ? `${activeShipment.origin} to ${activeShipment.destination} (${activeShipment.carrier})` : (data?.currentShipment?.route || 'Pune to Chennai | Road')}
-                </h3>
-                {activeShipment?.status && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
-                    {activeShipment.status}
-                  </span>
-                )}
-              </div>
+              <h3 className="text-sm font-extrabold text-ink mb-4">
+                {activeShipment
+                  ? `Shipment ${activeShipment.trackingNo} | ${activeShipment.origin} to ${activeShipment.destination} (${activeShipment.carrier})`
+                  : data?.currentShipment
+                  ? `Shipment ${data.currentShipment.id} | ${data.currentShipment.route}`
+                  : loading ? 'Loading shipment details…' : 'No active shipments'}
+              </h3>
 
               {/* Progress Milestones Stepper */}
-              <div className="flex flex-wrap items-center gap-2 text-xs py-3 border-y border-line">
-                {(data?.currentShipment?.milestones || [
-                  { name: 'Booked', done: true },
-                  { name: 'Picked up', done: true },
-                  { name: 'In transit', done: true, current: true },
-                  { name: 'At destination', done: false },
-                  { name: 'Delivered / POD', done: false },
-                ]).map((m, idx) => (
+              {data?.currentShipment ? <div className="flex flex-wrap items-center gap-2 text-xs py-3 border-y border-line">
+                {data.currentShipment.milestones.map((m, idx) => (
                   <React.Fragment key={m.name}>
                     {idx > 0 && <span className="text-muted/70">→</span>}
                     <span
@@ -169,12 +161,12 @@ export default function ShipmentControlTower() {
                     </span>
                   </React.Fragment>
                 ))}
-              </div>
+              </div> : <p className="py-3 border-y border-line text-xs text-muted">Shipment milestones will appear here when a shipment is booked.</p>}
             </div>
 
             <div className="text-xs text-muted space-y-1">
               <p>
-                Last event: <span className="text-ink font-bold">{data?.currentShipment?.lastEvent || '10:42 | Checkpoint scanned: Estimated arrival tomorrow 16:00'}</span>
+                Last event: <span className="text-ink font-bold">{data?.currentShipment?.lastEvent || 'No shipment updates available.'}</span>
               </p>
               <p className="text-[11px] text-muted italic">
                 Map locations and ETA depend on carrier date; manual update option available.
@@ -188,12 +180,7 @@ export default function ShipmentControlTower() {
               Shared shipment folder
             </h3>
             <div className="space-y-2 text-xs">
-              {(data?.currentShipment?.sharedFolder || [
-                { name: 'Rate confirmation', status: 'saved' },
-                { name: 'Packing list', status: 'uploaded' },
-                { name: 'Transport document', status: 'issued' },
-                { name: 'Proof of delivery', status: 'pending' },
-              ]).map((f, idx) => (
+              {(data?.currentShipment?.sharedFolder || []).map((f, idx) => (
                 <div key={idx} className="p-2.5 bg-card rounded-lg border border-line flex justify-between items-center shadow-sm">
                   <span className="text-slate-800 font-medium">{f.name}</span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded capitalize ${
@@ -203,6 +190,7 @@ export default function ShipmentControlTower() {
                   </span>
                 </div>
               ))}
+              {!data?.currentShipment && <p className="text-muted">No shipment documents yet.</p>}
             </div>
           </div>
         </div>
@@ -210,10 +198,10 @@ export default function ShipmentControlTower() {
         {/* Exception Alert Box */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-1">
           <p className="text-xs font-bold text-amber-900">
-            {data?.currentShipment?.exceptionAlert || 'Exception alert: destination delay +6 hours'}
+            {data?.currentShipment?.exceptionAlert || 'No active shipment exceptions.'}
           </p>
           <p className="text-[11px] text-amber-800">
-            {data?.currentShipment?.exceptionSubtext || 'Notify buyer + seller | assign owner | request carrier update | record resolution'}
+            {data?.currentShipment?.exceptionSubtext || 'Exceptions reported by carriers will appear here.'}
           </p>
         </div>
 

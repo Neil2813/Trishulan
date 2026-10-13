@@ -16,8 +16,8 @@ export async function extractUserMiddleware(
       req.cookies?.trishulan_token ||
       req.headers.authorization?.replace("Bearer ", "");
     req.user = await getUserFromToken(token);
-  } catch {
-    req.user = null;
+  } catch (err) {
+    return next(err);
   }
-  next();
+  return next();
 }

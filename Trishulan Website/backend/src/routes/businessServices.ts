@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { fetchLiveGSTINData, fetchLivePANData } from '../services/kycService';
-import { fetchLiveFxRates } from '../services/marketDataService';
+import { fetchLiveFxRates, MarketDataUnavailableError } from '../services/marketDataService';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { prisma } from '../lib/db';
+import { Prisma } from '@prisma/client';
 
 const router = Router();
 
@@ -158,25 +159,38 @@ router.get('/kyc-status', async (req: AuthenticatedRequest, res) => {
 
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { verifiedSeller: true, gstNumber: true },
+      select: {
+        verifiedSeller: true,
+        kycStatus: true,
+        kycDocuments: true,
+        gstNumber: true,
+      },
     });
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const documents = defaultKycDocuments;
-    const verifiedCount = documents.filter((d: any) => d.status === 'Received').length;
+    const documents = Array.isArray(user.kycDocuments) ? user.kycDocuments : [];
+    const verifiedCount = documents.filter((document) =>
+      document !== null &&
+      typeof document === 'object' &&
+      !Array.isArray(document) &&
+      document.status === 'Received'
+    ).length;
     const totalCount = documents.length;
-    const completionPercentage = user.verifiedSeller ? 100 : Math.round((verifiedCount / totalCount) * 100);
+    const isFullyVerified = user.verifiedSeller || user.kycStatus === 'VERIFIED';
+    const completionPercentage = isFullyVerified
+      ? 100
+      : totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
 
     return res.json({
       kycStatus: {
-        isFullyVerified: Boolean(user.verifiedSeller),
+        isFullyVerified,
         completionPercentage,
         verifiedCount,
         totalCount,
         documents,
         verificationBadgeText:
-          user.verifiedSeller ? 'Fully Verified Business' : 'Verification In Progress',
+          isFullyVerified ? 'Fully Verified Business' : 'Verification In Progress',
       },
     });
   } catch (err: any) {
@@ -190,13 +204,55 @@ router.post('/reupload', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const { documentId, fileName } = req.body;
-    if (!documentId) return res.status(400).json({ error: 'Missing documentId' });
+    const { documentId, fileName } = req.body ?? {};
+    if (typeof documentId !== 'string' || !documentId.trim()) {
+      return res.status(400).json({ error: 'Missing documentId' });
+    }
+    if (fileName !== undefined && typeof fileName !== 'string') {
+      return res.status(400).json({ error: 'fileName must be a string' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { kycDocuments: true },
+    });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const documents: Prisma.JsonObject[] = Array.isArray(user.kycDocuments)
+      ? user.kycDocuments.filter(
+          (document): document is Prisma.JsonObject =>
+            document !== null && typeof document === 'object' && !Array.isArray(document)
+        )
+      : [];
+    const normalizedId = documentId.trim();
+    const normalizedFileName = typeof fileName === 'string' && fileName.trim()
+      ? fileName.trim()
+      : normalizedId;
+    const existingIndex = documents.findIndex((document) => document.id === normalizedId);
+    if (existingIndex >= 0) {
+      documents[existingIndex] = {
+        ...documents[existingIndex],
+        fileName: normalizedFileName,
+        status: 'Received',
+      };
+    } else {
+      documents.push({
+        id: normalizedId,
+        fileName: normalizedFileName,
+        status: 'Received',
+        fileUrl: null,
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { kycDocuments: documents },
+    });
 
     return res.json({
       success: true,
-      message: `Document ${fileName || documentId} uploaded successfully. KYC team will review within 2 hours.`,
-      documentId,
+      message: `Re-upload for ${normalizedFileName} recorded. KYC team will review it.`,
+      documentId: normalizedId,
       status: 'Received',
     });
   } catch (err: any) {
@@ -218,56 +274,83 @@ router.get('/transport-quotes', async (req: AuthenticatedRequest, res) => {
 // Returns real active shipments from DB for the authenticated user.
 router.get('/shipment-tower', async (req: AuthenticatedRequest, res) => {
   try {
-    if (req.user?.id) {
-      const bookings = await prisma.logisticsBooking.findMany({
-        where: { userId: req.user.id },
-        orderBy: { createdAt: 'desc' },
-      });
-      if (bookings.length > 0) {
-        const mapped = bookings.map((b) => ({
-          id: b.id,
-          trackingNo: b.shipmentRef || b.id.slice(0, 8).toUpperCase(),
-          origin: b.origin,
-          destination: b.destination,
-          carrier: b.carrierName || 'Trishulan Logistics Partner',
-          status: b.status,
-          statusStep: b.status === 'DELIVERED' ? 5 : b.status === 'IN_TRANSIT' ? 3 : 1,
-          totalSteps: 5,
-          eta: b.transitDays ? `${b.transitDays} Days` : 'In Transit',
-          sharedFolderUrl: b.lrDocUrl || `/documents/${b.id}`,
-          podStatus: b.epodUrl ? 'Verified & Signed POD Available' : 'E-POD Pending Signature',
-        }));
-        const first = mapped[0];
-        return res.json({
-          activeShipmentsCount: mapped.length,
-          activeShipments: mapped,
-          onTime: '96.5%',
-          needsAction: mapped.filter((s) => s.status === 'PENDING').length,
-          currentShipment: {
-            id: first.trackingNo,
-            route: `${first.origin} to ${first.destination} | ${first.carrier}`,
-            milestones: [
-              { name: 'Booked', done: true },
-              { name: 'Picked up', done: first.statusStep >= 2 },
-              { name: 'In transit', done: first.statusStep >= 3, current: first.statusStep === 3 },
-              { name: 'At destination', done: first.statusStep >= 4, current: first.statusStep === 4 },
-              { name: 'Delivered / POD', done: first.statusStep >= 5, current: first.statusStep >= 5 },
-            ],
-            lastEvent: `Current status: ${first.status} | ETA: ${first.eta}`,
-            sharedFolder: [
-              { name: 'Rate confirmation', status: 'saved' },
-              { name: 'Transport document (LR)', status: 'issued' },
-              { name: 'Proof of delivery', status: first.statusStep === 5 ? 'verified' : 'pending' },
-            ],
-            exceptionAlert: 'Live telemetry active | All checkpoints on schedule',
-            exceptionSubtext: 'GPS updates received from driver terminal',
-          },
-          shipmentLifecycle: defaultShipmentControlTower.shipmentLifecycle,
-          exampleText: defaultShipmentControlTower.exampleText,
-        });
-      }
-    }
-    return res.json(defaultShipmentControlTower);
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+
+    const shipments = await prisma.logisticsBooking.findMany({
+      where: { userId: req.user.id, status: { not: 'DELIVERED' } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const mapped = shipments.map((shipment) => ({
+      id: shipment.id,
+      trackingNo: shipment.shipmentRef || shipment.id.slice(0, 8).toUpperCase(),
+      origin: shipment.origin,
+      destination: shipment.destination,
+      carrier: shipment.carrierName || shipment.transportMode || 'Carrier not assigned',
+      status: shipment.status,
+      statusStep: shipment.status === 'IN_TRANSIT' ? 3 : shipment.status === 'CONFIRMED' ? 2 : 1,
+      totalSteps: 5,
+      eta: shipment.transitDays ? `${shipment.transitDays} Days` : 'Not available',
+      sharedFolderUrl: shipment.lrDocUrl || undefined,
+      podStatus: shipment.epodUrl ? 'Verified & Signed POD Available' : 'E-POD Pending Signature',
+    }));
+    const activeShipment = shipments[0];
+    const milestoneFields = [
+      ['Booked', activeShipment?.bookedAt],
+      ['Picked up', activeShipment?.pickedUpAt],
+      ['In transit', activeShipment?.inTransitAt],
+      ['At destination', activeShipment?.atDestinationAt],
+      ['Delivered / POD', activeShipment?.deliveredAt],
+    ] as const;
+    const currentMilestoneIndex = milestoneFields.reduce(
+      (latest, [, timestamp], index) => timestamp ? index : latest,
+      -1,
+    );
+    const milestones = milestoneFields.map(([name], index) => ({
+      name,
+      done: index <= currentMilestoneIndex,
+      ...(index === currentMilestoneIndex ? { current: true } : {}),
+    }));
+
+    const sharedFolder = activeShipment
+      ? [
+          ['Rate confirmation', activeShipment.lrDocUrl],
+          ['Packing list', activeShipment.packingListUrl],
+          ['Transport document', activeShipment.ewayBillUrl],
+          ['Proof of delivery', activeShipment.epodUrl],
+        ].map(([name, url]) => ({
+          name,
+          status: url ? 'uploaded' : 'pending',
+        }))
+      : [];
+
+    return res.json({
+      activeShipmentsCount: mapped.length,
+      activeShipments: mapped,
+      onTime: 'N/A',
+      needsAction: shipments.filter((shipment) => Boolean(shipment.exceptionNote)).length,
+      currentShipment: activeShipment
+        ? {
+            id: activeShipment.shipmentRef || activeShipment.id,
+            route: `${activeShipment.origin} to ${activeShipment.destination} | ${activeShipment.transportMode || 'Transport'}`,
+            milestones,
+            lastEvent: activeShipment.exceptionNote || `Status: ${activeShipment.status}`,
+            sharedFolder,
+            exceptionAlert: activeShipment.exceptionNote || 'No active shipment exceptions.',
+            exceptionSubtext: activeShipment.exceptionNote
+              ? 'Contact the carrier and record the resolution.'
+              : 'Shipment updates are provided by the carrier.',
+          }
+        : null,
+      shipmentLifecycle: [
+        { step: 1, label: 'Request rates' },
+        { step: 2, label: 'Compare / approve' },
+        { step: 3, label: 'Book carrier' },
+        { step: 4, label: 'Track milestones' },
+        { step: 5, label: 'Reconcile / close' },
+      ],
+      exampleText: null,
+    });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to fetch shipment control tower' });
   }
@@ -289,21 +372,27 @@ router.get('/checklist', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const user = await prisma.user.findUnique({
+    const [user, listingsCount] = await Promise.all([
+      prisma.user.findUnique({
       where: { id: req.user.id },
       select: {
         gstNumber: true,
+        panNumber: true,
+        bankVerified: true,
         verifiedSeller: true,
+        kycStatus: true,
       },
-    });
+      }),
+      prisma.listing.count({ where: { sellerId: req.user.id } }),
+    ]);
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const checklist = [
-      { id: 'step-1', title: 'GSTIN & PAN Business Identity', completed: Boolean(user.gstNumber) },
-      { id: 'step-2', title: 'Bank Account & Cancelled Cheque Verification', completed: true },
-      { id: 'step-3', title: 'Factory / Warehouse Site Location Audit', completed: Boolean(user.verifiedSeller) },
-      { id: 'step-4', title: 'Industrial Product Catalog Upload (5+ Items)', completed: true },
+      { id: 'step-1', title: 'GSTIN & PAN Business Identity', completed: Boolean(user.gstNumber && user.panNumber) },
+      { id: 'step-2', title: 'Bank Account & Cancelled Cheque Verification', completed: user.bankVerified },
+      { id: 'step-3', title: 'Factory / Warehouse Site Location Audit', completed: user.verifiedSeller || user.kycStatus === 'VERIFIED' },
+      { id: 'step-4', title: 'Industrial Product Catalog Upload (5+ Items)', completed: listingsCount >= 5 },
     ];
 
     return res.json({ checklist });
@@ -318,15 +407,28 @@ router.post('/adviser-appointment', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const { preferredDate, preferredTime, topic } = req.body;
-    if (!preferredDate || !preferredTime) {
+    const { preferredDate, preferredTime, topic } = req.body ?? {};
+    if (typeof preferredDate !== 'string' || typeof preferredTime !== 'string' || !preferredDate || !preferredTime) {
       return res.status(400).json({ error: 'preferredDate and preferredTime are required' });
     }
 
+    const scheduledAt = new Date(`${preferredDate}T${preferredTime}`);
+    if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() <= Date.now()) {
+      return res.status(400).json({ error: 'Appointment date and time must be in the future' });
+    }
+
+    const appointment = await prisma.businessAppointment.create({
+      data: {
+        userId: req.user.id,
+        preferredDate: scheduledAt,
+        preferredTime,
+        topic: typeof topic === 'string' ? topic : null,
+      },
+    });
     return res.json({
       success: true,
-      message: `Appointment scheduled with Trishulan Business Adviser for ${preferredDate} at ${preferredTime}.`,
-      appointment: { preferredDate, preferredTime, topic: topic ?? null },
+      message: `Appointment request received for ${preferredDate} at ${preferredTime}.`,
+      appointment,
     });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Failed to schedule adviser appointment' });
@@ -336,9 +438,12 @@ router.post('/adviser-appointment', async (req: AuthenticatedRequest, res) => {
 // GET /api/business-services/gstin-lookup
 router.get('/gstin-lookup', async (req, res) => {
   try {
-    const gstin = req.query.gstin as string;
-    if (!gstin) return res.status(400).json({ error: 'Missing gstin query parameter' });
-    const data = await fetchLiveGSTINData(gstin);
+    const gstin = req.query.gstin;
+    if (typeof gstin !== 'string' || !gstin.trim()) {
+      return res.status(400).json({ error: 'Missing gstin query parameter' });
+    }
+    const data = await fetchLiveGSTINData(gstin.trim());
+    if (!data.valid) return res.status(data.verificationUnavailable ? 503 : 400).json({ success: false, data });
     return res.json({ success: true, data });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
@@ -348,9 +453,12 @@ router.get('/gstin-lookup', async (req, res) => {
 // GET /api/business-services/pan-lookup
 router.get('/pan-lookup', async (req, res) => {
   try {
-    const pan = req.query.pan as string;
-    if (!pan) return res.status(400).json({ error: 'Missing pan query parameter' });
-    const data = await fetchLivePANData(pan);
+    const pan = req.query.pan;
+    if (typeof pan !== 'string' || !pan.trim()) {
+      return res.status(400).json({ error: 'Missing pan query parameter' });
+    }
+    const data = await fetchLivePANData(pan.trim());
+    if (!data.valid) return res.status(data.verificationUnavailable ? 503 : 400).json({ success: false, data });
     return res.json({ success: true, data });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
@@ -363,7 +471,8 @@ router.get('/fx-rates', async (_req, res) => {
     const fx = await fetchLiveFxRates();
     return res.json({ success: true, fx });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    const status = err instanceof MarketDataUnavailableError ? 503 : 500;
+    return res.status(status).json({ error: err.message });
   }
 });
 

@@ -1,15 +1,31 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { buildWeeklyTrend, getWeeklyStart } from '../lib/activity';
+import { listingSchema } from '../lib/security';
 
 const router = Router();
 
 // GET /api/platform-a/suppliers
 router.get('/suppliers', async (req, res) => {
   try {
-    const query = (req.query.query as string | undefined)?.toLowerCase().trim();
-    const location = (req.query.location as string | undefined)?.toLowerCase().trim();
-    const category = (req.query.cat as string | undefined)?.toUpperCase().trim();
+    const { query: queryParam, location: locationParam, cat: categoryParam } = req.query;
+    if (
+      (queryParam !== undefined && typeof queryParam !== 'string') ||
+      (locationParam !== undefined && typeof locationParam !== 'string') ||
+      (categoryParam !== undefined && typeof categoryParam !== 'string')
+    ) {
+      return res.status(400).json({ error: 'query, location, and cat must be strings' });
+    }
+    const query = queryParam?.toLowerCase().trim();
+    const location = locationParam?.toLowerCase().trim();
+    const category = categoryParam?.toUpperCase().trim();
+    const parsedCategory = category && category !== 'ALL'
+      ? listingSchema.shape.category.safeParse(category)
+      : null;
+    if (parsedCategory && !parsedCategory.success) {
+      return res.status(400).json({ error: 'Invalid listing category' });
+    }
 
     let listings = await prisma.listing.findMany({
       orderBy: { createdAt: 'desc' },
@@ -31,8 +47,8 @@ router.get('/suppliers', async (req, res) => {
     if (location && location !== 'india') {
       listings = listings.filter((l: any) => l.location.toLowerCase().includes(location));
     }
-    if (category && category !== 'ALL') {
-      listings = listings.filter((l: any) => l.category === category);
+    if (parsedCategory?.success) {
+      listings = listings.filter((l: any) => l.category === parsedCategory.data);
     }
 
     const suppliers = listings.map((l: any) => {
@@ -70,24 +86,18 @@ router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+    const weekStart = getWeeklyStart();
+    const [newLeads, respondedLeads, openRfqs, weeklyMessages] = await Promise.all([
       prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
       prisma.chatMessage.count({ where: { senderId: req.user.id } }),
-      prisma.rFQ.count({ where: { status: 'OPEN' } }),
-      // Count messages per day of week (Sun=0 … Sat=6) for the last 7 days
-      prisma.$queryRaw<{ day: number; count: bigint }[]>`
-        SELECT EXTRACT(DOW FROM timestamp)::int AS day, COUNT(*)::bigint AS count
-        FROM "ChatMessage"
-        WHERE "receiverId" = ${req.user.id}
-          AND timestamp >= NOW() - INTERVAL '7 days'
-        GROUP BY day
-        ORDER BY day
-      `,
+      prisma.rFQ.count({ where: { buyerId: req.user.id, status: 'OPEN' } }),
+      prisma.chatMessage.findMany({
+        where: { receiverId: req.user.id, timestamp: { gte: weekStart } },
+        select: { timestamp: true },
+      }),
     ]);
 
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
-    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
+    const weeklyTrend = buildWeeklyTrend(weeklyMessages.map((message) => message.timestamp));
 
     return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {
@@ -99,19 +109,33 @@ router.get('/activity', async (req: AuthenticatedRequest, res) => {
 router.post('/inquiry', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers can contact suppliers' });
 
-    const { supplierId, sellerName, productTitle, text } = req.body;
-    if (!supplierId || !text) {
+    const { supplierId, productTitle, text } = req.body ?? {};
+    if (
+      typeof supplierId !== 'string' || !supplierId.trim() ||
+      typeof text !== 'string' || !text.trim()
+    ) {
       return res.status(400).json({ error: 'Missing supplierId or inquiry message text' });
+    }
+    if (text.length > 4000) return res.status(400).json({ error: 'Inquiry message is too long' });
+
+    const seller = await prisma.user.findFirst({
+      where: { id: supplierId.trim(), role: 'SELLER' },
+      select: { id: true, name: true, companyName: true },
+    });
+    if (!seller) return res.status(404).json({ error: 'Supplier not found' });
+    if (productTitle !== undefined && typeof productTitle !== 'string') {
+      return res.status(400).json({ error: 'productTitle must be a string' });
     }
 
     const message = await prisma.chatMessage.create({
       data: {
         senderId: req.user.id,
         senderName: req.user.companyName || req.user.name,
-        receiverId: supplierId,
-        receiverName: sellerName || '',
-        text: `Inquiry for [${productTitle || 'Product'}]: ${text}`,
+        receiverId: seller.id,
+        receiverName: seller.companyName || seller.name,
+        text: `Inquiry for [${productTitle?.trim() || 'Product'}]: ${text.trim()}`,
         isEncrypted: false,
       },
     });

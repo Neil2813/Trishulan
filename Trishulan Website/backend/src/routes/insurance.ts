@@ -103,34 +103,41 @@ router.post('/lead', async (req: AuthenticatedRequest, res) => {
       companyName,
       selectedPlan,
       consentGranted,
-    } = req.body;
+    } = req.body ?? {};
 
-    if (!contactPhone) {
+    if (typeof contactPhone !== 'string' || !/^\+?[0-9 ()-]{7,20}$/.test(contactPhone.trim())) {
       return res.status(400).json({ error: 'Contact phone is required for callback scheduling' });
     }
-    if (!consentGranted) {
+    if (consentGranted !== true) {
       return res.status(400).json({
         error: 'Consent is required before sharing details with an insurance intermediary',
       });
     }
-    if (!coverageType) {
-      return res.status(400).json({ error: 'coverageType is required' });
+    if (!['GROUP_EMPLOYEE', 'INDIVIDUAL', 'FAMILY', 'BUSINESS_OWNER', 'CUSTOM'].includes(coverageType)) {
+      return res.status(400).json({ error: 'Invalid coverageType' });
     }
-    if (!coverageSum) {
+    if (typeof coverageSum !== 'string' || !coverageSum.trim()) {
       return res.status(400).json({ error: 'coverageSum is required' });
     }
-    if (!employeeCount || isNaN(Number(employeeCount))) {
-      return res.status(400).json({ error: 'employeeCount must be a valid number' });
+    const normalizedEmployeeCount = Number(employeeCount);
+    if (!Number.isInteger(normalizedEmployeeCount) || normalizedEmployeeCount <= 0) {
+      return res.status(400).json({ error: 'employeeCount must be a positive integer' });
+    }
+    if (companyName !== undefined && companyName !== null && typeof companyName !== 'string') {
+      return res.status(400).json({ error: 'companyName must be a string' });
+    }
+    if (selectedPlan !== undefined && selectedPlan !== null && typeof selectedPlan !== 'string') {
+      return res.status(400).json({ error: 'selectedPlan must be a string' });
     }
 
     const lead = await prisma.healthInsuranceLead.create({
       data: {
         userId: req.user.id,
         coverageType,
-        employeeCount: Number(employeeCount),
-        coverageSum,
-        contactPhone,
-        companyName: companyName || req.user.companyName || null,
+        employeeCount: normalizedEmployeeCount,
+        coverageSum: coverageSum.trim(),
+        contactPhone: contactPhone.trim(),
+        companyName: companyName?.trim() || req.user.companyName || null,
         selectedPlan: selectedPlan || null,
         consentGranted: Boolean(consentGranted),
         status: 'REQUESTED',

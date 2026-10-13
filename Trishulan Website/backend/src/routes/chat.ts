@@ -67,7 +67,11 @@ router.get("/contacts", async (req: AuthenticatedRequest, res) => {
   const user = requireUser(req, res);
   if (!user) return;
   try {
-    const q = (req.query.q as string | undefined)?.trim();
+    const rawQuery = req.query.q;
+    if (rawQuery !== undefined && typeof rawQuery !== "string") {
+      return res.status(400).json({ error: "q must be a string" });
+    }
+    const q = rawQuery?.trim();
     const oppositeRole = user.role === "SELLER" ? "BUYER" : "SELLER";
 
     const contacts = await prisma.user.findMany({
@@ -142,9 +146,21 @@ router.get("/", async (req: AuthenticatedRequest, res) => {
   const user = requireUser(req, res);
   if (!user) return;
   try {
-    const partnerId = req.query.partnerId as string | undefined;
-    const after = req.query.after as string | undefined;
+    const rawPartnerId = req.query.partnerId;
+    if (rawPartnerId !== undefined && typeof rawPartnerId !== "string") {
+      return res.status(400).json({ error: "partnerId must be a string" });
+    }
+    const partnerId = rawPartnerId;
+    const rawAfter = req.query.after;
+    if (rawAfter !== undefined && typeof rawAfter !== "string") {
+      return res.status(400).json({ error: "after must be an ISO timestamp" });
+    }
+    const after = rawAfter;
     if (!partnerId) return res.status(400).json({ error: "partnerId is required" });
+    const afterDate = after ? new Date(after) : undefined;
+    if (afterDate && Number.isNaN(afterDate.getTime())) {
+      return res.status(400).json({ error: "after must be a valid timestamp" });
+    }
 
     const partner = await prisma.user.findUnique({ where: { id: partnerId }, select: publicUserSelect });
     if (!partner || partner.role === user.role) return res.status(404).json({ error: "Conversation not found" });
@@ -155,11 +171,12 @@ router.get("/", async (req: AuthenticatedRequest, res) => {
           { senderId: user.id, receiverId: partnerId },
           { senderId: partnerId, receiverId: user.id },
         ],
-        ...(after ? { timestamp: { gt: new Date(after) } } : {}),
+        ...(afterDate ? { timestamp: { gt: afterDate } } : {}),
       },
-      orderBy: { timestamp: "asc" },
+      orderBy: { timestamp: afterDate ? "asc" : "desc" },
       take: 500,
     });
+    if (!afterDate) chats.reverse();
 
     // Attach listing context cards (public catalog data) where referenced
     const listingIds = [...new Set(chats.map((c) => c.listingId).filter(Boolean))] as string[];
@@ -183,7 +200,9 @@ router.post("/", async (req: AuthenticatedRequest, res) => {
   try {
     const { receiverId, text, senderKey, receiverKey, rfqId, listingId, attachmentUrl } = req.body ?? {};
 
-    if (!receiverId || receiverId === user.id) return res.status(400).json({ error: "Valid receiverId required" });
+    if (typeof receiverId !== "string" || !receiverId || receiverId === user.id) {
+      return res.status(400).json({ error: "Valid receiverId required" });
+    }
     if (typeof text !== "string" || !text.startsWith(ENC_PREFIX) || text.length > MAX_PAYLOAD)
       return res.status(400).json({ error: "Messages must be end-to-end encrypted" });
     if (!isValidJwk(senderKey) || !isValidJwk(receiverKey))
@@ -233,10 +252,19 @@ router.patch("/read", async (req: AuthenticatedRequest, res) => {
   const user = requireUser(req, res);
   if (!user) return;
   const { partnerId } = req.body ?? {};
-  if (!partnerId) return res.status(400).json({ error: "partnerId is required" });
+  if (typeof partnerId !== "string" || !partnerId.trim()) {
+    return res.status(400).json({ error: "partnerId is required" });
+  }
   try {
+    const partner = await prisma.user.findUnique({
+      where: { id: partnerId.trim() },
+      select: { id: true, role: true },
+    });
+    if (!partner || partner.role === user.role) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
     const result = await prisma.chatMessage.updateMany({
-      where: { senderId: partnerId, receiverId: user.id, read: false },
+      where: { senderId: partner.id, receiverId: user.id, read: false },
       data: { read: true },
     });
     return res.json({ success: true, updated: result.count });

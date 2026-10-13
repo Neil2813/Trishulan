@@ -9,12 +9,24 @@ const router = Router();
 // GET /api/listings
 router.get("/", async (req, res) => {
   try {
-    const category = req.query.category as string | undefined;
-    const query    = (req.query.query as string | undefined)?.toLowerCase();
+    const categoryParam = req.query.category;
+    const queryParam = req.query.query;
+    if (
+      (categoryParam !== undefined && typeof categoryParam !== "string") ||
+      (queryParam !== undefined && typeof queryParam !== "string")
+    ) {
+      return res.status(400).json({ error: "category and query must be strings" });
+    }
+    const category = categoryParam?.toUpperCase();
+    const query = queryParam?.trim().toLowerCase();
+    const parsedCategory = category ? listingSchema.shape.category.safeParse(category) : null;
+    if (parsedCategory && !parsedCategory.success) {
+      return res.status(400).json({ error: "Invalid listing category" });
+    }
 
     const listings = await prisma.listing.findMany({
       where: {
-        ...(category ? { category: category.toUpperCase() as any } : {}),
+        ...(parsedCategory?.success ? { category: parsedCategory.data } : {}),
         ...(query
           ? {
               OR: [

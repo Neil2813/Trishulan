@@ -15,6 +15,7 @@ export default function RegisterPage() {
   // Populated from Google OAuth
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [firebaseIdToken, setFirebaseIdToken] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
@@ -56,6 +57,8 @@ export default function RegisterPage() {
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
       const fbUser = result.user;
+      const idToken = await fbUser.getIdToken();
+      setFirebaseIdToken(idToken);
       // Pre-fill details from Google account
       setName(fbUser.displayName || '');
       setEmail(fbUser.email || '');
@@ -82,6 +85,7 @@ export default function RegisterPage() {
           name,
           email,
           authProvider: 'FIREBASE',
+          idToken: firebaseIdToken,
           role,
           companyName,
           phone,

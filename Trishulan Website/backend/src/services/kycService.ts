@@ -18,6 +18,7 @@ export interface GSTINVerificationResult {
   businessType?: string;
   details?: any;
   error?: string;
+  verificationUnavailable?: boolean;
 }
 
 const INDIAN_STATE_CODES: Record<string, string> = {
@@ -89,6 +90,7 @@ export async function fetchLiveGSTINData(gstinRaw: string): Promise<GSTINVerific
   try {
     const targetUrl = `${apiUrl.endsWith('/') ? apiUrl : apiUrl + '/'}${encodeURIComponent(localResult.gstin)}`;
     const res = await fetch(targetUrl, {
+      signal: AbortSignal.timeout(10_000),
       headers: {
         'x-api-key': apiKey,
         'Accept': 'application/json',
@@ -96,41 +98,45 @@ export async function fetchLiveGSTINData(gstinRaw: string): Promise<GSTINVerific
       },
     });
 
-    if (res.ok) {
-      const data: any = await res.json();
-      return {
-        valid: true,
-        gstin: localResult.gstin,
-        pan: localResult.pan,
-        stateName: data?.legal_name || data?.trade_name || localResult.stateName,
-        stateCode: localResult.stateCode,
-        businessType: data?.constitution_of_business || localResult.businessType,
-        details: {
-          ...(typeof data === 'object' && data ? data : {}),
-          publicApiSource: apiUrl,
-          verifiedAt: new Date().toISOString(),
-        },
-      };
-    }
+    if (!res.ok) throw new Error(`GSTIN verification provider returned HTTP ${res.status}`);
+
+    const data: any = await res.json();
+    return {
+      valid: true,
+      gstin: localResult.gstin,
+      pan: localResult.pan,
+      stateName: data?.legal_name || data?.trade_name || localResult.stateName,
+      stateCode: localResult.stateCode,
+      businessType: data?.constitution_of_business || localResult.businessType,
+      details: {
+        ...(typeof data === 'object' && data ? data : {}),
+        publicApiSource: apiUrl,
+        verifiedAt: new Date().toISOString(),
+      },
+    };
   } catch (err) {
     console.warn(`Public GST Web API (${apiUrl}) fetch notice:`, err);
   }
 
-  // Live public verification fallback
   return {
     ...localResult,
-    details: {
-      source: `Public GST Web API Endpoint (${apiUrl})`,
-      verifiedAt: new Date().toISOString(),
-      status: 'AUTHENTICATED_GOVT_CHECKSUM',
-    },
+    valid: false,
+    verificationUnavailable: true,
+    error: 'GSTIN could not be verified because the verification provider is unavailable',
   };
 }
 
 /**
  * Fetches verification data from Public Web PAN & Taxpayer API configured in .env
  */
-export async function fetchLivePANData(panRaw: string): Promise<{ valid: boolean; pan: string; entityType?: string; error?: string; details?: any }> {
+export async function fetchLivePANData(panRaw: string): Promise<{
+  valid: boolean;
+  pan: string;
+  entityType?: string;
+  error?: string;
+  details?: any;
+  verificationUnavailable?: boolean;
+}> {
   const pan = (panRaw || '').trim().toUpperCase();
   const regex = /^[A-Z]{3}[ABCFGHLJPT][A-Z]{1}[0-9]{4}[A-Z]{1}$/;
 
@@ -147,36 +153,34 @@ export async function fetchLivePANData(panRaw: string): Promise<{ valid: boolean
 
   try {
     const res = await fetch(`${apiUrl}${encodeURIComponent(pan)}`, {
+      signal: AbortSignal.timeout(10_000),
       headers: {
         'x-api-key': apiKey,
         'Accept': 'application/json',
       },
     });
 
-    if (res.ok) {
-      const data: any = await res.json();
-      return {
-        valid: true,
-        pan,
-        entityType: data?.category || 'Verified Taxpayer',
-        details: {
-          ...(typeof data === 'object' && data ? data : {}),
-          publicApiSource: apiUrl,
-        },
-      };
-    }
+    if (!res.ok) throw new Error(`PAN verification provider returned HTTP ${res.status}`);
+
+    const data: any = await res.json();
+    return {
+      valid: true,
+      pan,
+      entityType: data?.category || 'Verified Taxpayer',
+      details: {
+        ...(typeof data === 'object' && data ? data : {}),
+        publicApiSource: apiUrl,
+      },
+    };
   } catch (err) {
     console.warn(`Public PAN Web API (${apiUrl}) notice:`, err);
   }
 
   return {
-    valid: true,
+    valid: false,
     pan,
-    entityType: 'Verified Taxpayer',
-    details: {
-      source: `Public Web Taxpayer Registry (${apiUrl})`,
-      verifiedAt: new Date().toISOString(),
-    },
+    verificationUnavailable: true,
+    error: 'PAN could not be verified because the verification provider is unavailable',
   };
 }
 
@@ -187,7 +191,9 @@ export async function fetchLivePincodeAddressData(pincode: string) {
   const publicPincodeApiUrl = process.env.PUBLIC_KYC_VERIFY_API_URL || 'https://api.postalpincode.in/pincode/';
 
   try {
-    const res = await fetch(`${publicPincodeApiUrl}${encodeURIComponent(pincode)}`);
+    const res = await fetch(`${publicPincodeApiUrl}${encodeURIComponent(pincode)}`, {
+      signal: AbortSignal.timeout(10_000),
+    });
     if (res.ok) {
       const data: any = await res.json();
       if (data && Array.isArray(data) && data[0]?.Status === 'Success') {
@@ -207,10 +213,9 @@ export async function fetchLivePincodeAddressData(pincode: string) {
   }
 
   return {
-    valid: true,
+    valid: false,
     pincode,
-    district: 'Mumbai Suburbs',
-    state: 'Maharashtra',
+    error: 'Pincode could not be verified because the verification provider is unavailable',
     publicApiSource: publicPincodeApiUrl,
   };
 }

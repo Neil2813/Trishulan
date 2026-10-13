@@ -12,6 +12,7 @@ export async function createUserInDb(data: {
   companyName?: string;
   phone?: string;
   gstNumber?: string;
+  panNumber?: string;
   industrySector?: string;
   address?: string;
   city?: string;
@@ -25,13 +26,14 @@ export async function createUserInDb(data: {
   const row = await prisma.user.create({
     data: {
       name: data.name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       role: data.role,
       authProvider: data.authProvider,
       passwordHash: passwordHash ?? undefined,
       companyName: data.companyName,
       phone: data.phone,
       gstNumber: data.gstNumber,
+      panNumber: data.panNumber,
       industrySector: data.industrySector,
       address: data.address,
       city: data.city,
@@ -72,7 +74,12 @@ export async function updateUserProfileInDb(
 
 // ── Find by email ───────────────────────────────────────────────────────────
 export async function findUserByEmail(email: string) {
-  return prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  const row = await prisma.user.findUnique({
+    where: { email: email.trim().toLowerCase() },
+  });
+  if (!row) return null;
+  const { passwordHash: _, ...publicUser } = row;
+  return { ...publicUser, createdAt: row.createdAt.toISOString() } as User;
 }
 
 // ── Verify credentials ──────────────────────────────────────────────────────
@@ -81,7 +88,7 @@ export async function verifyUserCredentials(
   password?: string
 ): Promise<User | null> {
   const row = (await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
+    where: { email: email.trim().toLowerCase() },
   })) as any;
 
   if (!row) return null;

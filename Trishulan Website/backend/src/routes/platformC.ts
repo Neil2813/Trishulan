@@ -1,14 +1,22 @@
 import { Router } from 'express';
 import { prisma } from '../lib/db';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { buildWeeklyTrend, getWeeklyStart } from '../lib/activity';
 
 const router = Router();
 
 // GET /api/platform-c/trade-leads
 router.get('/trade-leads', async (req, res) => {
   try {
-    const query = (req.query.query as string | undefined)?.toLowerCase().trim();
-    const location = (req.query.location as string | undefined)?.toLowerCase().trim();
+    const { query: queryParam, location: locationParam } = req.query;
+    if (
+      (queryParam !== undefined && typeof queryParam !== 'string') ||
+      (locationParam !== undefined && typeof locationParam !== 'string')
+    ) {
+      return res.status(400).json({ error: 'query and location must be strings' });
+    }
+    const query = queryParam?.toLowerCase().trim();
+    const location = locationParam?.toLowerCase().trim();
 
     let listings = await prisma.listing.findMany({
       orderBy: { createdAt: 'desc' },
@@ -62,10 +70,15 @@ router.get('/trade-leads', async (req, res) => {
 router.post('/requirement', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+    if (req.user.role !== 'BUYER') return res.status(403).json({ error: 'Only buyers can submit requirements' });
 
-    const { title, targetPrice, quantity, category, details } = req.body;
-    if (!title || !quantity) {
+    const { title, targetPrice, quantity, category, details } = req.body ?? {};
+    if (typeof title !== 'string' || !title.trim() || !quantity || !String(quantity).trim()) {
       return res.status(400).json({ error: 'Missing title or quantity' });
+    }
+    const resolvedTargetPrice = targetPrice == null ? 0 : Number(targetPrice);
+    if (!Number.isFinite(resolvedTargetPrice) || resolvedTargetPrice < 0) {
+      return res.status(400).json({ error: 'targetPrice must be a non-negative number' });
     }
 
     const VALID_CATEGORIES = ['RAW_MATERIALS', 'MACHINERY', 'SPARES'];
@@ -77,11 +90,11 @@ router.post('/requirement', async (req: AuthenticatedRequest, res) => {
       data: {
         buyerId: req.user.id,
         buyerName: req.user.companyName || req.user.name,
-        title,
+        title: title.trim(),
         category,
-        quantity: String(quantity),
-        targetPrice: Number(targetPrice) || 0,
-        details: details || null,
+        quantity: String(quantity).trim(),
+        targetPrice: resolvedTargetPrice,
+        details: typeof details === 'string' && details.trim() ? details.trim() : `Requirement for ${title.trim()}`,
         status: 'OPEN',
       },
     });
@@ -97,22 +110,18 @@ router.get('/activity', async (req: AuthenticatedRequest, res) => {
   try {
     if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
 
-    const [newLeads, respondedLeads, openRfqs, weeklyRaw] = await Promise.all([
+    const weekStart = getWeeklyStart();
+    const [newLeads, respondedLeads, openRfqs, weeklyRfqs] = await Promise.all([
       prisma.chatMessage.count({ where: { receiverId: req.user.id } }),
       prisma.chatMessage.count({ where: { senderId: req.user.id } }),
-      prisma.rFQ.count({ where: { status: 'OPEN' } }),
-      prisma.$queryRaw<{ day: number; count: bigint }[]>`
-        SELECT EXTRACT(DOW FROM "createdAt")::int AS day, COUNT(*)::bigint AS count
-        FROM "RFQ"
-        WHERE "buyerId" = ${req.user.id}
-          AND "createdAt" >= NOW() - INTERVAL '7 days'
-        GROUP BY day ORDER BY day
-      `,
+      prisma.rFQ.count({ where: { buyerId: req.user.id, status: 'OPEN' } }),
+      prisma.rFQ.findMany({
+        where: { buyerId: req.user.id, createdAt: { gte: weekStart } },
+        select: { createdAt: true },
+      }),
     ]);
 
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const countMap = new Map(weeklyRaw.map((r) => [r.day, Number(r.count)]));
-    const weeklyTrend = dayNames.map((name, i) => ({ day: name, count: countMap.get(i) ?? 0 }));
+    const weeklyTrend = buildWeeklyTrend(weeklyRfqs.map((rfq) => rfq.createdAt));
 
     return res.json({ metrics: { newLeads, responded: respondedLeads, openRfqs, weeklyTrend } });
   } catch (err: any) {

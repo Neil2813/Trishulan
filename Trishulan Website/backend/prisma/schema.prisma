@@ -88,11 +88,24 @@ model User {
   companyName      String?
   phone            String?
   gstNumber        String?
+  panNumber        String?
   industrySector   String?
   address          String?
   city             String?
   state            String?
   verifiedSeller   Boolean             @default(false)
+  kycStatus        String              @default("PENDING")
+  kycDocuments     Json                @default("[]")
+  bankVerified     Boolean             @default(false)
+  responseTimeSla  String?
+  moq              String?
+  hasCertificates  Boolean             @default(false)
+  exportReady      Boolean             @default(false)
+  employeeCount    Int?
+  websiteUrl       String?
+  averageRating    Float?
+  reviewsCount     Int                 @default(0)
+  digitalCatalogEnabled Boolean        @default(false)
   subscriptionTier SubscriptionTier    @default(BASIC)
   chatPublicKey    String?             // ECDH P-256 public key (JWK JSON) for E2EE DMs
   // AI lookup quota enforcement (Guide pp. 26-27)
@@ -111,6 +124,8 @@ model User {
   insuranceLeads   HealthInsuranceLead[]
   documents        BusinessDocument[]
   inventoryItems   InventoryItem[]
+  transportQuotes  TransportQuote[]
+  adviserAppointments BusinessAppointment[]
   @@map("users")
 }
 
@@ -127,6 +142,10 @@ model Listing {
   isVerifiedSeller Boolean         @default(false)
   imagePath        String          @default("/Bento Box/Machinery.png")
   inStock          Boolean         @default(true)
+  moq              String?
+  productGroupsCount Int?
+  matchScore       Float?
+  exportReady      Boolean?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   seller           User            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
@@ -368,6 +387,53 @@ model InventoryItem {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@index([userId, skuCode])
+  @@unique([userId, skuCode])
   @@map("inventory_items")
+}
+
+model TransportQuote {
+  id              String   @id @default(cuid())
+  userId          String
+  provider        String
+  carrierName     String?
+  mode            String?
+  route           String?
+  pickup          String?
+  destination     String?
+  capacity        String?
+  transitTime     String?
+  estimatedPrice  String?
+  rateQuote       String?
+  status          String?
+  includedServices String?
+  exclusions      String?
+  demurrageNotes  String?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, createdAt])
+  @@map("transport_quotes")
+}
+
+model PackagingOption {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  description String
+  createdAt   DateTime @default(now())
+  active      Boolean  @default(true)
+  @@index([active, createdAt])
+  @@map("packaging_options")
+}
+
+model BusinessAppointment {
+  id            String   @id @default(cuid())
+  userId        String
+  preferredDate DateTime
+  preferredTime String
+  topic         String?
+  status        String   @default("SCHEDULED")
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, preferredDate])
+  @@map("business_appointments")
 }
