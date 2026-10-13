@@ -30,10 +30,9 @@ interface ShipmentTowerData {
     sharedFolder: Array<{ name: string; status: string }>;
     exceptionAlert: string;
     exceptionSubtext: string;
-  };
+  } | null;
   shipmentLifecycle?: Array<{ step: number; label: string }>;
   exampleText?: string;
-  } | null;
 }
 
 export default function ShipmentControlTower() {
