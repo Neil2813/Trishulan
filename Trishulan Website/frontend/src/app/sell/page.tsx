@@ -276,7 +276,7 @@ export default function SellPage() {
 
         {/* Product Listing Quality Checklist */}
         <div className="bg-gradient-to-r from-[#0A1629] to-[#1a3366] rounded-2xl p-6 text-white">
-          <h3 className="font-black text-[16px] mb-4 flex items-center gap-2">
+          <h3 className="font-black text-[16px] text-white mb-4 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             Product Listing Quality Checklist
           </h3>

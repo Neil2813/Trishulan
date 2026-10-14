@@ -1,43 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { safeJsonFetch } from '@/lib/utils';
 
-interface IndustrialAnalyzerData {
+interface IndustrialAnalyzerProductIntelligenceProps {
+  onSearch: (query: string) => void;
+  loading: boolean;
+  error?: string | null;
+  hasSearched: boolean;
   supplierCount: number;
 }
 
-export default function IndustrialAnalyzerProductIntelligence() {
+export default function IndustrialAnalyzerProductIntelligence({
+  onSearch,
+  loading,
+  error,
+  hasSearched,
+  supplierCount,
+}: IndustrialAnalyzerProductIntelligenceProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [data, setData] = useState<IndustrialAnalyzerData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const searchSuppliers = async (q: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const { ok, data: json, error: fetchErr } = await safeJsonFetch(`/api/platform-a/suppliers?query=${encodeURIComponent(q)}`);
-      if (!ok || !json) throw new Error(fetchErr || 'Supplier data is unavailable');
-      const suppliers = Array.isArray(json.suppliers) ? json.suppliers : [];
-      setData({
-        supplierCount: suppliers.filter((supplier: { badge?: string }) => supplier.badge === 'VERIFIED').length,
-      });
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Supplier data is unavailable');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    searchSuppliers(searchQuery);
-  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    searchSuppliers(searchQuery);
+    onSearch(searchQuery);
   };
 
   return (
@@ -79,24 +64,16 @@ export default function IndustrialAnalyzerProductIntelligence() {
           </div>
         )}
 
-        <div className="bg-card/80 border border-line p-5 rounded-xl">
-          <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">
-            VERIFIED SUPPLIER LISTINGS
-          </span>
-          <span className="text-2xl font-extrabold text-ink mt-1 block">
-            {loading ? '…' : data?.supplierCount ?? '—'}
-          </span>
-          <p className="text-xs text-muted mt-2">
-            Product demand, price benchmarks, lead times, and setup estimates are not available from a verified source.
-          </p>
-        </div>
-
-        <div className="text-xs text-slate-700 space-y-2 leading-relaxed bg-card p-4 rounded-xl border border-line">
-          <p className="font-bold text-ink mb-1">Data availability</p>
-          <p className="text-muted">
-            Search results come from supplier listings currently stored on the platform. No market forecast or live price feed is connected.
-          </p>
-        </div>
+        {hasSearched && (
+          <div className="bg-card/80 border border-line p-5 rounded-xl">
+            <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">
+              VERIFIED SUPPLIER LISTINGS
+            </span>
+            <span className="text-2xl font-extrabold text-ink mt-1 block">
+              {loading ? '…' : supplierCount}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

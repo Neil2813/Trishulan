@@ -104,6 +104,11 @@ body {
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
+
+  .text-white h1, .text-white h2, .text-white h3, .text-white h4, .text-white h5, .text-white h6,
+  [class*="text-white"] h1, [class*="text-white"] h2, [class*="text-white"] h3, [class*="text-white"] h4, [class*="text-white"] h5, [class*="text-white"] h6 {
+    color: inherit;
+  }
 }
 
 .wrap {

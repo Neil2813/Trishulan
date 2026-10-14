@@ -5,7 +5,6 @@ import {
   FileText,
   Package,
   TrendingUp,
-  ArrowRight,
   AlertTriangle,
   RefreshCw,
   Download,
@@ -164,18 +163,6 @@ function DocumentsTab() {
         </select>
       </div>
 
-      {/* Conversion pipeline banner */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl px-5 py-4 mb-5 flex items-center gap-4 flex-wrap">
-        <div className="text-[12px] font-bold text-blue-800 shrink-0">1-Click Conversion Pipeline:</div>
-        {(Object.keys(DOC_LABELS) as DocType[]).map((type, i, arr) => (
-          <React.Fragment key={type}>
-            <span className="text-[11px] font-semibold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-700 whitespace-nowrap">
-              {DOC_LABELS[type]}
-            </span>
-            {i < arr.length - 1 && <ArrowRight className="w-3.5 h-3.5 text-blue-400 shrink-0" />}
-          </React.Fragment>
-        ))}
-      </div>
 
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-gray-200">
@@ -543,26 +530,26 @@ export default function OperationsPage() {
     <div className="min-h-screen bg-bg">
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-[#0A1629] via-[#0f2044] to-[#1a3366] text-white pt-24 pb-16 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,88,12,0.12),transparent_60%)]" />
+      <section className="bg-gradient-to-b from-orange-50/40 via-white to-slate-50 border-b border-line pt-20 pb-16 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,88,12,0.08),transparent_60%)] pointer-events-none" />
         <div className="max-w-[1280px] mx-auto relative z-10">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] font-bold tracking-[.14em] uppercase bg-[#EA580C]/20 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30">
+            <span className="text-[11px] font-bold tracking-[.14em] uppercase bg-orange-100 text-orange-800 px-3 py-1 rounded-full border border-orange-200">
               Business Operations & Invoicing
             </span>
           </div>
-          <h1 className="text-[38px] md:text-[52px] font-black leading-tight tracking-tight mb-4">
+          <h1 className="text-[38px] md:text-[52px] font-black leading-tight tracking-tight text-ink mb-4">
             Billing, Inventory &{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+            <span className="text-accent">
               Accounts
             </span>
           </h1>
-          <p className="text-[16px] text-slate-300 max-w-[600px] leading-relaxed mb-6">
+          <p className="text-[16px] text-muted max-w-[620px] leading-relaxed mb-6 font-medium">
             Create estimates, quotations, sales orders, delivery challans, and tax
             invoices. Convert documents in one click. Track stock, manage payables
             and receivables — all in one place.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2.5">
             {[
               "1-Click document conversion",
               "GST tax invoice (CGST/SGST/IGST)",
@@ -572,7 +559,7 @@ export default function OperationsPage() {
             ].map((tag) => (
               <span
                 key={tag}
-                className="text-[12px] font-semibold bg-white/10 border border-white/20 px-3 py-1.5 rounded-full text-slate-200"
+                className="text-[12px] font-semibold bg-white border border-line shadow-xs px-3.5 py-1.5 rounded-full text-ink"
               >
                 ✓ {tag}
               </span>

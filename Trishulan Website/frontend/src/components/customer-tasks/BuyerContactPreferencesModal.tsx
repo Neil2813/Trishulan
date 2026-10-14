@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { safeJsonFetch } from '@/lib/utils';
 
 interface BuyerContactPreferencesModalProps {
   rfqId?: string;
@@ -21,11 +22,27 @@ export default function BuyerContactPreferencesModal({
   onSuccess,
 }: BuyerContactPreferencesModalProps) {
   const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
-  const [sharePhone, setSharePhone] = useState<boolean>(true);
+  const [sharePhone, setSharePhone] = useState<boolean>(false);
   const [allowWhatsApp, setAllowWhatsApp] = useState<boolean>(false);
   const [futureOffers, setFutureOffers] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] = useState<{ error?: string; success?: boolean; message?: string } | null>(null);
+
+  useEffect(() => {
+    async function loadConsent() {
+      try {
+        const { ok, data } = await safeJsonFetch<{ consent?: { allowPhoneSharing: boolean; allowWhatsappAlerts: boolean; allowMarketing: boolean } }>('/api/customer/consent');
+        if (ok && data?.consent) {
+          setSharePhone(Boolean(data.consent.allowPhoneSharing));
+          setAllowWhatsApp(Boolean(data.consent.allowWhatsappAlerts));
+          setFutureOffers(Boolean(data.consent.allowMarketing));
+        }
+      } catch (err) {
+        console.warn('Failed to load consent:', err);
+      }
+    }
+    loadConsent();
+  }, []);
 
   const toggleSupplier = (id: string) => {
     setSelectedSuppliers((prev) =>
@@ -33,39 +50,47 @@ export default function BuyerContactPreferencesModal({
     );
   };
 
-  const handleConsentSubmit = async (withPhone: boolean) => {
-    if (!rfqId || selectedSuppliers.length === 0) return;
-
+  const handleConsentSubmit = async (withPhone?: boolean) => {
     setLoading(true);
     setSubmissionResult(null);
 
     try {
-      const payload = {
-        rfqId,
-        productName,
-        quantity,
-        sellerIds: selectedSuppliers,
-        sharePhone: withPhone ? sharePhone : false,
-        allowWhatsApp: withPhone ? allowWhatsApp : false,
-        futureOffers: withPhone ? futureOffers : false,
-        timestamp: new Date().toISOString(),
+      const payload: Record<string, any> = {
+        allowPhoneSharing: withPhone !== undefined ? withPhone && sharePhone : sharePhone,
+        allowWhatsappAlerts: withPhone !== undefined ? withPhone && allowWhatsApp : allowWhatsApp,
+        allowMarketing: withPhone !== undefined ? withPhone && futureOffers : futureOffers,
+        consentWording: rfqId
+          ? 'Buyer submitted RFQ contact preferences'
+          : 'User updated communication preferences in Customer Workspace',
       };
 
-      const res = await fetch('/api/customer/consent', {
+      if (rfqId) {
+        payload.rfqId = rfqId;
+        payload.productName = productName;
+        payload.quantity = quantity;
+        payload.sellerIds = selectedSuppliers;
+      }
+
+      const { ok, data, error } = await safeJsonFetch('/api/customer/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      setSubmissionResult(data);
-      if (onSuccess) onSuccess(data);
+      if (!ok) {
+        setSubmissionResult({ error: error || 'Failed to update preferences' });
+      } else {
+        setSubmissionResult({ success: true, message: data?.message || 'Contact preferences saved successfully' });
+        if (onSuccess) onSuccess(data);
+      }
     } catch (err: any) {
       setSubmissionResult({ error: err.message || 'Failed to register contact preferences' });
     } finally {
       setLoading(false);
     }
   };
+
+  const isRfqModal = Boolean(rfqId);
 
   return (
     <div className="bg-card border border-line rounded-xl overflow-hidden shadow text-ink max-w-4xl w-full mx-auto my-6 font-sans">
@@ -87,35 +112,44 @@ export default function BuyerContactPreferencesModal({
       <div className="p-6 space-y-6">
         {/* Contact preference form */}
         <div className="bg-card/80 border border-line rounded-xl p-6 space-y-5">
-          <div>
-            <span className="text-sm font-semibold text-muted">Your RFQ: </span>
-            <span className="text-base font-extrabold text-ink">
-              {rfqId && productName ? `${productName}${quantity ? `, ${quantity}` : ''}` : 'No RFQ selected'}
-            </span>
-          </div>
+          {isRfqModal ? (
+            <>
+              <div>
+                <span className="text-sm font-semibold text-muted">Your RFQ: </span>
+                <span className="text-base font-extrabold text-ink">
+                  {productName ? `${productName}${quantity ? `, ${quantity}` : ''}` : 'Active RFQ'}
+                </span>
+              </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700 font-medium">
-            <span className="font-bold text-ink">Send request to:</span>
-            {suppliers.length === 0 && (
-              <span className="text-muted">No suppliers are available for this RFQ.</span>
-            )}
-            {suppliers.map((sup) => (
-              <label
-                key={sup.id}
-                className="flex items-center gap-1.5 cursor-pointer bg-card px-3 py-1.5 rounded-lg border border-line hover:border-emerald-500 shadow-sm transition"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedSuppliers.includes(sup.id)}
-                  onChange={() => toggleSupplier(sup.id)}
-                  className="rounded border-line text-emerald-600 focus:ring-emerald-500"
-                />
-                <span className="text-slate-800">{sup.name}</span>
-              </label>
-            ))}
-          </div>
-
-          <hr className="border-line my-4" />
+              {suppliers.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700 font-medium">
+                  <span className="font-bold text-ink">Send request to:</span>
+                  {suppliers.map((sup) => (
+                    <label
+                      key={sup.id}
+                      className="flex items-center gap-1.5 cursor-pointer bg-card px-3 py-1.5 rounded-lg border border-line hover:border-emerald-500 shadow-sm transition"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSuppliers.includes(sup.id)}
+                        onChange={() => toggleSupplier(sup.id)}
+                        className="rounded border-line text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-slate-800">{sup.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+              <hr className="border-line my-4" />
+            </>
+          ) : (
+            <div className="pb-2 border-b border-line">
+              <h3 className="text-sm font-bold text-ink">Communication & Privacy Channels</h3>
+              <p className="text-xs text-muted mt-0.5">
+                Manage how sellers and the platform can contact you for quotes, order updates, and inquiries.
+              </p>
+            </div>
+          )}
 
           {/* Consent Checkboxes */}
           <div className="space-y-4 text-sm">
@@ -128,12 +162,10 @@ export default function BuyerContactPreferencesModal({
                   className="mt-1 rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <span className="font-bold text-ink">
-                    Share phone with {selectedSuppliers.length === 1 ? suppliers.find(s => s.id === selectedSuppliers[0])?.name || 'Selected Supplier' : 'Selected Suppliers'}
-                  </span>
+                  <span className="font-bold text-ink">Share phone with verified sellers</span>
+                  <p className="text-xs text-muted mt-0.5">Allow verified suppliers to contact you by phone regarding your RFQs.</p>
                 </div>
               </label>
-              <span className="text-xs text-muted italic">This seller may call about this RFQ.</span>
             </div>
 
             <div className="flex items-start justify-between gap-4 p-3.5 bg-card rounded-xl border border-line shadow-sm">
@@ -145,12 +177,10 @@ export default function BuyerContactPreferencesModal({
                   className="mt-1 rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <span className="font-bold text-ink">
-                    Allow {selectedSuppliers.length === 1 ? suppliers.find(s => s.id === selectedSuppliers[0])?.name || 'Selected Supplier' : 'Selected Suppliers'} on WhatsApp
-                  </span>
+                  <span className="font-bold text-ink">WhatsApp notifications & alerts</span>
+                  <p className="text-xs text-muted mt-0.5">Receive real-time lead updates, quote responses, and dispatch notices on WhatsApp.</p>
                 </div>
               </label>
-              <span className="text-xs text-muted italic">This named seller may message about this RFQ.</span>
             </div>
 
             <div className="flex items-start justify-between gap-4 p-3.5 bg-card rounded-xl border border-line shadow-sm">
@@ -162,69 +192,57 @@ export default function BuyerContactPreferencesModal({
                   className="mt-1 rounded border-line text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <span className="font-bold text-ink">Future product offers</span>
+                  <span className="font-bold text-ink">Platform announcements & product updates</span>
+                  <p className="text-xs text-muted mt-0.5">Receive optional news about verified listings, market price benchmarks, and deals.</p>
                 </div>
               </label>
-              <span className="text-xs text-muted italic">Optional marketing messages, separate choice.</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-line">
-            <button
-              onClick={() => handleConsentSubmit(false)}
-              disabled={loading || !rfqId || selectedSuppliers.length === 0}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-line hover:bg-line/30 text-slate-700 font-bold text-xs transition"
-            >
-              Continue on site without phone sharing
-            </button>
-            <button
-              onClick={() => handleConsentSubmit(true)}
-              disabled={loading || !rfqId || selectedSuppliers.length === 0}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition disabled:opacity-50"
-            >
-              {loading ? 'Submitting...' : 'Send RFQ with selected contact options'}
-            </button>
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-line">
+            {isRfqModal ? (
+              <>
+                <button
+                  onClick={() => handleConsentSubmit(false)}
+                  disabled={loading}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-line hover:bg-line/30 text-slate-700 font-bold text-xs transition"
+                >
+                  Continue without phone sharing
+                </button>
+                <button
+                  onClick={() => handleConsentSubmit(true)}
+                  disabled={loading}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition disabled:opacity-50"
+                >
+                  {loading ? 'Submitting...' : 'Send RFQ with selected options'}
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => handleConsentSubmit()}
+                disabled={loading}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition disabled:opacity-50"
+              >
+                {loading ? 'Saving…' : 'Save Communication Preferences'}
+              </button>
+            )}
           </div>
         </div>
 
         {/* Backend Confirmation Alert */}
         {submissionResult && (
-          <div className={`p-4 rounded-xl text-xs font-mono border ${submissionResult.error ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
+          <div className={`p-4 rounded-xl text-xs border ${submissionResult.error ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
             {submissionResult.error ? (
               <p className="flex items-center gap-1.5"><AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /><span>{submissionResult.error}</span></p>
             ) : (
-              <div>
-                <p className="font-bold text-emerald-800">✓ Contact Preferences Saved Successfully</p>
-                <p className="text-xs text-emerald-700 mt-1">Your contact visibility and WhatsApp routing settings have been updated.</p>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-bold text-emerald-800">{submissionResult.message || 'Contact Preferences Saved Successfully'}</span>
               </div>
             )}
           </div>
         )}
-
-        {/* Requirements Bullet List from Spec */}
-        <div className="text-xs text-slate-700 space-y-2.5 leading-relaxed bg-card p-5 rounded-xl border border-line">
-          <p className="flex items-start gap-2">
-            <span className="text-emerald-700 font-bold">•</span>
-            <span>Show the exact product/RFQ and selected seller names before the buyer submits. Explain what contact information each seller will receive and for what purpose.</span>
-          </p>
-          <p className="flex items-start gap-2">
-            <span className="text-emerald-700 font-bold">•</span>
-            <span>Keep permission to share the number on the site separate from permission for the named seller to contact the buyer on WhatsApp, and separate both from future offers. Save the consent wording, time, channel, seller IDs and RFQ reference.</span>
-          </p>
-          <p className="flex items-start gap-2">
-            <span className="text-emerald-700 font-bold">•</span>
-            <span>Create a lead record in Trishulan Industrial Connect's company-managed database/CRM: buyer ID, requested product, quantity, location, selected seller IDs, permitted contact channels, status, timestamps and source page. Store a phone number only when needed and permitted.</span>
-          </p>
-        </div>
-
-        {/* Spec Callout Box */}
-        <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-xs text-cyan-900">
-          <p className="font-bold text-cyan-800 mb-1">Example Privacy Workflow:</p>
-          <p className="italic leading-relaxed">
-            "A buyer searches for a product but their phone stays private. They submit an RFQ and select two named suppliers. They choose to share their phone through the site and separately allow those sellers to WhatsApp about that RFQ. Each supplier gets the lead in its site inbox and a WhatsApp alert; the phone number is revealed only through the allowed contact route. The CRM records the choices and routes the lead only to those suppliers."
-          </p>
-        </div>
       </div>
     </div>
   );

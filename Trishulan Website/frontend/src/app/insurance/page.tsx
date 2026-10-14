@@ -154,44 +154,15 @@ export default function InsurancePage() {
     <div className="min-h-screen bg-bg">
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0A1629] via-[#0f2044] to-[#1a3366] text-white pt-24 pb-20 px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,88,12,0.15),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(59,130,246,0.1),transparent_60%)]" />
+      <section className="bg-gradient-to-b from-blue-50/40 via-white to-slate-50 border-b border-line pt-16 pb-12 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,88,12,0.08),transparent_60%)] pointer-events-none" />
         <div className="max-w-[1200px] mx-auto relative z-10">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-[11px] font-bold tracking-[.14em] uppercase bg-[#EA580C]/20 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30">
-              Module 6 — Benefits Access
+          <h1 className="text-[38px] md:text-[56px] font-black leading-[1.08] tracking-tight text-ink">
+            Health Insurance{" "}
+            <span className="text-accent block">
+              for Industrial India
             </span>
-          </div>
-          <div className="max-w-[680px]">
-            <h1 className="text-[38px] md:text-[56px] font-black leading-[1.05] tracking-tight mb-6">
-              Health Insurance
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
-                for Industrial India
-              </span>
-            </h1>
-            <p className="text-[17px] text-slate-300 leading-relaxed mb-8 max-w-[540px]">
-              Discover group health cover for your workers, family floaters for business
-              owners, and custom plans for your enterprise team — through licensed,
-              IRDAI-registered advisors. No medical records required for enquiry.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              {[
-                "10–500 employees",
-                "Individual & family plans",
-                "IRDAI-registered advisors",
-                "Free callback within 1 day",
-              ].map((badge) => (
-                <span
-                  key={badge}
-                  className="text-[12px] font-semibold bg-white/10 border border-white/20 px-3 py-1.5 rounded-full text-slate-200"
-                >
-                  ✓ {badge}
-                </span>
-              ))}
-            </div>
-          </div>
+          </h1>
         </div>
       </section>
 
@@ -511,60 +482,8 @@ export default function InsurancePage() {
           </div>
         </div>
 
-        {/* ── Plan Comparison Table ─────────────────────────────────────── */}
-        <div className="mb-14 overflow-x-auto">
-          <h2 className="text-[22px] font-black text-ink mb-5">Full Plan Comparison</h2>
-          <table className="w-full border-collapse text-[13px]">
-            <thead>
-              <tr className="bg-[#0A1629] text-white">
-                <th className="text-left px-4 py-3 font-semibold rounded-tl-xl">Criteria</th>
-                {plans.map((p) => (
-                  <th key={p.id} className={`text-center px-4 py-3 font-semibold ${p.id === "plan-c" ? "rounded-tr-xl" : ""}`}>
-                    {p.name}
-                    {p.highlight && (
-                      <span className="ml-2 text-[9px] bg-[#EA580C] px-1.5 py-0.5 rounded-full font-bold">
-                        ★ BEST
-                      </span>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { label: "Sum Insured", key: "sumInsured" },
-                { label: "Hospital Network", key: "network" },
-                { label: "Waiting Period", key: "waitingPeriod" },
-                { label: "Co-Pay", key: "copay" },
-                { label: "Exclusions", key: "exclusions" },
-                { label: "Est. Premium", key: "estimatedPremium" },
-                { label: "Best For", key: "bestFor" },
-              ].map((row, i) => (
-                <tr
-                  key={row.key}
-                  className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                >
-                  <td className="px-4 py-3 font-semibold text-[#475569] border-b border-gray-100">
-                    {row.label}
-                  </td>
-                  {plans.map((p) => (
-                    <td
-                      key={p.id}
-                      className={`px-4 py-3 text-center text-ink border-b border-gray-100 ${
-                        p.highlight ? "bg-orange-50/40 font-semibold" : ""
-                      }`}
-                    >
-                      {p[row.key as keyof Plan] as string}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
         {/* ── FAQ ──────────────────────────────────────────────────────── */}
-        <div className="mb-14">
+        <div className="mb-6">
           <h2 className="text-[22px] font-black text-ink mb-5">
             Frequently Asked Questions
           </h2>
@@ -595,25 +514,6 @@ export default function InsurancePage() {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* ── CTA Banner ───────────────────────────────────────────────── */}
-        <div className="rounded-2xl bg-gradient-to-r from-[#0A1629] to-[#1a3366] text-white p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <h3 className="text-[24px] font-black mb-2">
-              Not sure which plan fits?
-            </h3>
-            <p className="text-[14px] text-slate-300 max-w-[480px]">
-              Our advisors analyse your team size, budget, and industry risk
-              profile to recommend the most suitable cover — at no cost to you.
-            </p>
-          </div>
-          <button
-            onClick={() => document.querySelector("form")?.scrollIntoView({ behavior: "smooth" })}
-            className="shrink-0 bg-[#EA580C] hover:bg-[#c2410a] text-white font-bold px-8 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-lg"
-          >
-            Get Expert Advice <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       </div>
 

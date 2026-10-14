@@ -2,7 +2,6 @@
 
 import React from 'react';
 import AccountRegistrationKycStatus from '@/components/business-services/AccountRegistrationKycStatus';
-import GuidedRegistrationChecklist from '@/components/business-services/GuidedRegistrationChecklist';
 
 export default function KycBusinessServicesPage() {
   return (
@@ -23,9 +22,6 @@ export default function KycBusinessServicesPage() {
 
         {/* Section 1: Account Registration / KYC Status */}
         <AccountRegistrationKycStatus />
-
-        {/* Section 2: Guided Registration Checklist */}
-        <GuidedRegistrationChecklist />
       </main>
     </div>
   );

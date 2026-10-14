@@ -166,26 +166,26 @@ export default function HelpPage() {
     <div className="min-h-screen bg-bg">
 
       {/* ── Hero Search ──────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-[#0A1629] to-[#1a3366] text-white pt-24 pb-16 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,88,12,0.12),transparent_60%)]" />
+      <section className="bg-gradient-to-b from-blue-50/40 via-white to-slate-50 border-b border-line pt-20 pb-16 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,88,12,0.08),transparent_60%)] pointer-events-none" />
         <div className="max-w-[860px] mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-[12px] font-semibold text-slate-200 mb-5">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-full text-[12px] font-semibold text-blue-800 mb-5">
             <Headphones className="w-3.5 h-3.5" />
             Trishulan Help & Support Centre
           </div>
-          <h1 className="text-[38px] md:text-[52px] font-black leading-tight tracking-tight mb-4">
+          <h1 className="text-[38px] md:text-[52px] font-black leading-tight tracking-tight text-ink mb-4">
             How can we{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+            <span className="text-accent">
               help you?
             </span>
           </h1>
-          <p className="text-[16px] text-slate-300 mb-8">
+          <p className="text-[16px] text-muted mb-8 font-medium">
             Search our knowledge base, raise a support ticket, or contact us directly.
           </p>
           <div className="relative max-w-[540px] mx-auto">
             <Search className="absolute left-4 top-4 w-5 h-5 text-muted" />
             <input
-              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white text-ink text-[14px] outline-none shadow-xl"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white text-ink text-[14px] outline-none shadow-md border border-line focus:border-accent transition-colors"
               placeholder="Search help articles… e.g. 'KYC upload' or 'track shipment'"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -434,7 +434,7 @@ export default function HelpPage() {
 
         {/* ── SLA Reference ────────────────────────────────────────────────── */}
         <div className="bg-gradient-to-r from-[#0A1629] to-[#1a3366] rounded-2xl p-8 text-white">
-          <h3 className="font-black text-[18px] mb-4">Support SLA Reference</h3>
+          <h3 className="font-black text-[18px] text-white mb-4">Support SLA Reference</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { tier: "Starter", sla: "Help centre + Email (24–48 hrs)", email: "care@trishulan.com", badge: "bg-slate-600" },
