@@ -26,6 +26,7 @@ import operationsRouter       from "./routes/operations";
 import quotesRouter           from "./routes/quotes";
 import digitalIdRouter        from "./routes/digitalId";
 import adminRouter            from "./routes/admin";
+import reviewsRouter          from "./routes/reviews";
 
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -103,6 +104,7 @@ app.use("/api/operations",       operationsRouter);
 app.use("/api/quotes",           quotesRouter);
 app.use("/api/digital-id",       digitalIdRouter);
 app.use("/api/admin",             adminRouter);
+app.use("/api/reviews",           reviewsRouter);
 
 // ── Health checks ────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => {

@@ -68,11 +68,16 @@ router.get('/match', async (req: AuthenticatedRequest, res) => {
           where: { status: 'SUBMITTED', validUntil: { gt: new Date() } },
           select: {
             id: true,
+            sellerId: true,
             sellerName: true,
             unitPrice: true,
             currency: true,
             leadTimeDays: true,
             incoterm: true,
+            freightCost: true,
+            taxRatePercent: true,
+            paymentTerms: true,
+            moq: true,
           },
           orderBy: { unitPrice: 'asc' },
           take: 5,
@@ -85,13 +90,23 @@ router.get('/match', async (req: AuthenticatedRequest, res) => {
     const topRfq = rfqsWithQuotes[0];
     const comparisonRows = topRfq?.quotes.map((quote) => ({
       id: quote.id,
+      quoteId: quote.id,
+      rfqId: topRfq.id,
+      rfqTitle: topRfq.title,
+      sellerId: quote.sellerId,
       supplierName: quote.sellerName,
       matchReason: 'Direct RFQ match',
       moqEta: `${topRfq.quantity} / ${quote.leadTimeDays} days`,
       quoteStatus: 'Quote received',
+      unitPriceNumeric: quote.unitPrice,
       unitPrice: `${quote.currency} ${quote.unitPrice.toLocaleString('en-IN')}`,
+      currency: quote.currency,
       incoterms: quote.incoterm,
-      freight: 'Freight aligned to terms',
+      freightCost: quote.freightCost,
+      taxRatePercent: quote.taxRatePercent,
+      paymentTerms: quote.paymentTerms,
+      leadTimeDays: quote.leadTimeDays,
+      freight: quote.freightCost > 0 ? `${quote.currency} ${quote.freightCost.toLocaleString('en-IN')}` : 'Included / Buyer arranged',
     })) ?? [];
 
     return res.json({

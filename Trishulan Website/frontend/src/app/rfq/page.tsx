@@ -1,13 +1,24 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mic, Store } from 'lucide-react';
+import { Mic, Store, FileText, Scale } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
+import BuyerRFQMatchingCompareView from '@/components/feature-expansion/BuyerRFQMatchingCompareView';
 
 export default function RFQPage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'post' | 'compare'>('post');
   const [step, setStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'compare') {
+        setActiveTab('compare');
+      }
+    }
+  }, []);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<'RAW_MATERIALS' | 'MACHINERY' | 'SPARES'>('RAW_MATERIALS');
   const [quantity, setQuantity] = useState('');
@@ -73,8 +84,41 @@ export default function RFQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent py-12 px-4 sm:px-6">
-      <div className="max-w-[620px] mx-auto bg-card rounded-[24px] border border-line shadow-2xl p-6 md:p-10">
+    <div className="min-h-screen bg-transparent py-10 px-4 sm:px-6">
+      {/* Top Tab Switcher */}
+      <div className="max-w-5xl mx-auto mb-8 flex justify-center">
+        <div className="inline-flex p-1.5 bg-card border border-line rounded-2xl shadow-xs gap-1.5">
+          <button
+            type="button"
+            onClick={() => setActiveTab('post')}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'post'
+                ? 'bg-[#0A1629] text-white shadow-xs'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            <FileText className="w-4 h-4" /> Post Requirement
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('compare')}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'compare'
+                ? 'bg-[#0A1629] text-white shadow-xs'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            <Scale className="w-4 h-4" /> Compare Quotes & Landed Cost
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'compare' ? (
+        <div className="max-w-5xl mx-auto">
+          <BuyerRFQMatchingCompareView />
+        </div>
+      ) : (
+        <div className="max-w-[620px] mx-auto bg-card rounded-[24px] border border-line shadow-2xl p-6 md:p-10">
         
         {/* Page 5 Header: Post Requirement option & Let Us Provide You Verified Sellers */}
         <div className="text-center mb-8">
@@ -216,6 +260,7 @@ export default function RFQPage() {
         )}
 
       </div>
+      )}
       <AuthModal
         isOpen={showAuth}
         onClose={() => setShowAuth(false)}

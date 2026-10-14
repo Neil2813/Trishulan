@@ -127,6 +127,8 @@ model User {
   inventoryItems        InventoryItem[]
   transportQuotes       TransportQuote[]
   adviserAppointments   BusinessAppointment[]
+  ratingsGiven          TransactionRating[]   @relation("RatingsGiven")
+  ratingsReceived       TransactionRating[]   @relation("RatingsReceived")
 
   @@map("users")
 }
@@ -173,6 +175,7 @@ model RFQ {
   updatedAt   DateTime        @updatedAt
   buyer       User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   quotes      Quote[]
+  ratings     TransactionRating[]
 
   @@index([buyerId, status])
   @@index([category])
@@ -295,6 +298,7 @@ model Quote {
   updatedAt      DateTime @updatedAt
   rfq            RFQ      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
   seller         User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  ratings        TransactionRating[]
 
   @@index([rfqId, sellerId])
   @@map("quotes")
@@ -468,4 +472,25 @@ model AdminAuditLog {
   @@index([targetType, targetId, createdAt])
   @@index([adminId, createdAt])
   @@map("admin_audit_logs")
+}
+
+model TransactionRating {
+  id           String   @id @default(cuid())
+  rfqId        String?
+  quoteId      String?
+  reviewerId   String
+  targetUserId String
+  rating       Int      // 1 to 5
+  comment      String?
+  categories   Json     @default("{}") // e.g. { productQuality: 5, deliverySpeed: 4, communication: 5, packaging: 5 }
+  createdAt    DateTime @default(now())
+
+  reviewer     User     @relation("RatingsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  targetUser   User     @relation("RatingsReceived", fields: [targetUserId], references: [id], onDelete: Cascade)
+  quote        Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  rfq          RFQ?     @relation(fields: [rfqId], references: [id], onDelete: SetNull)
+
+  @@index([targetUserId, createdAt])
+  @@index([rfqId])
+  @@map("transaction_ratings")
 }

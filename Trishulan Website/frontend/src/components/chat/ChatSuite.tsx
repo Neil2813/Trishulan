@@ -17,6 +17,7 @@ import {
   isE2EESupported,
   keyFingerprint,
 } from '@/lib/crypto';
+import RFQStageProgressRibbon from '@/components/rfq/RFQStageProgressRibbon';
 
 interface ChatSuiteProps {
   /** Logged-in user (fetched from /api/auth/me if omitted). */
@@ -556,6 +557,15 @@ export default function ChatSuite({ currentUser, onAuthenticationRequired, initi
                 <span className="hidden sm:inline">Encrypted</span>
               </button>
             </header>
+
+            {rfqId && (
+              <div className="px-4 py-2.5 bg-slate-50/80 border-b border-line">
+                <RFQStageProgressRibbon
+                  currentStage={3}
+                  rfqTitle={`RFQ #${rfqId.slice(-6).toUpperCase()}`}
+                />
+              </div>
+            )}
 
             {showVerify && (
               <div className="mx-4 mt-3 space-y-2 rounded-2xl border border-teal-200 bg-white p-4 text-xs shadow-sm animate-[fadeIn_0.15s_ease]">
