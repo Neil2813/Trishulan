@@ -59,7 +59,7 @@ export default function DigitalIDCard({
         cacheBust: true,
         pixelRatio: 2,
         skipFonts: true,
-        filter: (node) => !(node instanceof HTMLElement && node.dataset.exportExclude === 'true'),
+        filter: (node: Node) => !(node instanceof HTMLElement && node.dataset.exportExclude === 'true'),
       });
       if (!image) {
         throw new Error('The ID card image could not be generated.');
