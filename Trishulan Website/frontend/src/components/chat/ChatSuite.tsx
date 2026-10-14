@@ -8,7 +8,7 @@ import {
   ChatPartner,
   User,
 } from '@/types';
-import { Lock, Search, MessageSquare, Paperclip, MapPin, Tag, Send } from 'lucide-react';
+import { Lock, Search, MessageSquare, Paperclip, MapPin, Tag, Send, ShieldCheck, Building2, ArrowLeft, AlertCircle } from 'lucide-react';
 import {
   DecryptedBody,
   decryptMessage,
@@ -21,6 +21,7 @@ import {
 interface ChatSuiteProps {
   /** Logged-in user (fetched from /api/auth/me if omitted). */
   currentUser?: User | null;
+  onAuthenticationRequired: () => void;
   /** Open a thread with this partner on load. */
   initialPartnerId?: string;
   /** Attach this listing as a context card to the next message sent. */
@@ -45,10 +46,12 @@ function formatTime(iso: string) {
   return d.toLocaleDateString([], { day: 'numeric', month: 'short' });
 }
 
-export default function ChatSuite({ currentUser, initialPartnerId, listingId, rfqId }: ChatSuiteProps) {
+export default function ChatSuite({ currentUser, onAuthenticationRequired, initialPartnerId, listingId, rfqId }: ChatSuiteProps) {
   const [me, setMe] = useState<User | null>(currentUser ?? null);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);
+  const [requiresSignIn, setRequiresSignIn] = useState(false);
+  const [setupAttempt, setSetupAttempt] = useState(0);
 
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [previews, setPreviews] = useState<Record<string, Decrypted>>({});
@@ -91,6 +94,8 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
       return;
     }
     let cancelled = false;
+    setSetupError(null);
+    setRequiresSignIn(false);
     (async () => {
       try {
         const id = await getOrCreateIdentity(me.id);
@@ -100,7 +105,15 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ publicKey: id.publicJwk }),
           });
-          if (!res.ok) throw new Error('Could not register encryption key');
+          if (res.status === 401) {
+            if (!cancelled) setRequiresSignIn(true);
+            throw new Error('Your sign-in session has expired. Sign in again to set up encrypted messages.');
+          }
+          if (!res.ok) {
+            throw new Error(res.status >= 500
+              ? 'Secure messaging is temporarily unavailable. Please try again.'
+              : 'We couldn’t validate this browser’s encryption key. Please try again.');
+          }
         }
         if (!cancelled) setIdentity(id);
       } catch (e: any) {
@@ -108,7 +121,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
       }
     })();
     return () => { cancelled = true; };
-  }, [me?.id, me?.chatPublicKey]);
+  }, [me?.id, me?.chatPublicKey, setupAttempt]);
 
   // ── 3. Inbox ───────────────────────────────────────────────────────────────
   const loadConversations = useCallback(async () => {
@@ -290,49 +303,55 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
   }
 
   return (
-    <div className="relative bg-card rounded-[24px] border border-line shadow-2xl overflow-hidden flex flex-col md:flex-row h-[680px]">
+    <div className="relative flex h-[min(620px,calc(100dvh-460px))] min-h-[360px] flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-lg md:h-[min(740px,calc(100dvh-250px))] md:min-h-[520px] md:flex-row md:rounded-[24px]">
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <aside className={`w-full md:w-[320px] bg-card border-r border-line flex-col shrink-0 ${activePartnerId ? 'hidden md:flex' : 'flex'}`}>
-        <div className="p-4 bg-gradient-to-r from-teal-800 to-teal-700 text-white flex items-center justify-between">
-          <div>
-            <h3 className="font-extrabold text-[16px] flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3 border-b border-line bg-gradient-to-br from-teal-50 via-white to-white p-4">
+          <div className="min-w-0">
+            <h3 className="flex items-center gap-2 text-[16px] font-extrabold text-ink">
               Messages
               {totalUnread > 0 && (
-                <span className="text-[10px] bg-amber-400 text-slate-900 px-2 py-0.5 rounded-full font-black">{totalUnread}</span>
+                <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-black text-teal-900">{totalUnread}</span>
               )}
             </h3>
-            <p className="text-[10.5px] text-teal-100 flex items-center gap-1 mt-0.5"><Lock className="w-3 h-3" /> End-to-end encrypted</p>
+            <p className="mt-1 flex items-center gap-1.5 text-[10.5px] font-medium text-teal-800">
+              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              End-to-end encrypted
+            </p>
           </div>
           <button
             id="chat-new-conversation"
             onClick={() => setShowNewChat(true)}
             disabled={!identity}
-            className="px-3 py-1.5 rounded-full bg-card/15 hover:bg-card/25 disabled:opacity-50 text-xs font-bold transition-colors"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-teal-700 px-3.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+            title={!identity ? 'Sign in and finish secure chat setup to start a conversation' : undefined}
           >
             + New chat
           </button>
         </div>
 
-        <div className="p-3 border-b border-line bg-card space-y-2">
-          <div className="flex items-center gap-2 bg-line/30 px-3 py-1.5 rounded-full border border-line focus-within:border-teal-600 transition-colors">
-            <Search className="w-3.5 h-3.5 text-muted/70" />
+        <div className="space-y-3 border-b border-line bg-card p-3">
+          <label htmlFor="chat-search" className="flex min-h-10 items-center gap-2 rounded-xl border border-line bg-bg px-3 transition-colors focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-100">
+            <Search className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
             <input
               id="chat-search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search chats"
-              className="bg-transparent text-xs outline-none w-full"
+              placeholder="Search conversations"
+              className="w-full bg-transparent text-xs text-ink outline-none placeholder:text-muted"
             />
-          </div>
-          <div className="flex gap-1">
+          </label>
+          <div role="group" aria-label="Filter conversations" className="flex gap-1">
             {(['All', 'Unread'] as const).map((f) => (
               <button
                 key={f}
                 id={`chat-filter-${f.toLowerCase()}`}
+                type="button"
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  filter === f ? 'bg-teal-700 text-white' : 'bg-line/30 text-muted hover:bg-gray-200'
+                aria-pressed={filter === f}
+                className={`min-h-8 rounded-lg px-3 text-[11px] font-bold transition-colors ${
+                  filter === f ? 'bg-teal-700 text-white' : 'text-muted hover:bg-line/40 hover:text-ink'
                 }`}
               >
                 {f}
@@ -341,21 +360,63 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+        <div className="flex-1 overflow-y-auto divide-y divide-line/70">
           {!identity && !setupError && (
-            <div className="p-6 text-center text-xs text-muted animate-pulse">Setting up secure keys…</div>
+            <div role="status" className="space-y-3 p-5">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 animate-pulse rounded-full bg-line/70" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-2/3 animate-pulse rounded bg-line/70" />
+                  <div className="h-2.5 w-full animate-pulse rounded bg-line/50" />
+                </div>
+              </div>
+              <p className="text-center text-[11px] text-muted">Preparing your secure inbox…</p>
+            </div>
+          )}
+          {setupError && (
+            <div className="m-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-bold text-amber-950">
+                    {requiresSignIn ? 'Sign in to unlock messages' : 'Secure chat needs attention'}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-amber-900">
+                    {requiresSignIn
+                      ? 'Your session has expired. Sign in to finish setting up encrypted messaging.'
+                      : 'Your secure inbox could not be prepared. You can safely try again.'}
+                  </p>
+                  {requiresSignIn ? (
+                    <button type="button" onClick={onAuthenticationRequired} className="mt-3 text-xs font-bold text-teal-800 underline underline-offset-2 hover:text-teal-950">
+                      Sign in again
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => setSetupAttempt((attempt) => attempt + 1)} className="mt-3 text-xs font-bold text-teal-800 underline underline-offset-2 hover:text-teal-950">
+                      Try again
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
           {identity && visibleConversations.length === 0 && (
-            <div className="p-8 text-center space-y-3">
-              <div className="flex justify-center"><MessageSquare className="w-10 h-10 text-muted" /></div>
-              <p className="text-xs text-muted">
-                {conversations.length === 0
-                  ? `No conversations yet. Start one with a ${me?.role === 'SELLER' ? 'buyer' : 'seller'}.`
-                  : 'No chats match your filter.'}
-              </p>
+            <div className="space-y-3 p-6 text-center">
+              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-50 text-teal-800">
+                {conversations.length === 0 ? <MessageSquare className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-ink">
+                  {conversations.length === 0 ? 'Start a business conversation' : 'No conversations found'}
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted">
+                  {conversations.length === 0
+                    ? `Connect with a ${me?.role === 'SELLER' ? 'buyer' : 'seller'} to discuss products and requirements.`
+                    : 'Try another name or switch your filter.'}
+                </p>
+              </div>
               {conversations.length === 0 && (
-                <button onClick={() => setShowNewChat(true)} className="px-4 py-2 rounded-full bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold">
-                  Start a chat
+                <button type="button" onClick={() => setShowNewChat(true)} className="min-h-10 rounded-xl bg-teal-700 px-4 text-xs font-bold text-white transition-colors hover:bg-teal-800">
+                  Find {me?.role === 'SELLER' ? 'a buyer' : 'a seller'}
                 </button>
               )}
             </div>
@@ -369,28 +430,36 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 key={c.partner.id}
                 id={`chat-conversation-${c.partner.id}`}
                 onClick={() => setActivePartnerId(c.partner.id)}
-                className={`w-full text-left p-3 flex items-start gap-3 transition-colors ${
-                  active ? 'bg-teal-50 border-l-4 border-teal-700' : 'hover:bg-line/30 border-l-4 border-transparent'
+                aria-current={active ? 'true' : undefined}
+                className={`w-full border-l-[3px] p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600 ${
+                  active ? 'border-teal-700 bg-teal-50' : 'border-transparent hover:bg-bg'
                 }`}
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0A1629] to-teal-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                  {displayName(c.partner).charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <h4 className={`text-[12.5px] text-ink truncate ${c.unread ? 'font-black' : 'font-bold'}`}>{displayName(c.partner)}</h4>
-                    <span className="text-[10px] text-muted/70 font-mono shrink-0">{formatTime(c.lastMessage.timestamp)}</span>
-                  </div>
-                  <p className={`text-[11px] truncate mt-0.5 ${c.unread ? 'text-gray-800 font-semibold' : 'text-muted'}`}>
-                    {mine && 'You: '}
-                    {preview === undefined ? '…' : preview === null ? 'Encrypted message' : preview.text || 'Attachment'}
-                  </p>
-                </div>
-                {c.unread > 0 && (
-                  <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-teal-600 text-white font-bold text-[9.5px] flex items-center justify-center shrink-0">
-                    {c.unread}
+                <span className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-teal-700 text-xs font-bold text-white">
+                    {displayName(c.partner).charAt(0).toUpperCase()}
                   </span>
-                )}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2">
+                      <span className={`truncate text-[12.5px] text-ink ${c.unread ? 'font-black' : 'font-bold'}`}>{displayName(c.partner)}</span>
+                      <span className="shrink-0 text-[10px] text-muted">{formatTime(c.lastMessage.timestamp)}</span>
+                    </span>
+                    <span className="mt-0.5 flex items-center justify-between gap-2">
+                      <span className={`truncate text-[11px] ${c.unread ? 'font-semibold text-ink' : 'text-muted'}`}>
+                        {mine && 'You: '}
+                        {preview === undefined ? 'Loading preview…' : preview === null ? 'Encrypted message' : preview.text || 'Attachment'}
+                      </span>
+                      {c.unread > 0 && (
+                        <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-teal-700 px-1 text-[9.5px] font-bold text-white" aria-label={`${c.unread} unread`}>
+                          {c.unread}
+                        </span>
+                      )}
+                    </span>
+                    {c.partner.companyName && c.partner.name !== c.partner.companyName && (
+                      <span className="mt-1 block truncate text-[10px] text-muted">{c.partner.name}</span>
+                    )}
+                  </span>
+                </span>
               </button>
             );
           })}
@@ -398,31 +467,80 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
       </aside>
 
       {/* ── Thread ──────────────────────────────────────────────────────── */}
-      <section className={`flex-1 flex-col bg-card/60 min-w-0 ${activePartnerId ? 'flex' : 'hidden md:flex'}`}>
+      <section className={`min-w-0 flex-1 flex-col bg-slate-50/70 ${activePartnerId ? 'flex' : 'hidden md:flex'}`}>
         {setupError ? (
-          <div className="flex-1 flex items-center justify-center p-8 text-center text-sm text-red-600">{setupError}</div>
+          <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
+            <div role="alert" className="w-full max-w-md rounded-2xl border border-line bg-card p-6 text-center shadow-sm sm:p-8">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+                {requiresSignIn ? <Lock className="h-6 w-6" aria-hidden="true" /> : <AlertCircle className="h-6 w-6" aria-hidden="true" />}
+              </div>
+              <h4 className="mt-4 text-base font-extrabold text-ink">
+                {requiresSignIn ? 'Your secure inbox is locked' : 'We couldn’t prepare secure messaging'}
+              </h4>
+              <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-muted">{setupError}</p>
+              <p className="mt-4 flex items-center justify-center gap-1.5 text-[10px] font-semibold text-teal-800">
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                Your messages stay encrypted
+              </p>
+              {requiresSignIn ? (
+                <button
+                  type="button"
+                  onClick={onAuthenticationRequired}
+                  className="mt-5 min-h-11 rounded-xl bg-teal-700 px-5 text-xs font-bold text-white transition-colors hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2"
+                >
+                  Sign in again
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSetupAttempt((attempt) => attempt + 1)}
+                  className="mt-5 min-h-11 rounded-xl bg-teal-700 px-5 text-xs font-bold text-white transition-colors hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2"
+                >
+                  Try again
+                </button>
+              )}
+            </div>
+          </div>
         ) : !activePartnerId ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center text-teal-700"><Lock className="w-7 h-7" /></div>
-            <h4 className="font-extrabold text-ink">Private buyer–seller messaging</h4>
-            <p className="text-xs text-muted max-w-xs">
-              Messages are encrypted in your browser before they are sent. Only you and the person you are chatting with can read them — not even Trishulan.
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-teal-100 bg-white text-teal-800 shadow-sm">
+              <MessageSquare className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <div className="max-w-sm">
+              <h4 className="text-base font-extrabold text-ink">Your business conversations, in one place</h4>
+              <p className="mt-2 text-xs leading-relaxed text-muted">
+                Select a conversation to continue, or start a new one with a {me?.role === 'SELLER' ? 'buyer' : 'seller'}.
+              </p>
+            </div>
+            <p className="flex items-center gap-1.5 rounded-full border border-teal-100 bg-white px-3 py-1.5 text-[10px] font-semibold text-teal-800">
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              Only you and your contact can read messages
             </p>
+            {identity && conversations.length === 0 && (
+              <button type="button" onClick={() => setShowNewChat(true)} className="mt-1 min-h-11 rounded-xl bg-teal-700 px-5 text-xs font-bold text-white transition-colors hover:bg-teal-800">
+                Find {me?.role === 'SELLER' ? 'a buyer' : 'a seller'}
+              </button>
+            )}
           </div>
         ) : (
           <>
-            <header className="p-4 bg-gradient-to-r from-teal-800 to-teal-700 text-white flex items-center justify-between gap-3 border-b border-teal-900">
-              <div className="flex items-center gap-3 min-w-0">
-                <button onClick={() => setActivePartnerId(null)} className="md:hidden text-lg" aria-label="Back to conversations">←</button>
+            <header className="flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-3.5">
+              <div className="flex min-w-0 items-center gap-3">
+                <button onClick={() => setActivePartnerId(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-bg hover:text-ink md:hidden" aria-label="Back to conversations">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                </button>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-teal-700 text-sm font-bold text-white">
+                  {displayName(activePartner).charAt(0).toUpperCase()}
+                </div>
                 <div className="min-w-0">
-                  <h4 className="font-extrabold text-[15px] truncate">{displayName(activePartner) || 'Loading…'}</h4>
-                  <div className="flex items-center gap-2 text-[11px] text-teal-100 mt-0.5 flex-wrap">
-                    {activePartner && <span className="uppercase font-bold tracking-wide text-[9.5px] px-1.5 py-0.5 bg-teal-900/60 rounded">{activePartner.role}</span>}
+                  <h4 className="truncate text-sm font-extrabold text-ink">{displayName(activePartner) || 'Loading conversation…'}</h4>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted">
+                    {activePartner && <span className="rounded bg-bg px-1.5 py-0.5 font-bold uppercase tracking-wide text-ink">{activePartner.role}</span>}
                     {(activePartner?.city || activePartner?.state) && (
                       <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {[activePartner.city, activePartner.state].filter(Boolean).join(', ')}</span>
                     )}
                     {activePartner?.verifiedSeller && (
-                      <span className="px-1.5 py-0.5 bg-amber-400 text-slate-900 rounded font-bold text-[9.5px]">✓ Verified Seller</span>
+                      <span className="rounded bg-amber-50 px-1.5 py-0.5 font-bold text-amber-800">✓ Verified seller</span>
                     )}
                   </div>
                 </div>
@@ -430,16 +548,17 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               <button
                 id="chat-verify-encryption"
                 onClick={() => setShowVerify((v) => !v)}
-                className="shrink-0 px-3 py-1.5 rounded-full bg-card/15 hover:bg-card/25 text-[11px] font-bold transition-colors flex items-center gap-1"
+                aria-expanded={showVerify}
+                className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border border-teal-100 bg-teal-50 px-2.5 text-[10px] font-bold text-teal-800 transition-colors hover:bg-teal-100 sm:px-3 sm:text-[11px]"
                 title="Verify encryption keys"
               >
-                <Lock className="w-3 h-3" />
-                <span>Encrypted</span>
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="hidden sm:inline">Encrypted</span>
               </button>
             </header>
 
             {showVerify && (
-              <div className="mx-4 mt-3 p-4 rounded-2xl bg-card border border-teal-200 shadow text-xs space-y-2 animate-[fadeIn_0.15s_ease]">
+              <div className="mx-4 mt-3 space-y-2 rounded-2xl border border-teal-200 bg-white p-4 text-xs shadow-sm animate-[fadeIn_0.15s_ease]">
                 <p className="font-bold text-ink">Verify end-to-end encryption</p>
                 <p className="text-muted">Compare these codes with {displayName(activePartner)} over a call or in person. If they match on both screens, nobody is intercepting your messages.</p>
                 {fingerprints ? (
@@ -453,15 +572,21 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               </div>
             )}
 
-            <div ref={scrollRef} className="flex-1 p-5 overflow-y-auto flex flex-col gap-3">
-              <div className="self-center text-[10.5px] text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold flex items-center gap-1">
+            <div ref={scrollRef} className="flex flex-1 flex-col gap-3 overflow-y-auto p-4 sm:p-6">
+              <div className="flex items-center gap-1.5 self-center rounded-full border border-teal-100 bg-white px-3 py-1.5 text-[10px] font-semibold text-teal-800 shadow-xs">
                 <Lock className="w-3 h-3" />
-                <span>Messages are end-to-end encrypted</span>
+                <span>End-to-end encrypted · only you and your contact can read these messages</span>
               </div>
 
               {messages.length === 0 && (
-                <div className="flex-1 flex items-center justify-center text-xs text-muted/70">
-                  Say hello to {displayName(activePartner)}
+                <div className="flex flex-1 items-center justify-center py-8 text-center">
+                  <div>
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-teal-700 shadow-sm">
+                      <Building2 className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <p className="mt-3 text-sm font-bold text-ink">A good conversation starts here</p>
+                    <p className="mt-1 text-xs text-muted">Say hello to {displayName(activePartner)} about a product, quote, or requirement.</p>
+                  </div>
                 </div>
               )}
 
@@ -470,7 +595,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 const body = decrypted[m.id];
                 const listing = m.listingId ? listings[m.listingId] : undefined;
                 return (
-                  <div key={m.id} className={`flex flex-col max-w-[78%] gap-1 ${mine ? 'self-end items-end' : 'self-start items-start'}`}>
+                  <div key={m.id} className={`flex max-w-[88%] flex-col gap-1 sm:max-w-[75%] ${mine ? 'self-end items-end' : 'self-start items-start'}`}>
                     {listing && (
                       <div className="w-64 bg-card border border-teal-200 rounded-2xl p-3 shadow-sm">
                         <div className="text-[9.5px] font-bold text-teal-700 uppercase tracking-wide">{listing.category.replace('_', ' ')}</div>
@@ -480,8 +605,8 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                       </div>
                     )}
                     <div
-                      className={`px-4 py-2.5 rounded-2xl text-[13px] leading-relaxed shadow-sm break-words whitespace-pre-wrap ${
-                        mine ? 'bg-teal-700 text-white rounded-tr-sm' : 'bg-card text-ink border border-line rounded-tl-sm'
+                      className={`break-words whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed shadow-sm ${
+                        mine ? 'rounded-tr-sm bg-teal-700 text-white' : 'rounded-tl-sm border border-line bg-white text-ink'
                       }`}
                     >
                       {body === undefined ? (
@@ -513,7 +638,7 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               })}
             </div>
 
-            {sendError && <div className="mx-3 mb-1 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[11.5px]">{sendError}</div>}
+            {sendError && <div role="alert" className="mx-3 mb-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11.5px] text-red-700">{sendError}</div>}
             {(attachment || pendingListingId) && (
               <div className="mx-3 mb-1 flex flex-wrap gap-2 text-[11px]">
                 {attachment && (
@@ -533,16 +658,17 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
               </div>
             )}
 
-            <form onSubmit={sendMessage} className="p-3 bg-card border-t border-line flex items-center gap-2">
+            <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-line bg-white p-3 sm:px-4">
               <input
                 id="chat-message-input"
                 type="text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={activePartner && !activePartner.chatPublicKey ? 'Waiting for contact to enable secure chat…' : 'Type an encrypted message'}
+                aria-label="Message"
+                placeholder={activePartner && !activePartner.chatPublicKey ? 'Waiting for contact to enable secure chat…' : 'Write a message…'}
                 disabled={!activePartner?.chatPublicKey}
                 maxLength={4000}
-                className="flex-1 px-4 py-3 rounded-full border border-gray-300 text-xs focus:outline-none focus:border-teal-600 disabled:bg-card"
+                className="min-h-11 min-w-0 flex-1 rounded-xl border border-line bg-bg px-4 py-3 text-xs text-ink outline-none transition-colors placeholder:text-muted focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:opacity-70"
               />
               <button
                 id="chat-attach"
@@ -551,8 +677,9 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                   const url = prompt('Paste a document / spec sheet URL (it will be encrypted):');
                   if (url && /^https?:\/\//i.test(url.trim())) setAttachment(url.trim());
                 }}
-                className="w-10 h-10 rounded-full border border-gray-300 hover:bg-line/30 flex items-center justify-center text-muted transition-colors"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-muted transition-colors hover:bg-bg hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
                 title="Attach document link"
+                aria-label="Attach document link"
               >
                 <Paperclip className="w-4 h-4" />
               </button>
@@ -560,8 +687,9 @@ export default function ChatSuite({ currentUser, initialPartnerId, listingId, rf
                 id="chat-send"
                 type="submit"
                 disabled={sending || !activePartner?.chatPublicKey || (!text.trim() && !attachment)}
-                className="w-10 h-10 rounded-full bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold flex items-center justify-center shadow transition-all hover:scale-105"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-700 font-bold text-white shadow-sm transition-colors hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
                 title="Send"
+                aria-label="Send message"
               >
                 {sending ? '…' : <Send className="w-4 h-4" />}
               </button>

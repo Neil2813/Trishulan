@@ -401,13 +401,13 @@ export default function Header() {
                   suppressHydrationWarning
                   type="button"
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-line bg-card hover:border-ink/40 transition-all text-ink font-bold text-[13px] shadow-2xs cursor-pointer"
+                  className="flex items-center gap-1 sm:gap-2 pl-1.5 sm:pl-2 pr-2 sm:pr-3 py-1.5 rounded-full border border-line bg-card hover:border-ink/40 transition-all text-ink font-bold text-[13px] shadow-2xs cursor-pointer"
                   title="View Profile & Account"
                 >
                   <div className="w-7 h-7 rounded-full bg-accent/15 text-accent font-black text-[12px] flex items-center justify-center border border-accent/20">
                     {accountName ? accountName[0].toUpperCase() : <UserIcon className="w-3.5 h-3.5" />}
                   </div>
-                  <span className="max-w-[120px] truncate text-[13px] font-bold">
+                  <span className="hidden max-w-[120px] truncate text-[13px] font-bold sm:inline">
                     {user.companyName || accountName || 'Profile'}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-muted transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />

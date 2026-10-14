@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [rfqLoadError, setRfqLoadError] = useState(false);
   const [listingsLoadError, setListingsLoadError] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
+  const [chatSessionVersion, setChatSessionVersion] = useState(0);
 
   useEffect(() => {
     setShowWelcome(new URLSearchParams(window.location.search).get('welcome') === '1');
@@ -466,8 +467,8 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'CHAT' && (
-          <div className="max-w-4xl mx-auto">
-            <ChatSuite currentUser={user} />
+          <div className="min-w-0">
+            <ChatSuite key={chatSessionVersion} currentUser={user} onAuthenticationRequired={() => setShowAuth(true)} />
           </div>
         )}
 
@@ -559,6 +560,15 @@ export default function DashboardPage() {
         </div>
       )}
 
+      <AuthModal
+        isOpen={showAuth}
+        onClose={() => setShowAuth(false)}
+        onSuccess={(authenticatedUser) => {
+          setUser(authenticatedUser);
+          setShowAuth(false);
+          setChatSessionVersion((version) => version + 1);
+        }}
+      />
     </div>
   );
 }
