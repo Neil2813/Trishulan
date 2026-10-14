@@ -1,4 +1,4 @@
-﻿# TRISHULAN INDUSTRIAL CONNECT — EXHAUSTIVE PLATFORM AUDIT & ARCHITECTURAL REVIEW
+# TRISHULAN INDUSTRIAL CONNECT — EXHAUSTIVE PLATFORM AUDIT & ARCHITECTURAL REVIEW
 
 **Reference Blueprint**: `trishulan_industrial_connect_platform_guide (2).pdf` (36 Pages)
 **Document Release Date**: 30 September 2026
@@ -133,12 +133,13 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - ✅ `POST /api/quotes` requires auth; all fields (currency, incoterm, paymentTerms, taxRatePercent) are now required.
   - ✅ `GET /api/quotes/rfq/:rfqId` requires auth; removed `getDemoQuotes()` with 3 fake Pune/Ahmedabad/Chennai sellers.
   - ✅ `PATCH /api/quotes/:id/status` enforces auth guard.
+  - ✅ **Incoterm Landed Cost Calculator**: Built `IncotermLandedCostCalculator.tsx` supporting EXW, FOB, CIF, and DDP with live calculation of customs duty (BCD + SWS), IGST, marine transit insurance, and destination transport.
+  - ✅ **Transaction Rating & Reviews**: Added `TransactionRating` model to Prisma with relations on `User`, `Quote`, and `RFQ`; created `/api/reviews` endpoints (`POST /api/reviews`, `GET /api/reviews/user/:userId`, `GET /api/reviews/rfq/:rfqId`).
+  - ✅ **5-Stage RFQ Progress Ribbon**: Created `RFQStageProgressRibbon.tsx` and mounted on active RFQ threads in `ChatSuite.tsx` and `BuyerRFQMatchingCompareView.tsx`.
+  - ✅ **Compare View Wiring & Real Actions**: Mounted `BuyerRFQMatchingCompareView` on `/rfq` with tab switching (`Post Requirement` / `Compare Quotes & Landed Cost`). "Send Clarification" opens real chat thread with seller; "Request Transport Quote" links to `/logistics`; "Accept Quote" updates quote status; zero hardcoded/fake data used.
 
 * **Remaining Gaps**:
-  - No Incoterm landed cost calculator.
-  - No `Review` / `TransactionRating` model for post-transaction feedback.
-  - 5-stage progress ribbon not displayed on active RFQ threads.
-  - The compare-view component is not wired to a page; its compare action and “Send Clarification” / “Request Transport Quote” buttons only update local UI state and do not send a message or request.
+  - None for Section 3.2.
 
 ---
 
