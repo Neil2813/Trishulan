@@ -24,6 +24,7 @@ import featureExpansionRouter from "./routes/featureExpansion";
 import insuranceRouter        from "./routes/insurance";
 import operationsRouter       from "./routes/operations";
 import quotesRouter           from "./routes/quotes";
+import digitalIdRouter        from "./routes/digitalId";
 
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -99,6 +100,7 @@ app.use("/api/customer",         buyerPreferencesRouter);
 app.use("/api/insurance",        insuranceRouter);
 app.use("/api/operations",       operationsRouter);
 app.use("/api/quotes",           quotesRouter);
+app.use("/api/digital-id",       digitalIdRouter);
 
 // ── Health checks ────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => {
