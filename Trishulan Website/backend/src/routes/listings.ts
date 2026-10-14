@@ -26,6 +26,7 @@ router.get("/", async (req, res) => {
 
     const listings = await prisma.listing.findMany({
       where: {
+        isPublished: true,
         ...(parsedCategory?.success ? { category: parsedCategory.data } : {}),
         ...(query
           ? {

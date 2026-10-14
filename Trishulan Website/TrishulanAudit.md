@@ -2,14 +2,14 @@
 
 **Reference Blueprint**: `trishulan_industrial_connect_platform_guide (2).pdf` (36 Pages)
 **Document Release Date**: 30 September 2026
-**Last Audit Update**: 11 October 2026
+**Last Audit Update**: 14 October 2026
 **Audited Codebase**: Next.js 16 (App Router + React 19) Frontend | Express.js + Socket.IO Backend | Prisma ORM + PostgreSQL
-**Audit Scope**: Every page (pp. 1–36), all UI components, all backend routes, all database models, and external API integrations.
+**Audit Scope (14 October 2026)**: Source-level comparison of app routes, relevant frontend components, Express routes/services, Prisma schema, and the supplied guide. This is not a runtime, deployed-database, external-provider, or production-readiness certification.
 
 ---
 
 ## TABLE OF CONTENTS
-1. [Executive Summary & Global Readiness Index](#1-executive-summary--global-readiness-index)
+1. [Executive Summary & Source-Level Metrics](#1-executive-summary--source-level-metrics)
 2. [Comparative Archetypes & Benchmark Matrix (pp. 1–12, 36)](#2-comparative-archetypes--benchmark-matrix-pp-112-36)
 3. [Proposed Feature Expansions (pp. 13–16)](#3-proposed-feature-expansions-pp-1316)
    - 3.1 [Unified Search Bar & AI Discovery (p. 13)](#31-unified-search-bar--ai-discovery-p-13)
@@ -30,33 +30,39 @@
 8. [Help Desk, Dispute Resolution, Platform Safety & 30-Day Rollout (pp. 34–35)](#8-help-desk-dispute-resolution-platform-safety--30-day-rollout-pp-3435)
 9. [Prisma Database Schema Audit & Blueprint Diff](#9-prisma-database-schema-audit--blueprint-diff)
 10. [Frontend Routing & Dead-Link Audit](#10-frontend-routing--dead-link-audit)
-11. [Hardcode & Dummy Data Removal Log](#11-hardcode--dummy-data-removal-log)
-12. [Master Implementation Roadmap](#12-master-implementation-roadmap)
+11. [Previously Reported Data Cleanup — Current Source Check](#11-previously-reported-data-cleanup--current-source-check)
+12. [Current Implementation Roadmap](#12-current-implementation-roadmap)
 
 ---
 
-## 1. Executive Summary & Global Readiness Index
+## 1. Executive Summary & Source-Level Metrics
 
-The codebase was audited line-by-line against each requirement of the 36-page guide.
-**October 2026 update**: All hardcoded/dummy variables and unauthenticated demo fallbacks have been removed from backend routes and frontend components. Database persistence is now fully enforced.
+This document compares source code with the 36-page guide. The guide describes proposed and illustrative product capabilities; it is not evidence that a feature is live. The checks below establish source presence and wiring only unless explicitly stated otherwise.
 
-```mermaid
-pie title Trishulan Platform Guide Implementation Breakdown (36 Pages) — Oct 2026
-    "Implemented & Working (UI + Backend + DB)" : 76
-    "Missing or Incomplete Features" : 14
-    "Navigation & Routing 404s" : 5
-    "Schema Fields Missing" : 5
-```
+**14 October 2026 update**: The earlier readiness percentages had no documented weighting or repeatable denominator. They are retired rather than presented as current product readiness. The following counts are directly verifiable in the checked-in source:
 
-### Global Scorecard
-
-| Dimension | Score | Status Summary |
+| Source-level metric | Current result | Measurement boundary |
 | :--- | :---: | :--- |
-| **Frontend UI/UX Fidelity** | **82%** | High visual polish; comprehensive mockups for discovery and analytics. |
-| **Backend API Endpoints** | **88%** | All platform A-E, discovery, market, KYC, chat, operations, insurance, and buyer-preferences routes implemented. Dummy/demo fallbacks fully removed. |
-| **Database Persistence (Prisma)** | **72%** | Quote, BuyerConsentLog, SupportTicket, BusinessDocument, InventoryItem, HealthInsuranceLead models added. All endpoints now require auth and read/write to DB. Remaining gaps: TransportQuote, Shipment, PackagingOption schema fields; `fetchTradeIntelligence` service stub. |
-| **Operational & Transaction Depth** | **55%** | Billing, inventory, and insurance are now DB-backed. Post-match transaction tools (e-way bill, PDF invoices, freight reconciliation) remain incomplete. |
-| **Total Guide Compliance** | **76%** | **Substantially improved — operational modules active, hardcodes eliminated.** |
+| App Router page files | 23 | `frontend/src/app/**/page.tsx`; presence does not prove each page workflow works. |
+| Platform A–E page routes present | 5 / 5 (100%) | All five `platform-*/page.tsx` files exist. |
+| Admin API handlers protected by router-level `requireAdmin` | 9 / 9 (100%) | One overview GET and eight PATCH handlers in `backend/src/routes/admin.ts`. |
+| Admin PATCH handlers writing an audit log | 8 / 8 (100%) | Source contains an `AdminAuditLog` write in each PATCH handler. |
+| Previously flagged Footer destinations mapped to existing page routes | 8 / 8 (100%) | Original destinations were replaced; some labels now point to broader pages, not dedicated features. |
+| Backend handlers present for barcode/image endpoints called by the UI | 0 / 2 (0%) | The frontend calls `/api/search/barcode` and `/api/search/visual`; neither handler is registered in the backend source. |
+| Operations daybook API handler present | 0 / 1 (0%) | The UI tab is a placeholder and no `/api/operations/daybook` handler exists. |
+
+No aggregate readiness percentage is reported: source presence alone cannot establish end-to-end operation, deployment state, provider availability, or feature quality.
+
+### Cross-verified project progress
+
+| Area | Current progress evidenced in source |
+| :--- | :--- |
+| Core platform | Authenticated listing, RFQ, quote, chat, support-ticket, operations-document, inventory, KYC-status, and admin workflows have persistence-backed routes. The shipment tower reads persisted bookings and admin can update limited status/exception fields, but no user-facing booking-creation route was found. Direct chat enforces encrypted payloads; the separate Platform A inquiry route does not. |
+| Buyer consent and lead sharing | Consent records exist, but the page's modal has no RFQ/seller context and its field names do not match the API. Lead-sharing UI is unmounted and its request contract also differs from the endpoint. These features are not end-to-end despite persistence code. |
+| Market intelligence | FX/finance-provider calls exist, but product prices and extended histories are calculated/synthesized, and the “AI” findings are template text. Platform D is a wrapper around this analyzer, not trade-manifest intelligence. |
+| Logistics, packaging, and insurance | Shipment bookings are user-scoped; transport and packaging screens show constants. Insurance leads persist with consent, but plan records are static and provider handoff/callback completion is not implemented. |
+| Operations, notifications, and exports | Document/inventory/summary routes are present. Day Book and PDF export are placeholders; header notifications and Digital ID email reporting are local UI state rather than delivery workflows. |
+| Runtime/deployment | Frontend production build and backend TypeScript check passed. Frontend lint could not complete because the checked-in ESLint config cannot resolve its `eslint-config-next/core-web-vitals` import. Database migration state, configured provider credentials, production storage, live delivery, and end-to-end behavior remain unverified. |
 
 ---
 
@@ -71,24 +77,24 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 
 ### Detailed Audit of Pages 1–12:
 
-| Guide Pages | Module | Files | Status |
-| :--- | :--- | :--- | :---: |
-| pp. 1-2 | Capability Comparison Matrix | `platform-intelligence-report.tsx` | **95%** |
-| pp. 3-4 | Platform A (Supplier Search) | `platform-a/page.tsx` + `platformA.ts` | **95%** |
-| pp. 5-6 | Platform B (Wholesale RFQ) | `platform-b/page.tsx` + `platformB.ts` | **95%** |
-| pp. 7-8 | Platform C (Trade Leads) | `platform-c/page.tsx` + `platformC.ts` | **95%** |
-| pp. 9-10 | Platform D (Trade Intelligence) | `platform-d/page.tsx` + `platformD.ts` | **85%** |
-| pp. 11-12 | Platform E (SME Shopfront) | `platform-e/page.tsx` + `platformE.ts` | **95%** |
+| Guide Pages | Module | Current source status |
+| :--- | :--- | :--- |
+| pp. 1-2 | Capability Comparison Matrix | Comparison UI exists; platform capability claims are not independently verified here. |
+| pp. 3-4 | Platform A (Supplier Search) | Page and DB-backed listing endpoint exist; search integrations and runtime behavior are not fully verified. |
+| pp. 5-6 | Platform B (Wholesale RFQ) | Page and RFQ endpoints exist; every illustrated workflow is not confirmed. |
+| pp. 7-8 | Platform C (Trade Leads) | Page and DB-backed lead/RFQ routes exist; available records depend on database contents. |
+| pp. 9-10 | Platform D (Trade Intelligence) | Page and endpoint exist; service uses market analyzer data and database counts, not an evidenced shipment-manifest provider. |
+| pp. 11-12 | Platform E (SME Shopfront) | Page and DB-backed seller/listing route exist; this does not establish a configurable standalone seller website. |
 
 #### What is working (Oct 2026):
 1. All 5 archetype pages are built and routed in the Next.js app.
-2. Real-time weekly activity metrics dashboard now driven by **live PostgreSQL window queries** (7-day `EXTRACT(DOW)` group-by) — no more `sampleCounts[]` arrays.
+2. Weekly activity routes query message timestamps from the database for the last seven days and group them in application code by UTC weekday. This is not a PostgreSQL window query or a real-time event stream.
 3. Supplier badges (VERIFIED / DOCS_LISTED / MANUFACTURER) derive from real `seller.verifiedSeller` and `seller.hasCertificates` DB fields — not `index % 2` logic.
 4. POST inquiries (Platform A), POST RFQs (Platforms B/C/E) now persist to DB and require authentication.
 
 #### Remaining Gaps:
-- **Platform D** `GET /api/platform-d/intelligence` delegates to `fetchTradeIntelligence()` in `marketDataService.ts` — this stub **must be implemented** with a real trade data API or Gemini-powered synthesis.
-- `ChatMessage.timestamp` column should be indexed for the 7-day window queries.
+- Platform D's `fetchTradeIntelligence()` delegates to the industrial market analyzer and adds database counts. No source evidence was found for a trade-manifest provider, competitor shipment history, or Gemini synthesis.
+- `ChatMessage` has a composite index including timestamp; query plans and performance have not been tested.
 
 ---
 
@@ -97,21 +103,19 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 ### 3.1 Unified Search Bar & AI Discovery (p. 13)
 
 * **Codebase Implementation Audit**:
-  - Component: `UnifiedSearchAIDiscovery.tsx` on `/feature-expansion`.
-  - Header Search Tools Modal: `SearchToolsModal.tsx`.
-  - Backend API: `POST /api/discovery/search` in `featureExpansion.ts`.
+  - The standalone `UnifiedSearchAIDiscovery.tsx` component exists but is not imported by an app page.
+  - The Header mounts `SearchToolsModal.tsx`; typed search routes to supplier search and the backend exposes text search at `/api/discovery/search`.
+  - The modal posts barcode and image uploads to `/api/search/barcode` and `/api/search/visual`, but no matching backend handlers are registered.
 
 * **October 2026 Changes**:
-  - ✅ Barcode scan now POSTs the actual file to `POST /api/search/barcode` — removed hardcoded `'Hydraulic Bearing 6205'` result.
-  - ✅ Image search POSTs the actual uploaded `File` to `POST /api/search/visual` — removed hardcoded `'Steel TMT Rebar 12mm Fe550D'`.
-  - ✅ Voice search uses the browser **Web Speech API** (`SpeechRecognition`, `lang: 'en-IN'`) — removed `setTimeout` transcript simulation.
-  - ✅ Fabricated `matchScore` (`90 + idx*2 % 10`) removed; field comes from DB or is `null`.
+  - Voice input uses the browser Web Speech API where supported; it is browser-side speech recognition, not a backend voice service.
+  - Product matching scores are sourced from listing data where present, otherwise null.
 
 * **Remaining Gaps**:
-  - `Header.tsx` hides the search bar on the landing page; the guide requires it always visible.
-  - HSN lookup contains only 2 quick-access codes — needs a full GST HSN API.
-  - AI NLP parser uses basic keyword matching; no Gemini 2.5 Flash integration yet.
-  - `POST /api/search/barcode` and `POST /api/search/visual` backend routes **not yet implemented**.
+  - HSN quick-select UI contains two example codes; no HSN lookup provider/API is wired.
+  - Text discovery uses basic keyword matching; no Gemini 2.5 Flash integration was found.
+  - Barcode/image lookup buttons currently fail against this backend because their requested server routes do not exist.
+  - The multi-modal modal describes image recognition and HSN lookup, but only typed keyword search and browser-side speech recognition have implemented paths.
 
 ---
 
@@ -122,6 +126,7 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - Page: `/rfq` with 2-step wizard (`RFQPage.tsx`).
   - Backend API: `GET /api/discovery/match` and `POST /api/quotes` in `quotes.ts`.
   - Chat Suite: `ChatSuite.tsx` with Web Crypto ECDH E2EE messaging.
+  - The compare-view component is not imported by an app page; source existence alone does not establish a reachable comparison UI.
 
 * **October 2026 Changes**:
   - ✅ `GET /api/discovery/match` returns real RFQ→Quote DB joins for the authenticated user; removed JSW Steel / Tata Steel hardcoded rows.
@@ -133,25 +138,22 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - No Incoterm landed cost calculator.
   - No `Review` / `TransactionRating` model for post-transaction feedback.
   - 5-stage progress ribbon not displayed on active RFQ threads.
+  - The compare-view component is not wired to a page; its compare action and “Send Clarification” / “Request Transport Quote” buttons only update local UI state and do not send a message or request.
 
 ---
 
 ### 3.3 Buyer Lead Sharing, WhatsApp & Granular Consent (pp. 14–15)
 
-* **Codebase Implementation Audit**:
-  - Modal Component: `BuyerContactPreferencesModal.tsx`.
-  - WhatsApp Dispatcher: `BuyerLeadSharingWhatsapp.tsx`.
-  - Backend API: `POST /api/customer/consent` in `buyerPreferences.ts`.
-
-* **October 2026 Changes**:
-  - ✅ **Previously**: consent stored in a JS module variable, lost on server restart. **Now**: persists to `BuyerConsentLog` in PostgreSQL.
-  - ✅ `GET /api/customer/consent` removed demo defaults (`allowEmailNotifs: true`, `allowDirectCalls: true`); returns 401 for unauthenticated.
-  - ✅ `POST /api/customer/consent` removed echo-without-persistence demo mode; requires auth.
-  - ✅ `POST /api/discovery/lead-share` requires auth and non-null `leadTitle`.
+* **Current source behavior (cross-checked 14 October 2026)**:
+  - `BuyerConsentLog` persists consent records. The backend expects `targetSellerId`, `allowPhoneSharing`, `allowWhatsappAlerts`, and `allowMarketing`.
+  - `/customer-workspace` mounts `BuyerContactPreferencesModal` without `rfqId` or `suppliers`; its submit actions remain disabled in that page. Even when given props, the modal sends `sellerIds`, `sharePhone`, `allowWhatsApp`, and `futureOffers`, which do not match the backend field names. The API therefore records default-false consent against `GENERAL`, not the selected sellers and choices.
+  - `GET /api/customer/consent` returns the buyer's latest record without filtering by seller or RFQ, so it cannot currently retrieve context-specific consent.
+  - `BuyerLeadSharingWhatsapp.tsx` is not imported by an app page. Its payload (`buyerPhone`, `message`, `selectedSellerIds`) does not match `/api/discovery/lead-share` (`recipientPhone`, `leadTitle`, `recipientName`). The endpoint returns a `wa.me` URL only; it neither persists a routed lead nor dispatches a message, and it does not validate the recorded consent for the selected seller.
+  - The consent API can append a false-valued consent record, but no working user-facing revocation flow was confirmed given the current modal wiring and payload mismatch.
 
 * **Remaining Gaps**:
-  - No consent withdrawal mechanism (DELETE/PATCH on `BuyerConsentLog`).
-  - No `LeadRouting` model to log per-seller / per-channel lead routing.
+  - Wire the consent form to an RFQ and named sellers, align the request/response contracts, load existing preferences, and verify the consent record before any contact-sharing action.
+  - No `LeadRouting` model or per-seller/per-channel delivery audit exists. No WhatsApp Business provider integration was found.
 
 ---
 
@@ -163,14 +165,15 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - Backend API: `GET /api/customer/workspace`, `POST /api/customer/ticket`.
 
 * **October 2026 Changes**:
-  - ✅ **Previously**: tickets held in `let tickets = [...]` in-memory. **Now**: persisted to `SupportTicket` in PostgreSQL.
+  - ⚠️ Ticket rows are persisted to `SupportTicket`, but the mounted form sends `description` while the API reads `details`; the submitted issue description is therefore stored as an empty string. The form's `attachment` value is also ignored by the API.
   - ✅ `GET /api/customer/workspace` removed hardcoded `{4, 12, 28, 1}`; queries live DB. `verifiedSuppliersCount` is now `prisma.user.count({ where: { role: 'SELLER', verifiedSeller: true } })`.
-  - ✅ `POST /api/customer/ticket` removed random `tck-XXX` demo ticket; requires auth; removed hardcoded `assignedAgent` / `nextUpdateSla`.
+  - ✅ `POST /api/customer/ticket` removed random `tck-XXX` demo ticket and requires auth. The route omits assignee/SLA values, but Prisma schema defaults still assign the default support desk and “Within 24 hours” SLA.
   - ✅ `GET /api/customer/tickets` removed hardcoded `CS-1042` ticket; requires auth.
 
 * **Remaining Gaps**:
   - Seller workspace lacks controls to toggle factory capacity, lead time, or out-of-stock status.
-  - Ticket assignment workflow (`assignedAgent`, `nextUpdateSla`) requires an admin UI — not yet built.
+  - The admin workspace now supports ticket agent assignment, priority, and status. `nextUpdateSla` remains non-editable.
+  - Workspace quick actions other than “Get help” show a browser alert; the requirements panels are static documentation, not task controls. Ticket attachment upload and customer email/SMS notifications were not found.
 
 ---
 
@@ -185,6 +188,7 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 
 * **Remaining Gaps**:
   - Saved searches and price movement alerts cannot be saved to the database.
+  - The “save search alert” language is returned as a static recommendation; no alert subscription or delivery workflow exists.
 
 ---
 
@@ -196,7 +200,9 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 
 * **Remaining Gaps**:
   - EXW vs FOB vs CIF toggle does not calculate freight/port handling adjustments.
-  - No modal for reporting an incorrect market price.
+  - No incorrect-price reporting UI was found. `POST /api/market/report-listing` is unauthenticated, does not validate or persist the submitted fields, and returns a generated report ID; it is not a durable reporting workflow.
+  - The analyzer output is not a verified product-specific market feed: INR ranges are formula-derived from one Yahoo Finance ticker's daily percentage change, while source labels and “Today” timestamps are fixed strings. The AI summary/findings are templates; no generative AI call was found.
+  - The market-price endpoint converts live Yahoo Finance values and FX into product prices using configured multipliers. Its 30-day and yearly histories are synthesized from the current value, not fetched historical series. Treat these values as illustrative estimates, not verified commodity quotations.
 
 ---
 
@@ -208,15 +214,16 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 
 * **October 2026 Changes**:
   - ✅ `GET /api/business-services/kyc-status` removed `defaultKycDocuments[]` (mock `/uploads/gstin_certificate.pdf`); reads from `user.kycDocuments` in DB; requires auth.
-  - ✅ `GET /api/business-services/checklist` removed hardcoded `completed: true/false`; derives from real user DB fields (`gstNumber`, `panNumber`, `bankVerified`, `listingsCount`, `kycStatus`); requires auth.
+  - ✅ `GET /api/business-services/checklist` derives completion from persisted account/KYC/listing data and requires auth.
   - ✅ `POST /api/business-services/adviser-appointment` removed `'Tomorrow'`/`'10:00 AM'` defaults; `preferredDate` and `preferredTime` now required; requires auth.
   - ✅ `POST /api/business-services/reupload` requires auth.
   - ✅ `register/page.tsx` removed hardcoded GSTIN fallback `'27AAAAA0000A1Z5'` from Digital ID Card.
 
 * **Remaining Gaps**:
-  - Uploaded files not written to cloud object storage (S3/GCS).
+  - Registration's KYC file controls only set local “uploaded” booleans; they do not submit file bytes. `POST /api/business-services/reupload` records a filename/status but does not receive or store file bytes. No KYC document object-storage integration was found.
   - No document expiry date tracking or alert background jobs.
-  - `user.kycDocuments`, `user.bankVerified`, `user.listingsCount` must be confirmed in Prisma schema.
+  - `kycDocuments` and `bankVerified` are present on `User`; the old `listingsCount` reference is not a `User` column and should not be treated as a required schema field.
+  - The Help FAQ claims KYC documents are AES-256 encrypted and accessible to the user and verification team; the current source does not upload/store those file bytes, so this claim is not supported by the implementation.
 
 ---
 
@@ -227,15 +234,17 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - Page: `/logistics`.
   - Backend Route: `businessServices.ts`.
 
-* **October 2026 Changes**:
-  - ✅ `GET /api/business-services/transport-quotes` removed hardcoded VRL/TCI/Safexpress array; queries `TransportQuote` model; requires auth.
-  - ✅ `GET /api/business-services/shipment-tower` removed fake Mumbai→Pune / Ahmedabad→Surat shipments; queries `Shipment` model; requires auth.
-  - ✅ `GET /api/business-services/packaging-requirements` removed hardcoded crate/box array; queries `PackagingOption` model.
+* **Current source behavior (14 October 2026)**:
+  - `GET /api/business-services/transport-quotes` returns a hard-coded VRL/TCI/Safexpress sample array; it does not query `TransportQuote`. The route has no handler-level authentication check; global middleware only extracts an optional session.
+  - `GET /api/business-services/shipment-tower` requires authentication and reads `LogisticsBooking` rows for the current user. It derives milestone steps from limited status/timestamp data; it does not connect to carrier telemetry.
+  - `GET /api/business-services/packaging-requirements` returns a hard-coded two-item sample array; it does not query `PackagingOption` or require a signed-in user.
+  - `defaultKycDocuments` and `defaultShipmentControlTower` are also present as unused sample constants; KYC status and shipment-tower handlers use persisted user/booking data instead.
 
 * **Remaining Gaps**:
-  - `TransportQuote`, `Shipment`, `PackagingOption` Prisma models must be added to `schema.prisma`.
-  - Interactive Freight Reconciliation not implemented.
-  - Milestone tracking fields (GPS, statusStep, podStatus) not in schema.
+  - `TransportQuote` and `PackagingOption` models exist, but the corresponding read endpoints currently return constants rather than querying them. Shipment lifecycle fields are part of `LogisticsBooking`.
+  - No user-facing route to create a `LogisticsBooking` was found; the visible tower reads existing records and the admin can update limited status/exception fields. Interactive Freight Reconciliation and carrier quote integration are not implemented.
+  - The schema has timestamp milestones, exception notes, freight amounts, and document URLs, but no GPS/status-step/POD-status fields or full reconciliation workflow.
+  - The route comments claim the transport/packaging data are database-backed; those comments do not match the implementation.
 
 ---
 
@@ -248,6 +257,7 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 * **Remaining Gaps**:
   - Packaging inquiries cannot be submitted as distinct RFQs to packaging suppliers.
   - Pre-dispatch photo inspection uploads not connected to storage.
+  - “Request Quote” on each displayed packaging option only raises a browser alert; it creates no request.
 
 ---
 
@@ -257,13 +267,14 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - Backend Route: `insurance.ts` — `GET /plans`, `POST /lead`, `GET /leads`.
   - Frontend Page: `/insurance`.
 
-* **October 2026 Changes**:
-  - ✅ Previously **0% implemented** (Critical Gap). Backend routes now fully implemented.
-  - ✅ `POST /api/insurance/lead` removed demo response (`ins-XXXX` random ID); removed `coverageType || 'GROUP_EMPLOYEE'`, `employeeCount || 10`, `coverageSum || '₹5 Lakh'` silent defaults; all fields required; requires auth; persists to `HealthInsuranceLead`.
-  - ✅ `GET /api/insurance/leads` returns 401 for unauthenticated (previously returned silent `[]`).
+* **Current source behavior (14 October 2026)**:
+  - The `/insurance` page and authenticated referral workflow exist. `POST /api/insurance/lead` validates consent and required fields, then persists to `HealthInsuranceLead`; `GET /api/insurance/leads` is user-scoped.
+  - `GET /api/insurance/plans` returns a hard-coded illustrative plan comparison. No insurer/broker API, referral dispatch, or callback completion integration is evidenced in source.
+  - The API and page promise a callback within one business day, but the source shows only lead persistence and an admin status update; it does not establish a scheduled callback or provider handoff.
 
 * **Remaining Gaps**:
-  - Frontend `/insurance` page UI completeness should be verified — backend is ready.
+  - Verify legal/provider approval and the callback/referral workflow before representing sample plans or the stated callback SLA as a live insurance service.
+  - Plan data is illustrative, not a live quote or policy offer.
 
 ---
 
@@ -285,13 +296,14 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
   - Prisma User Model: `SubscriptionTier` enum (`BASIC`, `GROWTH`, `ENTERPRISE`).
 
 * **October 2026 Changes**:
-  - ✅ `PricingSection.tsx` removed hardcoded `demoUsage = { used: 8, limit: 10, tier: 'Starter' }`; replaced with `useEffect` → `fetch('/api/auth/me')` reading `aiLookupsUsed`, `aiLookupsLimit`, `tier`.
-  - ✅ AI Usage Meter hidden for unauthenticated users; shown only with a real user session.
+  - ✅ `PricingSection.tsx` loads session usage from `/api/auth/me` and hides the meter for unauthenticated users.
+  - ⚠️ The UI falls back to a limit of 10 and tier label `Starter`; current `User` schema/API has `aiLookupsUsed`, `aiLookupsResetAt`, and `subscriptionTier`, but no `aiLookupsLimit` or `tier` fields.
 
 * **Remaining Gaps**:
   - Tier names in Prisma are `BASIC`/`GROWTH`/`ENTERPRISE` — should align to guide's `Starter`/`Growth`/`Business`.
-  - No quota enforcement: monthly AI price search counts not counted or capped in PostgreSQL.
-  - `aiLookupsUsed`, `aiLookupsLimit` fields must be confirmed in Prisma `User` model.
+  - Server-side monthly quota enforcement/increment/reset was not found in the checked-in backend search; the UI's meter and fallback are not enforcement.
+  - `POST /api/subscription` changes the authenticated user's tier directly; no payment-provider or entitlement verification is present in that route.
+  - `GET /api/market` removes fields by the user's current tier but does not increment or check `aiLookupsUsed`. The UI's tier/limit fallback also reads `tier` and `aiLookupsLimit`, which are not the schema/API fields (`subscriptionTier`, no limit field).
 
 ---
 
@@ -310,32 +322,35 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 
 * **Remaining Gaps**:
   - e-Invoice and e-Way bill export formatting not implemented.
-  - No server-side PDF generation engine for Tax Invoices and Delivery Challans.
-  - No `GET /api/operations/daybook` endpoint for daily cash/bank entry summary.
+  - The document-row `PDF` button has no click handler; no functioning document PDF generation/export was found.
+  - No `GET /api/operations/daybook` endpoint exists. The Day Book tab displays a placeholder stating that connected entries are unavailable.
   - Stock valuation methods (FIFO / Weighted Average) not implemented.
+  - The route file header advertises a Day Book endpoint, but no handler is registered. The operations page also advertises e-Way bill formatting despite having no such export implementation.
 
 ---
 
 ## 7. Feature-by-Feature 16-Point Checklist Audit (pp. 30–33)
 
-| # | Checklist Feature | Code Implementation | Status |
-| :-: | :--- | :--- | :---: |
-| **1** | **Product and supplier search** | `Header.tsx` + `listings.ts` + `platformA.ts` (real DB join) | **92%** |
-| **2** | **Product listing / catalogue** | `/sell` page + `Listing` Prisma model | **80%** |
-| **3** | **Company profile & verification** | `/profile` + `/register` + `DigitalIDCard.tsx` (no dummy GSTIN) | **88%** |
-| **4** | **Inquiry / messaging** | `ChatSuite.tsx` + `chat.ts` (E2EE Web Crypto) | **95%** |
-| **5** | **Requirement post / RFQ** | `/rfq` 2-step form + `rFQ` Prisma model + real DB persist | **90%** |
-| **6** | **Quote comparison** | `BuyerRFQMatchingCompareView.tsx` + `quotes.ts` (auth, real DB) | **80%** |
-| **7** | **Lead inbox and seller CRM** | `CustomerTasksDashboardWorkspace.tsx` + real DB workspace counts | **78%** |
-| **8** | **Verification and trust signals** | Algorithmic GSTIN/PAN validator in `kycService.ts` + real KYC from DB | **87%** |
-| **9** | **Trade data and market charts** | `/platform-d` (needs `fetchTradeIntelligence` impl.) + `/market-analyzer` | **82%** |
-| **10** | **Alerts and saved searches** | Mock alert notification in `Header.tsx` | **50%** (Needs DB model) |
-| **11** | **Storefront / website** | `/platform-e` — real seller fields from DB join | **88%** |
-| **12** | **Reports and export** | CSV/PDF export buttons on mockups | **60%** (Needs server PDF engine) |
-| **13** | **Subscription and promotions** | `/pricing` + real AI usage meter from API | **75%** |
-| **14** | **Mobile / notifications** | Responsive Tailwind + notifications dropdown | **80%** |
-| **15** | **Logistics / transaction tools** | `/logistics` + `ShipmentControlTower.tsx` (real DB; needs schema) | **77%** |
-| **16** | **Unified search and AI discovery** | `UnifiedSearchAIDiscovery.tsx` + real barcode/image/voice APIs | **85%** |
+| # | Checklist Feature | Current source evidence | Status |
+| :-: | :--- | :--- | :--- |
+| **1** | **Product and supplier search** | Header text search and supplier/listing routes exist; image and barcode UI calls have no server handlers. | **Partial** |
+| **2** | **Product listing / catalogue** | `/sell`, `Listing` persistence, marketplace reads, and admin publication control exist. | **Partial** |
+| **3** | **Company profile & verification** | Profile/registration and digital ID UI exist; external verification depends on configured providers and has not been runtime-validated. | **Partial** |
+| **4** | **Inquiry / messaging** | `ChatSuite.tsx` direct-message API requires encrypted payloads; Platform A inquiry writes a separate plaintext `ChatMessage`. | **Partial / inquiry path is not E2EE** |
+| **5** | **Requirement post / RFQ** | Authenticated RFQ creation/listing persists through Prisma; this does not implement the complete post-order buyer journey. | **Partial** |
+| **6** | **Quote comparison** | Quote APIs and the compare-view component exist, but `BuyerRFQMatchingCompareView` is not imported by an app page. | **Partial / component not wired** |
+| **7** | **Lead inbox and seller CRM** | Customer workspace and ticket routes exist; the workspace aggregates selected counters and is not a full CRM. | **Partial** |
+| **8** | **Verification and trust signals** | Provider-backed GSTIN/PAN service code and KYC review flows exist; provider credentials/results and verification provenance are unverified. | **Partial / external provider unverified** |
+| **9** | **Trade data and market charts** | Market price service uses external market/FX data; platform-D intelligence is derived from the market analyzer and database counts, not trade-manifest data. | **Partial** |
+| **10** | **Alerts and saved searches** | No persisted alert/saved-search model or workflow was found; visible alert affordances are not a demonstrated notification service. | **Not implemented as a persisted workflow** |
+| **11** | **Storefront / website** | Platform-E network page reads seller/listing data; a configurable seller website builder was not found. | **Partial** |
+| **12** | **Reports and export** | The operations page exposes a PDF button without a handler; Digital ID downloads an image, while its “Send to Email” control only changes local UI state. | **Partial; no document PDF or email delivery** |
+| **13** | **Subscription and promotions** | Pricing UI and subscription-tier API/schema exist; payment integration and server-enforced AI quota were not found. | **Partial** |
+| **14** | **Mobile / notifications** | The Header notification drawer is local state with no data source; no email, SMS, WhatsApp Business, or device push delivery workflow was found. | **UI affordance only** |
+| **15** | **Logistics / transaction tools** | Booking/status and shipment display use `LogisticsBooking`; carrier quotes and packaging options are hard-coded samples, with no carrier integration or reconciliation flow. | **Partial** |
+| **16** | **Unified search and AI discovery** | Basic text discovery and browser speech input exist; AI discovery is not wired, and barcode/image server endpoints are absent. | **Partial** |
+
+These statuses describe repository evidence only; they are not weighted into a readiness percentage.
 
 ---
 
@@ -344,18 +359,32 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 ### 8.1 Help & Support Center (p. 34)
 
 * **October 2026 Changes**:
-  - ✅ `SupportDeskModal.tsx` tickets now persist to `SupportTicket` PostgreSQL model.
-  - ✅ Removed hardcoded `assignedAgent: 'Trishulan Support Desk'` and `nextUpdateSla: 'Within 24 hours'`.
+  - Ticket creation now writes a `SupportTicket` row, but the form/API payload mismatch means the issue description is stored empty and the attachment reference is ignored (see Section 3.4).
+  - The route omits explicit assignee/SLA values; the Prisma schema still supplies `Trishulan Support Desk` and `Within 24 hours` defaults.
 
 * **Remaining Gaps**:
-  - No standalone `/help` or `/support` page in header/footer.
-  - No dispute/grievance redressal portal (required for Indian B2B compliance).
-  - No ticket assignment workflow.
+  - `/help` exists; a dedicated `/support` page and end-to-end dispute/grievance workflow remain unverified.
+  - No dedicated in-app dispute/grievance portal was found. This source audit does not make a legal-compliance determination.
+  - The admin workspace can assign a support agent and update priority/status; `nextUpdateSla` is not editable through the admin API. Although the ticket-creation route omits these values, Prisma schema defaults still set `assignedAgent` to `Trishulan Support Desk` and `nextUpdateSla` to `Within 24 hours`.
+  - Help content advertises plan-specific response times, a 48-hour dispute mediation promise, email/SMS status notifications, and file encryption; those delivery/response workflows are not implemented or verified in the checked source. The support modal only accepts an attachment URL/reference, and the API ignores that field; there is no file-upload workflow.
+  - The Help FAQ says “all direct messages” are E2EE, but Platform A inquiry messages are stored as plaintext. The encrypted guarantee applies to the `ChatSuite` direct-message endpoint, not every message path.
 
-### 8.2 Safety, Evaluation & 30-Day Rollout Roadmap (p. 35)
+### 8.2 Administrator workspace and access control (guide pp. 15, 26)
+
+* **14 October 2026 implementation**:
+  - Admin access is separate from the buyer/seller business role. `ADMIN_EMAILS` is backend-only; public registration accepts only buyer/seller roles and cannot set `isAdmin`.
+  - Successful sign-in provisions `isAdmin` for an allowlisted existing account. Admin APIs require both the stored flag and current allowlist membership, so removing an email blocks subsequent admin requests.
+  - `/admin` navigation and page access are gated by `user.isAdmin`; server-side route authorization remains authoritative.
+  - The admin API exposes operational queues/actions for KYC, support, consent-led insurance referrals, shipments, corporate requests, adviser appointments, RFQs, and listing visibility, with mutations recorded in `AdminAuditLog`.
+  - KYC correction actions update individual document status and the seller-facing correction explanation. Insurance phone numbers are withheld without recorded consent, and handoff is rejected without consent.
+  - Admin controls and audit history partially implement the guide's role-based-access/admin-control direction. This does not establish full multi-user team permissions, audit retention/export controls, privacy/legal compliance, or the other workflow requirements in the guide.
+
+* **Deployment note**: The schema additions require Prisma Client generation and a database schema deployment before the admin API can run against an existing database. The database push is an operator action and is not performed by this audit.
+
+### 8.3 Safety, Evaluation & 30-Day Rollout Roadmap (p. 35)
 
 * **Codebase Implementation Audit**:
-  - Fraud alerts and risk indicators rendered in `MarketAnalyzerPage.tsx`.
+  - The `/market-analyzer` page has a fraud-alert section, but its copy states that risk-alert data is unavailable from a connected source; no risk-analysis implementation was found.
   - 30-Day Supplier Rollout Roadmap on `/sell` page.
 
 * **Remaining Gaps**:
@@ -375,86 +404,27 @@ The guide opens with a neutral comparative evaluation of 5 business platform arc
 | `Quote` | ✅ Active | `quotes.ts` |
 | `ChatMessage` | ✅ Active | `chat.ts` + platform activity |
 | `MarketPrice` | ✅ Active | `marketDataService.ts` |
-| `LogisticsBooking` | ✅ Active | Needs milestone fields |
+| `LogisticsBooking` | ✅ Active | Shipment timestamps, exception, freight and document fields |
 | `BuyerConsentLog` | ✅ Active | `buyerPreferences.ts` |
 | `SupportTicket` | ✅ Active | `buyerPreferences.ts` |
 | `BusinessDocument` | ✅ Active | `operations.ts` |
 | `InventoryItem` | ✅ Active | `operations.ts` |
 | `HealthInsuranceLead` | ✅ Active | `insurance.ts` |
 | `CorporateRequest` | ✅ Active | Corporate services |
+| `AdminAuditLog` | ✅ Active | Admin mutation audit history |
+| `TransportQuote` | Schema present; route not using it | Transport endpoint returns constants; no quote CRUD use was found |
+| `PackagingOption` | Schema present; route not using it | Packaging endpoint returns constants; no catalog query or administration flow was found |
 
-### Models Referenced in Routes — Must Be Added to schema.prisma
+### Logistics and operations schema status (checked 14 October 2026)
 
-```prisma
-// businessServices.ts GET /transport-quotes
-model TransportQuote {
-  id                   String   @id @default(cuid())
-  userId               String
-  carrierName          String
-  rating               Float?
-  mode                 String   // FTL, PTL, Express
-  vehicleType          String?
-  estimatedTransitDays Int
-  rateQuote            String
-  insuranceIncluded    Boolean  @default(false)
-  createdAt            DateTime @default(now())
-  user                 User     @relation(fields: [userId], references: [id])
-}
+| Capability/model | Current schema representation | Remaining note |
+| :--- | :--- | :--- |
+| Shipment control tower | `LogisticsBooking` includes lifecycle timestamps, exception note, freight fields, and document URLs. | No separate `Shipment` model is required by the current route implementation. |
+| Transport quotes | `TransportQuote` exists and is user-scoped. | No route reads or writes this model; `/transport-quotes` returns a hard-coded provider array. |
+| Packaging catalog | `PackagingOption` exists with active/name/category/description fields. | No route reads or writes this model; `/packaging-requirements` returns a hard-coded sample array. The schema also lacks supplier, MOQ, lead-time, and unit-price fields shown in the old proposed model. |
+| Admin authorization/history | `User.isAdmin`, `Listing.isPublished`, and `AdminAuditLog` exist in `schema.prisma`. | Existing deployments need the schema synchronized before using these fields/tables. |
 
-// businessServices.ts GET /shipment-tower
-model Shipment {
-  id              String   @id @default(cuid())
-  userId          String
-  trackingNo      String   @unique
-  origin          String
-  destination     String
-  carrier         String
-  status          String   @default("BOOKED")
-  statusStep      Int      @default(1)
-  totalSteps      Int      @default(5)
-  eta             String?
-  sharedFolderUrl String?
-  podStatus       String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id])
-}
-
-// businessServices.ts GET /packaging-requirements
-model PackagingOption {
-  id              String   @id @default(cuid())
-  packagingType   String
-  suitableFor     String
-  moq             String
-  leadTimeDays    Int
-  unitPrice       String
-  supplierName    String
-  createdAt       DateTime @default(now())
-}
-```
-
-### User Fields Referenced in Routes — Must Be Confirmed in Schema
-
-```prisma
-// Verify these exist on the User model:
-aiLookupsUsed         Int      @default(0)
-aiLookupsLimit        Int      @default(10)
-tier                  String   @default("Starter")
-kycDocuments          Json?
-bankVerified          Boolean  @default(false)
-listingsCount         Int      @default(0)
-responseTimeSla       String?
-moq                   String?
-hasCertificates       Boolean  @default(false)
-productGroupsCount    Int?
-exportReady           Boolean  @default(false)
-matchScore            Float?
-employeeCount         String?
-websiteUrl            String?
-averageRating         Float?
-reviewsCount          Int      @default(0)
-digitalCatalogEnabled Boolean  @default(false)
-```
+The former “User fields must be added” list mixed fields from different models and outdated names. In the current schema, `subscriptionTier` (not `tier`), `aiLookupsUsed` and `aiLookupsResetAt` are on `User`; `productGroupsCount` and `matchScore` are on `Listing`; `employeeCount` is an integer. There is no `aiLookupsLimit` or `listingsCount` column on `User`. The schema's presence does not prove the deployed database is synchronized.
 
 ---
 
@@ -462,82 +432,87 @@ digitalCatalogEnabled Boolean  @default(false)
 
 | Link in UI | Source Component | Target URL | Existing Page? | Required Resolution |
 | :--- | :---: | :---: | :---: | :--- |
-| **All categories** | `Footer.tsx` | `/categories` | ❌ 404 | Redirect to `/` categories anchor or build `/categories` |
-| **Verified sellers** | `Footer.tsx` | `/sellers` | ❌ 404 | Map to `/platform-a` or create `/sellers` directory |
-| **Track an order** | `Footer.tsx` | `/orders` | ❌ 404 | Redirect to `/logistics` |
-| **Market prices** | `Footer.tsx` | `/market` | ❌ 404 | Update link to `/market-prices` |
-| **Shipment records** | `Footer.tsx` | `/shipments` | ❌ 404 | Update link to `/logistics` |
-| **Price benchmark** | `Footer.tsx` | `/benchmark` | ❌ 404 | Update link to `/market-analyzer` |
-| **Landed cost** | `Footer.tsx` | `/landed` | ❌ 404 | Update link to `/feature-expansion` |
-| **Demand insights** | `Footer.tsx` | `/analyzer` | ❌ 404 | Update link to `/market-analyzer` |
-| **Customer Workspace** | `Header.tsx` | `/customer-workspace` | ✅ Live | Working |
-| **Service Points** | `Header.tsx` | Modal trigger | ✅ Live | Working |
+| Link label | Source | Current target | Route file exists? | Notes |
+| :--- | :--- | :--- | :---: | :--- |
+| All categories | `Footer.tsx` | `/` | Yes | Goes to landing page; no dedicated `/categories` page. |
+| Verified sellers | `Footer.tsx` | `/platform-a` | Yes | Supplier discovery; does not guarantee every seller is verified. |
+| Track an order | `Footer.tsx` | `/logistics` | Yes | Shipment data still depends on account records and integration gaps above. |
+| Market prices | `Footer.tsx` | `/market-prices` | Yes | Existing route. |
+| Shipment records | `Footer.tsx` | `/logistics` | Yes | Existing route. |
+| Price benchmark | `Footer.tsx` | `/market-analyzer` | Yes | Existing route. |
+| Landed cost | `Footer.tsx` | `/market-prices` | Yes | Route exists, but a dedicated landed-cost calculator was not found. |
+| Demand insights | `Footer.tsx` | `/market-analyzer` | Yes | Existing route. |
+| Customer Workspace | Header navigation | `/customer-workspace` | Yes | Existing route. |
+| Help & Support | `Footer.tsx` | `/help` | Yes | Help page exists; this does not establish a full grievance workflow. |
+| Service Points | Header modal | Modal trigger | N/A | Client-side modal. |
+
+The eight destinations previously recorded as broken no longer target missing route paths (8/8 mapped to existing routes). This is a source-path check, not an interactive browser test; several links are broad substitutes rather than dedicated features.
 
 ---
 
-## 11. Hardcode & Dummy Data Removal Log
+## 11. Previously Reported Data Cleanup — Current Source Check
 
-> **Session: 11 October 2026** — All hardcoded/dummy variables removed across the entire codebase. Every protected endpoint now requires authentication (401 for unauthenticated).
+> This section replaces the earlier removal log, whose “fix applied” column overstated what the current source establishes. The findings below describe checked-in implementation, not production data quality or deployed behavior.
 
-### Backend (`backend/src/routes/`)
-
-| File | Items Removed | Fix Applied |
-| :--- | :--- | :--- |
-| `quotes.ts` | Demo response (`id: 'q-demo'`, `'Demo Seller'`), `getDemoQuotes()` with 3 fake sellers (Pune/Ahmedabad/Chennai), `currency||'INR'`, `incoterm||'EXW'`, `paymentTerms||'30% Advance'`, `taxRatePercent||18` | All require auth (401); all fields required and validated |
-| `insurance.ts` | Demo lead (`ins-XXXX`), `coverageType||'GROUP_EMPLOYEE'`, `employeeCount||10`, `coverageSum||'₹5 Lakh'`, silent `[]` for GET /leads | All fields required; auth enforced; persists to DB |
-| `businessServices.ts` | `defaultKycDocuments[]` (fake `/uploads/` file URLs), `transportQuotes[]` (VRL/TCI/Safexpress), `shipmentControlTower` (Mumbai-Pune/Ahmedabad-Surat), `packagingRequirements[]`, `checklist[]` hardcoded booleans, `adviser-appointment` `'Tomorrow'`/`'10:00 AM'` | All read from DB; required fields validated; auth enforced |
-| `operations.ts` | `getDemoDocuments()` (Bharat Steel/Chennai Machinery/Rajasthan Minerals), `getDemoInventory()` (MS Coil/SS304/Hex Bolt), `totalRevenue: 485000`, `totalPaid: 320000` etc., `taxRatePercent||18`, `docType||'TAX_INVOICE'`, `inv-demo`, `doc-demo` | All require auth; real DB only; fields required |
-| `platformA.ts` | Index-based MOQ (`'50 pcs'`/`'100 pcs'`/`'25 pcs'`), responseTime by index, `Math.floor(Math.random()*15)+5`, `sampleCounts=[5,9,7,12,14,10,18]`, `Math.max(chatCount+15,24)`, `'usr_buyer1'`, inquiry not persisted | Real seller DB join; 7-day SQL window query; inquiry persists to DB |
-| `platformB.ts` | Random RFQ ID, `'usr_buyer1'`, `'Global Distributor'`, `sampleCounts`, `Math.max` padding, `specification||'Standard ISO grade'`, `delivery||'Immediate'` | RFQ persists to DB; auth required; category validated |
-| `platformC.ts` | `quantity` by index (`'50,000 Units'`/`'10,000 Kgs'`), `matchScore: 85+(index*3)%15`, `postedDate: Date.now()-index*86400000`, `sampleCounts`, `'usr_buyer1'`, `'Verified Trader'` | All from DB; requirement persists; auth required |
-| `platformD.ts` | Entire `sampleAnalysis` object (fixed HS code `7208.39.00`, JSW/Tata/ArcelorMittal names, Mundra port volumes, `+2.4%` trend), `query||'steel'` default, `sampleCounts` | Delegates to `fetchTradeIntelligence()` service; `query` required |
-| `platformE.ts` | `employeeCount: '${10+index*5}-50 Employees'`, `rating: 4.8` hardcoded, `reviewsCount: 12+index*4`, `hasWebsite: true` always, `sampleCounts`, `'usr_buyer1'`, `category: 'MACHINERY'` hardcoded | All from real seller DB join; RFQ persists; category validated |
-| `buyerPreferences.ts` | GET /consent demo defaults, POST /consent echo mode, GET /workspace `{4,12,28,1}`, POST /ticket random `tck-XXX`, `assignedAgent`/`nextUpdateSla` hardcoded, GET /tickets `CS-1042` | All require auth; real DB; `verifiedSuppliersCount` is live count |
-| `featureExpansion.ts` | `matchScore: Math.min(99,90+(idx*2)%10)`, `aiSummary` hardcoded, `/match` with JSW/Tata static suppliers, `leadTitle` not required | Real RFQ-Quote DB join for `/match`; matchScore from DB or null; leadTitle required |
-
-### Frontend (`frontend/src/`)
-
-| File | Items Removed | Fix Applied |
-| :--- | :--- | :--- |
-| `PricingSection.tsx` | `demoUsage = { used: 8, limit: 10, tier: 'Starter' }` | `useEffect` calls `fetch('/api/auth/me')`; reads real `aiLookupsUsed`/`aiLookupsLimit`/`tier`; meter hidden when unauthenticated |
-| `SearchToolsModal.tsx` | `setTimeout` returning `'Hydraulic Bearing 6205'` (barcode), `'Steel TMT Rebar 12mm Fe550D'` (image), `'TMT Steel 16mm Tata Tiscon'` (voice) | Real `POST /api/search/barcode` file upload; real `POST /api/search/visual` file upload; Web Speech API (`SpeechRecognition`) for voice |
-| `register/page.tsx` | `gstNumber || '27AAAAA0000A1Z5'` on Digital ID Card | `gstNumber || undefined` — shows actual value or nothing |
+| Area | Current source finding |
+| :--- | :--- |
+| Insurance (`insurance.ts`) | Plan comparisons are hard-coded illustrative records. Consented referral leads are persisted and user-scoped; insurer/broker dispatch and callback completion are not evidenced. |
+| Transport and packaging (`businessServices.ts`) | `/transport-quotes` and `/packaging-requirements` return hard-coded sample arrays, even though related Prisma models exist. |
+| Shipments and KYC (`businessServices.ts`) | Shipment tower reads authenticated, user-scoped booking records. KYC default/sample constants remain in source; their presence alone does not establish that they are returned by the active routes. |
+| Platform activity (`platformA.ts`) | Message timestamps are fetched for the recent seven-day period and grouped by UTC weekday in application code; this is not a SQL window query. |
+| Platform D (`platformD.ts`, `marketDataService.ts`) | `fetchTradeIntelligence()` exists and delegates to the industrial market analyzer plus database counts. A trade-manifest feed, shipment history, or Gemini synthesis is not evidenced. |
+| Market analyzer and prices (`marketDataService.ts`) | Yahoo Finance and Frankfurter data are inputs, but product price ranges are multiplier-based estimates; 30-day/year history is synthesized, and fixed source labels/timestamps and template “AI” text are not verified feeds. |
+| Buyer consent (`buyerPreferences.ts`, customer-workspace page) | The API persists records, but the mounted modal lacks RFQ/supplier props and sends field names that do not match the API. Selected consent is therefore not persisted as intended. |
+| Lead sharing (`BuyerLeadSharingWhatsapp.tsx`, `featureExpansion.ts`) | Component is not mounted; request fields do not match the API. The API only returns a WhatsApp URL and does not check consent or persist delivery. |
+| Search tools (`SearchToolsModal.tsx`) | Voice input uses the browser Speech API. The UI calls barcode and visual-search endpoints for which no backend handlers are registered; HSN examples have no lookup provider. |
+| Operations (`operations.ts`, operations page) | Document and inventory APIs exist. The Day Book remains a UI placeholder without an API handler; the operations PDF button has no click handler. Route comments incorrectly list Day Book as available. |
+| Subscription (`subscription.ts`, `schema.prisma`) | Usage is surfaced in the UI, but monthly quota enforcement was not found. The subscription route changes the authenticated user's tier without payment-provider verification. |
+| Footer routes (`Footer.tsx`) | The previously flagged destinations now resolve to existing routes, but some are broad substitutes rather than dedicated feature pages (Section 10). |
+| Support and notifications (`SupportDeskModal.tsx`, `buyerPreferences.ts`, `Header.tsx`) | Ticket rows persist, but the form sends `description` and `attachment` while the API reads `details` and ignores the attachment; header notifications are local state. Help text advertises email/SMS and response SLAs not established by the implementation. |
+| KYC storage and identity export | Registration upload controls only set local booleans; re-upload stores metadata, not bytes. Digital ID email action reports success locally without sending email. |
 
 ---
 
-## 12. Master Implementation Roadmap
+## 12. Current Implementation Roadmap
 
-### Phase 1 — Critical Service Stubs (Immediate)
+This is a source-grounded sequence, not a delivery estimate or a claim that any work is complete. Resolve the release-safety and data-integrity gaps first. Items that depend on providers or product decisions are explicitly gated and should not be treated as committed scope until those decisions are made.
 
-1. **Implement `fetchTradeIntelligence(query, destination)`** in `marketDataService.ts`:
-   - Integrate with Eximpedia / ITC Trade Map API or implement Gemini-powered synthesis.
-   - `platformD.ts` `GET /intelligence` depends on this stub.
+### Phase 0 — Release safety and persistence correctness
 
-2. **Implement `POST /api/search/barcode`**:
-   - Accept multipart image, decode barcode (use `zxing` or `quagga`), return `{ query: string }`.
+1. **Enforce subscription entitlements.** Do not let a client request alone grant a paid tier. Define trusted entitlement verification (for example, an approved billing provider or an audited operator workflow); enforce tier access and lookup quotas on the server, including reset rules. If no trusted source is available, disable self-service tier upgrades rather than returning a success-shaped entitlement change.
+   - **Done when:** unauthorized tier changes are rejected; tier and quota rules are tested at the API boundary; upgrade, downgrade, reset, and failure behavior are documented.
+2. **Repair buyer-consent persistence and retrieval.** Supply the required RFQ/seller context, align request fields with the API, and define how consent is read and updated for a specific seller/RFQ. Do not initiate lead sharing unless the required seller-specific consent is present.
+   - **Done when:** a buyer can save, retrieve, change, and withdraw the intended preferences; persisted values match the choices shown in the UI; missing or withdrawn consent blocks sharing.
+3. **Repair support-ticket submission.** Align the form and API contract so ticket details are not silently empty. Decide whether attachments are supported; either implement authorized file upload and persist a usable reference, or remove the attachment affordance. Make assignee and SLA behavior explicit and ensure displayed promises match actual handling.
+   - **Done when:** submitted details are persisted and visible to the support/admin workflow; attachment behavior is truthful and tested; defaults and user-facing SLA copy agree.
+4. **Verify deployment prerequisites.** Compare the deployed database and generated Prisma Client with the checked-in schema using the approved deployment procedure; this audit did not perform a database push.
+   - **Done when:** the deployment is confirmed compatible, with migration/generation output reviewed and a rollback/recovery path identified.
 
-3. **Implement `POST /api/search/visual`**:
-   - Accept multipart image, run AI visual product match (Gemini Vision), return `{ query: string }`.
+### Phase 1 — Production data and trust signals
 
-4. **Add missing Prisma models and User fields**:
-   - Add `TransportQuote`, `Shipment`, `PackagingOption` models (see Section 9).
-   - Add missing `User` fields (`aiLookupsUsed`, `aiLookupsLimit`, `tier`, `kycDocuments`, `bankVerified`, etc.).
-   - Run `npx prisma db push` and `npx prisma generate`.
+1. **Review sensitive-document handling.** Establish where KYC files and product/factory images are actually stored, who can access them, and how access, retention, and deletion are controlled. Registration currently records local upload state, and the re-upload endpoint stores metadata rather than file bytes.
+   - **Done when:** upload, storage, authorization, retention, and deletion behavior are implemented and verified; UI claims describe that behavior accurately.
+2. **Correct market-data representation.** Either use a documented provider for product-level prices and historical series or clearly present the current multiplier-derived values and synthetic history as illustrative estimates. Remove unsupported live/verified-source and AI-analysis claims.
+   - **Done when:** every displayed value has an accurate source, timestamp, and methodology label, or is unmistakably marked illustrative; unavailable data is not presented as a live quote.
+3. **Reconcile help and feature copy.** Review notifications, encryption scope, insurance callback timing, support response targets, dispute mediation, and export claims against implemented workflows.
+   - **Done when:** each promise is backed by a working workflow and owner, or is revised/removed; encrypted messaging claims are scoped to the endpoint that actually encrypts messages.
 
-### Phase 2 — Feature Completion
+### Phase 2 — Complete confirmed product workflows
 
-1. **Fix all dead links** in `Footer.tsx` and `MegaMenu.tsx` (8 broken routes — Section 10).
-2. **Add quota enforcement**: increment `aiLookupsUsed` on every `GET /api/market` call; return 429 at monthly limit.
-3. **Add `GET /api/operations/daybook`** for daily cash/bank entry summary.
-4. **Implement 5-stage RFQ progress ribbon** on active RFQ thread UI.
-5. **Verification badge tooltips**: Show GSTIN verification date/issuer on seller profiles.
-6. **Ticket assignment workflow**: Admin UI to set `assignedAgent` and `nextUpdateSla` per ticket.
+Start each item only after product requirements, data ownership, access rules, and acceptance criteria are agreed:
 
-### Phase 3 — Polish & Compliance
+1. **Consent-based lead sharing:** mount and connect the component, align its request with the API, and decide whether the product only generates a WhatsApp link or tracks a real dispatch. Do not describe link generation as message delivery.
+2. **Insurance referrals:** decide whether the feature is informational or a provider referral. For referrals, select an approved provider/handoff and define observable callback status; otherwise keep the experience clearly informational and remove callback promises.
+3. **Transport and packaging:** decide whether these are illustrative guides or operational quote/catalog workflows. For persisted workflows, use the existing schema where it fits (or make reviewed schema changes), enforce user/role access, and provide the relevant create/update lifecycle. Do not present hard-coded samples as live quotes.
+4. **Barcode and visual search:** implement and validate the backend contracts called by `SearchToolsModal.tsx`, including provider/error behavior, or disable/remove the unsupported actions until a provider and supported inputs are defined.
+5. **Operations Day Book and PDF export:** define the authoritative financial-entry source, permissions, date/amount semantics, and export contents before implementing either. The current Day Book is a placeholder, and the PDF button is not wired.
+   - **Done when for each confirmed workflow:** the agreed user journey works end-to-end, invalid/unauthorized requests fail explicitly, persisted data is scoped correctly, and focused tests cover success and failure cases.
 
-1. **Rename subscription tier enum** in Prisma from `BASIC`/`GROWTH`/`ENTERPRISE` to `STARTER`/`GROWTH`/`BUSINESS`.
-2. **Server-side PDF generation** (Puppeteer or `@react-pdf/renderer`) for Tax Invoices and Delivery Challans.
-3. **Cloud object storage** (S3/GCS) for KYC documents, product images, and factory photos.
-4. **Build `/help` and `/support` pages** accessible from header/footer for Indian B2B compliance.
-5. **Consent withdrawal mechanism** on buyer profile settings (DELETE on `BuyerConsentLog`).
-6. **EXW/FOB/CIF freight adjustment calculator** in the Market Price Analyzer.
+### Phase 3 — Conditional scope and product decisions
+
+1. **Platform D trade data:** choose and integrate a verifiable source only if shipment/manifests or competitor trade flows are a confirmed product requirement. The current analyzer wrapper does not provide that feed. If not in scope, describe Platform D according to its implemented market-analysis and database-count inputs.
+2. **Disputes and grievances:** determine the required support/dispute process with product and compliance stakeholders. A `/help` page alone does not establish a grievance workflow or legal compliance; implement a separate workflow only if required.
+3. **Tier naming and packaging:** decide whether `BASIC`/`GROWTH`/`ENTERPRISE` should change to match customer-facing labels. If changed, plan and test the database enum/data migration before release.
+4. **Remaining support, RFQ-progress, and seller-verification UX:** document the desired behavior and reuse existing admin assignment, priority, and status controls rather than duplicating them.
+
+

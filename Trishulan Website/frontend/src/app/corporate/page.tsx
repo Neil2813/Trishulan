@@ -1,17 +1,42 @@
 "use client";
 
 import React, { useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function CorporatePage() {
   const [submitted, setSubmitted] = useState(false);
   const [serviceType, setServiceType] = useState('TRADEMARK');
   const [companyName, setCompanyName] = useState('');
   const [entityType, setEntityType] = useState('MSME');
+  const [details, setDetails] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setError('');
+    try {
+      const response = await fetch('/api/business-services/corporate-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceType,
+          companyName,
+          entityType,
+          details,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Could not submit your consultation request.');
+      }
+      setSubmitted(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Could not submit your consultation request.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -38,6 +63,12 @@ export default function CorporatePage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-ink mb-1">Corporate Service Needed</label>
@@ -77,6 +108,19 @@ export default function CorporatePage() {
               />
             </div>
 
+            <div>
+              <label htmlFor="corporate-request-details" className="mb-1 block text-xs font-bold text-ink">What do you need help with? <span className="font-medium text-muted">(optional)</span></label>
+              <textarea
+                id="corporate-request-details"
+                value={details}
+                onChange={(event) => setDetails(event.target.value)}
+                maxLength={2000}
+                rows={3}
+                placeholder="Share a few details so the team can prepare for your consultation."
+                className="w-full resize-y rounded-xl border border-gray-300 bg-card px-4 py-3 text-xs focus:border-purple-600 focus:outline-none"
+              />
+            </div>
+
             <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-xs text-purple-900 space-y-1">
               <div className="font-bold">Transparent Pricing Guarantee:</div>
               <div>• Trademark e-filing: ₹4,500 (MSME) to ₹9,000 (Standard) + filing consultation.</div>
@@ -85,9 +129,10 @@ export default function CorporatePage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition-all"
+              disabled={submitting}
+              className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:cursor-wait disabled:opacity-70 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition-all"
             >
-              Request Corporate Legal Consultation →
+              {submitting ? 'Submitting request…' : 'Request Corporate Legal Consultation →'}
             </button>
           </form>
         )}

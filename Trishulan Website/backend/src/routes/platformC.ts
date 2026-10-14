@@ -19,6 +19,7 @@ router.get('/trade-leads', async (req, res) => {
     const location = locationParam?.toLowerCase().trim();
 
     let listings = await prisma.listing.findMany({
+      where: { isPublished: true },
       orderBy: { createdAt: 'desc' },
       include: {
         seller: { select: { verifiedSeller: true } },

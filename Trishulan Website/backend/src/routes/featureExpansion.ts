@@ -24,6 +24,7 @@ router.post('/search', async (req, res) => {
 
     const listings = await prisma.listing.findMany({
       where: {
+        isPublished: true,
         ...(q ? {
           OR: [
             { title: { contains: q, mode: 'insensitive' } },

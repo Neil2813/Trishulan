@@ -79,76 +79,80 @@ enum DocType {
 
 // ── Core Models ─────────────────────────────────
 model User {
-  id               String              @id @default(cuid())
-  name             String
-  email            String              @unique
-  role             UserRole            @default(BUYER)
-  authProvider     AuthProvider        @default(JWT)
-  passwordHash     String?
-  companyName      String?
-  phone            String?
-  gstNumber        String?
-  panNumber        String?
-  industrySector   String?
-  address          String?
-  city             String?
-  state            String?
-  verifiedSeller   Boolean             @default(false)
-  kycStatus        String              @default("PENDING")
-  kycDocuments     Json                @default("[]")
-  bankVerified     Boolean             @default(false)
-  responseTimeSla  String?
-  moq              String?
-  hasCertificates  Boolean             @default(false)
-  exportReady      Boolean             @default(false)
-  employeeCount    Int?
-  websiteUrl       String?
-  averageRating    Float?
-  reviewsCount     Int                 @default(0)
-  digitalCatalogEnabled Boolean        @default(false)
-  subscriptionTier SubscriptionTier    @default(BASIC)
-  chatPublicKey    String?             // ECDH P-256 public key (JWK JSON) for E2EE DMs
+  id                    String                @id @default(cuid())
+  name                  String
+  email                 String                @unique
+  role                  UserRole              @default(BUYER)
+  isAdmin               Boolean               @default(false)
+  authProvider          AuthProvider          @default(JWT)
+  passwordHash          String?
+  companyName           String?
+  phone                 String?
+  gstNumber             String?
+  panNumber             String?
+  industrySector        String?
+  address               String?
+  city                  String?
+  state                 String?
+  verifiedSeller        Boolean               @default(false)
+  kycStatus             String                @default("PENDING")
+  kycDocuments          Json                  @default("[]")
+  bankVerified          Boolean               @default(false)
+  responseTimeSla       String?
+  moq                   String?
+  hasCertificates       Boolean               @default(false)
+  exportReady           Boolean               @default(false)
+  employeeCount         Int?
+  websiteUrl            String?
+  averageRating         Float?
+  reviewsCount          Int                   @default(0)
+  digitalCatalogEnabled Boolean               @default(false)
+  subscriptionTier      SubscriptionTier      @default(BASIC)
+  chatPublicKey         String? // ECDH P-256 public key (JWK JSON) for E2EE DMs
   // AI lookup quota enforcement (Guide pp. 26-27)
-  aiLookupsUsed    Int                 @default(0)
-  aiLookupsResetAt DateTime            @default(now())
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  listings         Listing[]
-  rfqs             RFQ[]
-  quotes           Quote[]
-  sentMessages     ChatMessage[]       @relation("SentMessages")
-  receivedMessages ChatMessage[]       @relation("ReceivedMessages")
-  logistics        LogisticsBooking[]
-  corporateReqs    CorporateRequest[]
-  supportTickets   SupportTicket[]
-  insuranceLeads   HealthInsuranceLead[]
-  documents        BusinessDocument[]
-  inventoryItems   InventoryItem[]
-  transportQuotes  TransportQuote[]
-  adviserAppointments BusinessAppointment[]
+  aiLookupsUsed         Int                   @default(0)
+  aiLookupsResetAt      DateTime              @default(now())
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  listings              Listing[]
+  rfqs                  RFQ[]
+  quotes                Quote[]
+  sentMessages          ChatMessage[]         @relation("SentMessages")
+  receivedMessages      ChatMessage[]         @relation("ReceivedMessages")
+  logistics             LogisticsBooking[]
+  corporateReqs         CorporateRequest[]
+  supportTickets        SupportTicket[]
+  insuranceLeads        HealthInsuranceLead[]
+  documents             BusinessDocument[]
+  inventoryItems        InventoryItem[]
+  transportQuotes       TransportQuote[]
+  adviserAppointments   BusinessAppointment[]
+
   @@map("users")
 }
 
 model Listing {
-  id               String          @id @default(cuid())
-  title            String
-  description      String
-  category         ListingCategory
-  price            Float
-  unit             String
-  location         String
-  sellerId         String
-  sellerName       String
-  isVerifiedSeller Boolean         @default(false)
-  imagePath        String          @default("/Bento Box/Machinery.png")
-  inStock          Boolean         @default(true)
-  moq              String?
+  id                 String          @id @default(cuid())
+  title              String
+  description        String
+  category           ListingCategory
+  price              Float
+  unit               String
+  location           String
+  sellerId           String
+  sellerName         String
+  isVerifiedSeller   Boolean         @default(false)
+  isPublished        Boolean         @default(true)
+  imagePath          String          @default("/Bento Box/Machinery.png")
+  inStock            Boolean         @default(true)
+  moq                String?
   productGroupsCount Int?
-  matchScore       Float?
-  exportReady      Boolean?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  seller           User            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  matchScore         Float?
+  exportReady        Boolean?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  seller             User            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
   @@index([category, isVerifiedSeller])
   @@index([sellerId])
   @@map("listings")
@@ -169,6 +173,7 @@ model RFQ {
   updatedAt   DateTime        @updatedAt
   buyer       User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   quotes      Quote[]
+
   @@index([buyerId, status])
   @@index([category])
   @@map("rfqs")
@@ -184,13 +189,14 @@ model ChatMessage {
   listingId     String?
   text          String   @default("") // E2EE payload: [ENC:v1:<iv_b64>:<ciphertext_b64>]
   isEncrypted   Boolean  @default(false)
-  senderKey     String?  // sender public key (JWK) used for this message
-  receiverKey   String?  // receiver public key (JWK) used for this message
+  senderKey     String? // sender public key (JWK) used for this message
+  receiverKey   String? // receiver public key (JWK) used for this message
   read          Boolean  @default(false)
   attachmentUrl String?
   timestamp     DateTime @default(now())
   sender        User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiver      User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
   @@index([senderId, receiverId, timestamp])
   @@index([receiverId, read])
   @@map("chat_messages")
@@ -208,6 +214,7 @@ model MarketPrice {
   historicalYear Json     @default("[]")
   lastUpdated    DateTime @default(now())
   dataSource     String?
+
   @@index([commodity, lastUpdated])
   @@map("market_prices")
 }
@@ -222,9 +229,9 @@ model LogisticsBooking {
   details           String
   status            LogisticsStatus      @default(PENDING)
   // Shipment Control Tower milestone fields (Guide pp. 20-23)
-  shipmentRef       String?              // e.g. TRC-2048
+  shipmentRef       String? // e.g. TRC-2048
   carrierName       String?
-  transportMode     String?              // Road-FTL, Road-PTL, Rail, Air, Sea, Multimodal
+  transportMode     String? // Road-FTL, Road-PTL, Rail, Air, Sea, Multimodal
   estimatedPrice    Float?
   insuranceIncluded Boolean              @default(false)
   transitDays       Int?
@@ -240,12 +247,13 @@ model LogisticsBooking {
   quotedFreight     Float?
   finalFreight      Float?
   // Uploaded document URLs (shared shipment folder)
-  lrDocUrl          String?              // Lorry Receipt / Transport Receipt
-  ewayBillUrl       String?              // e-Way Bill
+  lrDocUrl          String? // Lorry Receipt / Transport Receipt
+  ewayBillUrl       String? // e-Way Bill
   packingListUrl    String?
-  epodUrl           String?              // Electronic Proof of Delivery
+  epodUrl           String? // Electronic Proof of Delivery
   createdAt         DateTime             @default(now())
   user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("logistics_bookings")
 }
 
@@ -260,6 +268,7 @@ model CorporateRequest {
   status      CorporateStatus      @default(SUBMITTED)
   createdAt   DateTime             @default(now())
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("corporate_requests")
 }
 
@@ -286,6 +295,7 @@ model Quote {
   updatedAt      DateTime @updatedAt
   rfq            RFQ      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
   seller         User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
   @@index([rfqId, sellerId])
   @@map("quotes")
 }
@@ -303,6 +313,7 @@ model BuyerConsentLog {
   ipAddress           String?
   userAgent           String?
   createdAt           DateTime @default(now())
+
   @@index([buyerId, targetSellerId])
   @@map("buyer_consent_logs")
 }
@@ -312,17 +323,18 @@ model SupportTicket {
   id            String   @id @default(cuid())
   caseNumber    String   @unique // e.g. CS-0158
   userId        String
-  category      String   // Account, KYC, RFQ, Logistics, Billing, Dispute
+  category      String // Account, KYC, RFQ, Logistics, Billing, Dispute
   subject       String
   details       String
   priority      String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-  status        String   @default("OPEN")   // OPEN, WAITING_ON_REPLY, RESOLVED, CLOSED
+  status        String   @default("OPEN") // OPEN, WAITING_ON_REPLY, RESOLVED, CLOSED
   assignedAgent String?  @default("Trishulan Support Desk")
   nextUpdateSla String   @default("Within 24 hours")
   attachmentUrl String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, status])
   @@map("support_tickets")
 }
@@ -331,26 +343,27 @@ model SupportTicket {
 model HealthInsuranceLead {
   id             String   @id @default(cuid())
   userId         String
-  coverageType   String   // GROUP_EMPLOYEE, INDIVIDUAL, FAMILY, BUSINESS_OWNER
+  coverageType   String // GROUP_EMPLOYEE, INDIVIDUAL, FAMILY, BUSINESS_OWNER
   employeeCount  Int      @default(10)
   coverageSum    String   @default("5 Lakh / Employee")
   contactPhone   String
   companyName    String?
-  selectedPlan   String?  // Plan A, Plan B, Plan C (Custom)
+  selectedPlan   String? // Plan A, Plan B, Plan C (Custom)
   consentGranted Boolean  @default(true)
   status         String   @default("REQUESTED") // REQUESTED, HANDED_OFF, CONTACTED, CLOSED
   createdAt      DateTime @default(now())
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("health_insurance_leads")
 }
 
 // 5. Small-Business Billing, Invoicing & Challans (Guide pp. 28-29)
 model BusinessDocument {
-  id           String   @id @default(cuid())
-  userId       String   // Owner of the document
-  docNumber    String   // e.g. INV-1042, DC-0308, SO-5012
-  docType      DocType  @default(TAX_INVOICE)
-  partyName    String   // Buyer or Client entity name
+  id           String    @id @default(cuid())
+  userId       String // Owner of the document
+  docNumber    String // e.g. INV-1042, DC-0308, SO-5012
+  docType      DocType   @default(TAX_INVOICE)
+  partyName    String // Buyer or Client entity name
   partyGstin   String?
   partyAddress String?
   subtotal     Float
@@ -360,11 +373,12 @@ model BusinessDocument {
   status       String    @default("DRAFT") // DRAFT, ISSUED, PAID, PARTIAL, CANCELLED
   dueDate      DateTime?
   notes        String?
-  items        Json      // [{description, hsn, qty, unitPrice, gstRate, total}]
-  parentDocId  String?   // Conversion chain: source doc that generated this one
+  items        Json // [{description, hsn, qty, unitPrice, gstRate, total}]
+  parentDocId  String? // Conversion chain: source doc that generated this one
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, docType, status])
   @@map("business_documents")
 }
@@ -387,29 +401,31 @@ model InventoryItem {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, skuCode])
   @@map("inventory_items")
 }
 
 model TransportQuote {
-  id              String   @id @default(cuid())
-  userId          String
-  provider        String
-  carrierName     String?
-  mode            String?
-  route           String?
-  pickup          String?
-  destination     String?
-  capacity        String?
-  transitTime     String?
-  estimatedPrice  String?
-  rateQuote       String?
-  status          String?
+  id               String   @id @default(cuid())
+  userId           String
+  provider         String
+  carrierName      String?
+  mode             String?
+  route            String?
+  pickup           String?
+  destination      String?
+  capacity         String?
+  transitTime      String?
+  estimatedPrice   String?
+  rateQuote        String?
+  status           String?
   includedServices String?
-  exclusions      String?
-  demurrageNotes  String?
-  createdAt       DateTime @default(now())
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exclusions       String?
+  demurrageNotes   String?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, createdAt])
   @@map("transport_quotes")
 }
@@ -421,6 +437,7 @@ model PackagingOption {
   description String
   createdAt   DateTime @default(now())
   active      Boolean  @default(true)
+
   @@index([active, createdAt])
   @@map("packaging_options")
 }
@@ -434,6 +451,21 @@ model BusinessAppointment {
   status        String   @default("SCHEDULED")
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, preferredDate])
   @@map("business_appointments")
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String
+  details    Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([targetType, targetId, createdAt])
+  @@index([adminId, createdAt])
+  @@map("admin_audit_logs")
 }

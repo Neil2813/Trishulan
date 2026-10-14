@@ -28,6 +28,7 @@ router.get('/suppliers', async (req, res) => {
     }
 
     let listings = await prisma.listing.findMany({
+      where: { isPublished: true },
       orderBy: { createdAt: 'desc' },
       include: {
         seller: {

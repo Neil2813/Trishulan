@@ -515,6 +515,7 @@ export default function Header() {
           isOpen={isMegaMenuOpen} 
           onClose={() => setIsMegaMenuOpen(false)} 
           onOpenServicePoints={() => setIsServicePointsOpen(true)}
+          isAdmin={user?.isAdmin === true}
         />
       </header>
 

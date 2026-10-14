@@ -15,6 +15,7 @@ interface MegaMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenServicePoints?: () => void;
+  isAdmin?: boolean;
 }
 
 const pageSections = [
@@ -64,6 +65,7 @@ const pageSections = [
     icon: LayoutDashboard,
     pages: [
       { name: 'Live Dashboard', desc: 'Operational overview & analytics', href: '/dashboard' },
+      { name: 'Admin Overview', desc: 'Marketplace snapshot & operational shortcuts', href: '/admin' },
       { name: 'Company Profile', desc: 'Account settings & security', href: '/profile' },
       { name: 'Register Account', desc: 'Create buyer or seller profile', href: '/register' },
       { name: 'Help & Support', desc: 'Documentation & support desk', href: '/help' },
@@ -71,7 +73,7 @@ const pageSections = [
   },
 ];
 
-export default function MegaMenu({ isOpen, onClose, onOpenServicePoints }: MegaMenuProps) {
+export default function MegaMenu({ isOpen, onClose, onOpenServicePoints, isAdmin = false }: MegaMenuProps) {
   if (!isOpen) return null;
 
   return (
@@ -118,7 +120,9 @@ export default function MegaMenu({ isOpen, onClose, onOpenServicePoints }: MegaM
                 </div>
 
                 <ul className="space-y-1.5">
-                  {section.pages.map((page, pIdx) => (
+                  {section.pages
+                    .filter((page) => page.href !== '/admin' || isAdmin)
+                    .map((page, pIdx) => (
                     <li key={pIdx}>
                       {(page as any).isServicePoints ? (
                         <button

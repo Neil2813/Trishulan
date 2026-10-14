@@ -15,6 +15,7 @@ import {
   verifyUserCredentials,
   updateUserProfileInDb,
   getUserFromToken,
+  provisionAllowlistedAdmin,
 } from "../lib/auth";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
 import { isDatabaseConnectionError } from "../lib/db";
@@ -29,15 +30,17 @@ const COOKIE = {
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
-function authErrorStatus(err: any): number {
-  if (err?.name === "ZodError") return 400;
+function authErrorStatus(err: unknown): number {
+  const errorName = err instanceof Error ? err.name : undefined;
+  const errorMessage = err instanceof Error ? err.message : undefined;
+  if (errorName === "ZodError") return 400;
   if (err instanceof FirebaseVerificationUnavailableError) return 503;
   if (err instanceof FirebaseConfigurationError) return 503;
   if (isDatabaseConnectionError(err)) return 503;
   if (
-    ["JsonWebTokenError", "NotBeforeError", "TokenExpiredError"].includes(err?.name) ||
-    err?.message === "Invalid Firebase identity token" ||
-    err?.message === "A verified Firebase email address is required"
+    ["JsonWebTokenError", "NotBeforeError", "TokenExpiredError"].includes(errorName || "") ||
+    errorMessage === "Invalid Firebase identity token" ||
+    errorMessage === "A verified Firebase email address is required"
   ) return 401;
   return 500;
 }
@@ -119,15 +122,17 @@ router.post("/login", async (req, res) => {
       if (!user) {
         return res.status(404).json({ error: "No account found for this email. Register first, then sign in." });
       }
-      const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
+      const authorizedUser = await provisionAllowlistedAdmin(user);
+      const token = signJwtToken({ id: authorizedUser.id, email: authorizedUser.email, role: authorizedUser.role });
       res.cookie("trishulan_token", token, COOKIE);
-      return res.json({ success: true, user });
+      return res.json({ success: true, user: authorizedUser });
     }
 
     // JWT Password Login
     const { email, password } = loginSchema.parse(body);
 
-    const user = await verifyUserCredentials(email, password);
+    const authenticatedUser = await verifyUserCredentials(email, password);
+    const user = authenticatedUser ? await provisionAllowlistedAdmin(authenticatedUser) : null;
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
 
     const token = signJwtToken({ id: user.id, email: user.email, role: user.role });
@@ -154,8 +159,12 @@ router.get("/me", async (req: AuthenticatedRequest, res) => {
     const user = req.user ?? (await getUserFromToken(req.cookies?.trishulan_token || req.headers.authorization?.replace("Bearer ", "")));
     return res.json({ user: user ?? null });
   } catch (err: unknown) {
+    const status = authErrorStatus(err);
     console.error("Authentication session lookup failed", err instanceof Error ? err.name : "UnknownError");
-    return res.status(500).json({ user: null, error: "Unable to load your session right now. Please try again later." });
+    return res.status(status).json({
+      user: null,
+      error: authErrorMessage(err, "Unable to load your session right now. Please try again later."),
+    });
   }
 });
 
@@ -169,12 +178,13 @@ router.put("/profile", async (req: AuthenticatedRequest, res) => {
     const updated = await updateUserProfileInDb(user.id, profile);
     return res.json({ success: true, user: updated });
   } catch (err: unknown) {
-    const status = err instanceof Error && err.name === "ZodError" ? 400 : 500;
+    const status = authErrorStatus(err);
     console.error("Authentication profile update failed", err instanceof Error ? err.name : "UnknownError");
     return res.status(status).json({
-      error: status >= 500
-        ? "Unable to update your profile right now. Please try again later."
-        : err instanceof Error ? err.message : "Invalid profile details",
+      error: authErrorMessage(
+        err,
+        status >= 500 ? "Unable to update your profile right now. Please try again later." : "Invalid profile details",
+      ),
     });
   }
 });

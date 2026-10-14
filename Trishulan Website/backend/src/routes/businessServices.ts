@@ -440,6 +440,42 @@ router.post('/adviser-appointment', async (req: AuthenticatedRequest, res) => {
   }
 });
 
+// POST /api/business-services/corporate-request
+// Persists a corporate registration or trademark consultation request.
+router.post('/corporate-request', async (req: AuthenticatedRequest, res) => {
+  try {
+    if (!req.user?.id) return res.status(401).json({ error: 'Authentication required' });
+
+    const { serviceType, companyName, entityType, details } = req.body ?? {};
+    if (!['TRADEMARK', 'FIRM_REGISTRATION'].includes(serviceType)) {
+      return res.status(400).json({ error: 'Invalid corporate service type' });
+    }
+    if (typeof companyName !== 'string' || !companyName.trim()) {
+      return res.status(400).json({ error: 'Company name is required' });
+    }
+    if (entityType !== undefined && !['MSME', 'PvtLtd', 'LLP', 'Proprietorship'].includes(entityType)) {
+      return res.status(400).json({ error: 'Invalid entity type' });
+    }
+    if (details !== undefined && typeof details !== 'string') {
+      return res.status(400).json({ error: 'Request details must be a string' });
+    }
+
+    const request = await prisma.corporateRequest.create({
+      data: {
+        userId: req.user.id,
+        userName: req.user.name,
+        companyName: companyName.trim(),
+        serviceType,
+        entityType: entityType || null,
+        details: typeof details === 'string' ? details.trim() : '',
+      },
+    });
+    return res.json({ success: true, request });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to submit corporate request' });
+  }
+});
+
 // POST /api/business-services/gstin-lookup
 router.post('/gstin-lookup', async (req, res) => {
   try {

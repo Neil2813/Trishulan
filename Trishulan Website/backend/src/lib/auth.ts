@@ -1,6 +1,7 @@
 ﻿import { prisma } from "./db";
 import { User, UserRole, AuthProvider, SubscriptionTier } from "../types";
 import { hashPassword, comparePassword, verifyJwtToken } from "./security";
+import { isAdminEmailAllowed } from "./adminAuth";
 
 // ── Create User ─────────────────────────────────────────────────────────────
 export async function createUserInDb(data: {
@@ -119,7 +120,10 @@ export async function getUserFromToken(
 
   if (!row) return null;
   const { passwordHash: _, ...publicUser } = row;
-  return publicUser as User;
+  return {
+    ...publicUser,
+    isAdmin: Boolean(row.isAdmin && isAdminEmailAllowed(row.email)),
+  } as User;
 }
 
 // ── Update subscription tier ────────────────────────────────────────────────
@@ -133,4 +137,16 @@ export async function updateSubscriptionTier(
   });
   const { passwordHash: _, ...publicUser } = row as any;
   return publicUser as User;
+}
+
+export async function provisionAllowlistedAdmin(user: User): Promise<User> {
+  if (!isAdminEmailAllowed(user.email)) return { ...user, isAdmin: false };
+  if (user.isAdmin) return user;
+
+  const row = await prisma.user.update({
+    where: { id: user.id },
+    data: { isAdmin: true },
+  });
+  const { passwordHash: _, ...publicUser } = row;
+  return { ...publicUser, createdAt: row.createdAt.toISOString() } as User;
 }

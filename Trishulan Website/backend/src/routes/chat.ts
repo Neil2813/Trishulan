@@ -182,7 +182,7 @@ router.get("/", async (req: AuthenticatedRequest, res) => {
     const listingIds = [...new Set(chats.map((c) => c.listingId).filter(Boolean))] as string[];
     const listings = listingIds.length
       ? await prisma.listing.findMany({
-          where: { id: { in: listingIds } },
+          where: { id: { in: listingIds }, isPublished: true },
           select: { id: true, title: true, price: true, unit: true, location: true, category: true, imagePath: true },
         })
       : [];

@@ -26,6 +26,8 @@ Create a database named `trishulan_db` in your local PostgreSQL instance.
 cd backend
 npm install
 # Edit .env — set DATABASE_URL to your PostgreSQL connection string
+# Set ADMIN_EMAILS to a comma-separated list of existing administrator account emails.
+# Admin accounts must sign in normally; public registration cannot set admin privileges.
 # Configure GST_API_URL / GST_API_KEY and Sandbox PAN_API_URL / PAN_API_KEY / PAN_API_SECRET on the backend
 # (never put provider keys in frontend or NEXT_PUBLIC_ variables).
 npm run generate      # Generate Prisma client
@@ -74,8 +76,12 @@ All frontend API calls proxy through Next.js rewrites to `http://localhost:5000/
 | `/api/kyc/verify-gstin`   | POST   | Verify GSTIN             |
 | `/api/kyc/verify-pan`     | POST   | Verify PAN               |
 | `/api/business-services/pincode-lookup` | GET | Look up city, district, and state by 6-digit PIN |
+`/api/admin/overview` | GET | Allowlisted admin overview and operational queues |
+`/api/admin/:queue/:id` | PATCH | Audited KYC, support, referral, shipment, RFQ, and listing actions |
 
 Provider-backed GSTIN and PAN verification fails closed if credentials are missing or the provider does not return an explicit matching active/valid record. PAN verification uses Sandbox authentication and requires the end user's PAN name, date of birth, consent, and purpose. Sensitive GSTIN/PAN lookups require authentication, are sent in POST bodies, and are rate-limited to 10 requests per IP per 15 minutes.
+
+The admin workspace uses the backend-only `ADMIN_EMAILS` allowlist. Set it after the intended accounts exist, then have each allowlisted user authenticate; no frontend or public registration field grants admin access. Before starting the backend after a schema change, run `npm run generate` and `npm run db:push` from `backend/` to add the admin audit, listing visibility, and admin-access columns. Admin APIs verify both the persisted account flag and the current email allowlist on every request.
 
 ---
 
