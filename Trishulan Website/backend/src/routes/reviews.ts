@@ -65,7 +65,10 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     });
 
     const reviewsCount = allUserRatings.length;
-    const avg = allUserRatings.reduce((sum, r) => sum + r.rating, 0) / reviewsCount;
+    const avg =
+      reviewsCount > 0
+        ? allUserRatings.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviewsCount
+        : 0;
     const averageRating = Math.round(avg * 10) / 10;
 
     await prisma.user.update({
